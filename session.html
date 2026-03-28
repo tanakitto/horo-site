@@ -18,8 +18,6 @@
           "surface": "#150822",
           "on-surface": "#f3deff",
           "on-surface-variant": "#b8a4c6",
-          "surface-container": "#221232",
-          "surface-container-high": "#29173a",
           "outline-variant": "#51425f",
           "outline": "#816f8f",
           "background": "#150822",
@@ -55,13 +53,14 @@
     from { opacity: 0; transform: translateY(16px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  .prompt-btn:hover {
+  .suggestion-btn {
+    background: rgba(49, 29, 67, 0.4);
+    border: 1px solid rgba(81, 66, 95, 0.4);
+    transition: all 0.2s;
+  }
+  .suggestion-btn:hover {
     border-color: rgba(201, 152, 255, 0.5);
     background: rgba(201, 152, 255, 0.05);
-  }
-  .prompt-btn.selected {
-    border-color: #c998ff;
-    background: rgba(201, 152, 255, 0.1);
   }
   .spin {
     animation: spin 1.5s linear infinite;
@@ -70,9 +69,17 @@
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
   }
-  .resonance-btn:hover {
-    opacity: 0.85;
-    transform: scale(0.98);
+  textarea:focus {
+    outline: none;
+    border-color: rgba(201, 152, 255, 0.6);
+    box-shadow: 0 0 0 2px rgba(201, 152, 255, 0.1);
+  }
+  .card-reversed {
+    transform: rotate(180deg);
+  }
+  .reversed-badge {
+    background: rgba(201, 152, 255, 0.15);
+    border: 1px solid rgba(201, 152, 255, 0.3);
   }
 </style>
 </head>
@@ -89,28 +96,49 @@
 
 <main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
 
-  <!-- STEP 1: Entry Prompts -->
-  <section id="step-1" class="min-h-screen flex flex-col justify-center items-center text-center space-y-10 fade-in">
+  <!-- STEP 1: Input + Suggestions -->
+  <section id="step-1" class="min-h-screen flex flex-col justify-center items-center text-center space-y-8 fade-in">
     <div class="space-y-3">
       <p class="font-label text-primary tracking-[0.2rem] uppercase text-xs">The Beginning</p>
       <h2 class="font-headline text-4xl md:text-5xl text-on-background">ตอนนี้รู้สึกอะไรอยู่?</h2>
+      <p class="font-body text-on-surface-variant text-sm">พิมพ์ในช่องด้านล่าง หรือเลือกจากตัวอย่าง</p>
     </div>
-    <div class="w-full max-w-xl flex flex-col gap-4">
-      <button class="prompt-btn glass-obsidian p-6 rounded-xl text-left border border-outline-variant/30 transition-all" onclick="selectPrompt(this, 'รู้สึกเคว้ง ๆ บอกไม่ถูกว่าเพราะอะไร')">
-        <span class="font-body text-lg text-on-surface">รู้สึกเคว้ง ๆ บอกไม่ถูกว่าเพราะอะไร</span>
+
+    <div class="w-full max-w-xl space-y-3">
+      <div class="relative">
+        <textarea
+          id="prompt-input"
+          maxlength="200"
+          rows="3"
+          placeholder="เช่น รู้สึกเคว้งๆ ไม่รู้เพราะอะไร..."
+          class="w-full glass-obsidian border border-outline-variant/30 rounded-xl px-5 py-4 font-body text-on-surface text-base resize-none placeholder:text-outline transition-all"
+          oninput="updateCharCount()"
+          onkeydown="handleKey(event)"
+        ></textarea>
+        <span id="char-count" class="absolute bottom-3 right-4 text-xs text-outline">0/200</span>
+      </div>
+      <button
+        id="submit-btn"
+        onclick="submitPrompt()"
+        class="w-full py-4 bg-primary text-on-primary font-label font-bold rounded-xl text-sm uppercase tracking-widest transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-40"
+        disabled
+      >
+        จั่วไพ่เลย →
       </button>
-      <button class="prompt-btn glass-obsidian p-6 rounded-xl text-left border border-outline-variant/30 transition-all" onclick="selectPrompt(this, 'ไม่รู้จะลองเปลี่ยนอะไรสักอย่างดีไหม')">
-        <span class="font-body text-lg text-on-surface">ไม่รู้จะลองเปลี่ยนอะไรสักอย่างดีไหม</span>
-      </button>
-      <button class="prompt-btn glass-obsidian p-6 rounded-xl text-left border border-outline-variant/30 transition-all" onclick="selectPrompt(this, 'มีเรื่องที่อยากทำ แต่ยังไม่กล้าเริ่ม')">
-        <span class="font-body text-lg text-on-surface">มีเรื่องที่อยากทำ แต่ยังไม่กล้าเริ่ม</span>
-      </button>
-      <button class="prompt-btn glass-obsidian p-6 rounded-xl text-left border border-outline-variant/30 transition-all" onclick="selectPrompt(this, 'รู้สึกว่าความสัมพันธ์บางอย่างมันคลอนแคลน')">
-        <span class="font-body text-lg text-on-surface">รู้สึกว่าความสัมพันธ์บางอย่างมันคลอนแคลน</span>
-      </button>
-      <button class="prompt-btn glass-obsidian p-6 rounded-xl text-left border border-outline-variant/30 transition-all" onclick="selectPrompt(this, 'ทำไมเรื่องดี ๆ ถึงไม่ค่อยเกิดกับเราบ้าง')">
-        <span class="font-body text-lg text-on-surface">ทำไมเรื่องดี ๆ ถึงไม่ค่อยเกิดกับเราบ้าง</span>
-      </button>
+    </div>
+
+    <div class="w-full max-w-xl flex items-center gap-4">
+      <div class="flex-1 h-px bg-outline-variant/20"></div>
+      <span class="text-xs text-outline font-label uppercase tracking-widest">หรือเลือกจากนี้</span>
+      <div class="flex-1 h-px bg-outline-variant/20"></div>
+    </div>
+
+    <div class="w-full max-w-xl flex flex-col gap-3">
+      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-on-surface-variant" onclick="fillPrompt('รู้สึกเคว้ง ๆ บอกไม่ถูกว่าเพราะอะไร')">รู้สึกเคว้ง ๆ บอกไม่ถูกว่าเพราะอะไร</button>
+      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-on-surface-variant" onclick="fillPrompt('ไม่รู้จะลองเปลี่ยนอะไรสักอย่างดีไหม')">ไม่รู้จะลองเปลี่ยนอะไรสักอย่างดีไหม</button>
+      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-on-surface-variant" onclick="fillPrompt('มีเรื่องที่อยากทำ แต่ยังไม่กล้าเริ่ม')">มีเรื่องที่อยากทำ แต่ยังไม่กล้าเริ่ม</button>
+      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-on-surface-variant" onclick="fillPrompt('รู้สึกว่าความสัมพันธ์บางอย่างมันคลอนแคลน')">รู้สึกว่าความสัมพันธ์บางอย่างมันคลอนแคลน</button>
+      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-on-surface-variant" onclick="fillPrompt('ทำไมเรื่องดี ๆ ถึงไม่ค่อยเกิดกับเราบ้าง')">ทำไมเรื่องดี ๆ ถึงไม่ค่อยเกิดกับเราบ้าง</button>
     </div>
   </section>
 
@@ -126,53 +154,48 @@
     <p class="font-body text-on-surface-variant text-sm">กำลังจั่วไพ่ให้คุณ...</p>
   </section>
 
-  <!-- STEP 3: Card + Reading + Resonance (all in one page) -->
+  <!-- STEP 3: Card + Reading + Resonance -->
   <section id="step-3" class="hidden py-12 space-y-16 fade-in">
 
-    <!-- Card -->
     <div class="flex flex-col items-center gap-10">
+      <!-- Card visual -->
       <div class="relative w-48 h-72 shrink-0 rounded-xl overflow-hidden shadow-2xl celestial-glow">
-        <div class="w-full h-full bg-gradient-to-b from-[#2D0060] to-[#080015] flex items-center justify-center">
+        <div id="card-visual" class="w-full h-full bg-gradient-to-b from-[#2D0060] to-[#080015] flex items-center justify-center transition-transform duration-700">
           <span class="material-symbols-outlined text-primary text-6xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
         </div>
       </div>
 
       <!-- Reading -->
-      <div class="text-center space-y-6 max-w-xl">
-        <div>
-          <p class="font-label text-primary tracking-[0.2rem] uppercase text-xs mb-2">The Revelation</p>
+      <div class="text-center space-y-5 max-w-xl">
+        <div class="space-y-2">
+          <p class="font-label text-primary tracking-[0.2rem] uppercase text-xs">The Revelation</p>
           <h3 id="card-name" class="font-headline text-4xl text-on-background"></h3>
+          <!-- Reversed badge -->
+          <div id="reversed-badge" class="hidden reversed-badge inline-flex items-center gap-1 px-3 py-1 rounded-full">
+            <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">rotate_180</span>
+            <span class="font-label text-primary text-xs uppercase tracking-widest">กลับหัว (Reversed)</span>
+          </div>
         </div>
         <p id="card-reading" class="font-body text-lg leading-relaxed text-on-surface-variant"></p>
         <p id="card-question" class="font-headline italic text-xl text-primary/80"></p>
       </div>
     </div>
 
-    <!-- Divider -->
     <div class="h-px w-full bg-outline-variant/20"></div>
 
-    <!-- Resonance — stays below reading, never replaces it -->
+    <!-- Resonance -->
     <div id="resonance-section" class="glass-obsidian p-10 rounded-2xl border border-outline-variant/10 text-center space-y-8">
       <h4 class="font-headline text-2xl text-on-background">การ์ดใบนี้ตรงกับความรู้สึกคุณไหม?</h4>
       <div class="flex flex-wrap justify-center gap-4">
-        <button onclick="selectResonance('ใช่เลย')" class="resonance-btn px-8 py-3 bg-primary text-on-primary font-body font-semibold rounded-full transition-all">
-          ใช่เลย
-        </button>
-        <button onclick="selectResonance('ใกล้เคียง')" class="resonance-btn px-8 py-3 border border-primary/40 text-primary font-body rounded-full hover:bg-primary/5 transition-all">
-          ใกล้เคียง
-        </button>
-        <button onclick="selectResonance('ไม่ค่อยตรง')" class="resonance-btn px-8 py-3 border border-outline/40 text-outline font-body rounded-full hover:bg-outline/5 transition-all">
-          ไม่ค่อยตรง
-        </button>
+        <button onclick="selectResonance('ใช่เลย')" class="resonance-btn px-8 py-3 bg-primary text-on-primary font-body font-semibold rounded-full transition-all active:scale-95 hover:opacity-90">ใช่เลย</button>
+        <button onclick="selectResonance('ใกล้เคียง')" class="resonance-btn px-8 py-3 border border-primary/40 text-primary font-body rounded-full hover:bg-primary/5 active:scale-95 transition-all">ใกล้เคียง</button>
+        <button onclick="selectResonance('ไม่ค่อยตรง')" class="resonance-btn px-8 py-3 border border-outline/40 text-outline font-body rounded-full hover:bg-outline/5 active:scale-95 transition-all">ไม่ค่อยตรง</button>
       </div>
-      <!-- Thank you message — appears here after tapping, reading stays visible above -->
-      <div id="thank-you-section" class="hidden space-y-6 fade-in">
+      <div id="thank-you-section" class="hidden space-y-6 fade-in pt-4">
         <div class="h-px w-full bg-outline-variant/20"></div>
-        <span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">stars</span>
+        <span class="material-symbols-outlined text-primary text-4xl block" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">stars</span>
         <p id="thank-you-msg" class="font-body text-on-surface-variant text-lg"></p>
-        <button onclick="location.reload()" class="px-8 py-3 border border-primary/40 text-primary font-body rounded-full hover:bg-primary/5 transition-all">
-          เริ่มใหม่อีกครั้ง
-        </button>
+        <button onclick="location.reload()" class="px-8 py-3 border border-primary/40 text-primary font-body rounded-full hover:bg-primary/5 transition-all">เริ่มใหม่อีกครั้ง</button>
       </div>
     </div>
 
@@ -181,15 +204,54 @@
 </main>
 
 <script>
-  let cardDrawn = '';
+  // ── Full 78-card deck ─────────────────────────────────────────────────
+  const majorArcana = [
+    'The Fool', 'The Magician', 'The High Priestess', 'The Empress',
+    'The Emperor', 'The Hierophant', 'The Lovers', 'The Chariot',
+    'Strength', 'The Hermit', 'Wheel of Fortune', 'Justice',
+    'The Hanged Man', 'Death', 'Temperance', 'The Devil',
+    'The Tower', 'The Star', 'The Moon', 'The Sun',
+    'Judgement', 'The World'
+  ];
 
-  const tarotCards = {
-    'รู้สึกเคว้ง ๆ บอกไม่ถูกว่าเพราะอะไร': 'The Moon',
-    'ไม่รู้จะลองเปลี่ยนอะไรสักอย่างดีไหม': 'The Fool',
-    'มีเรื่องที่อยากทำ แต่ยังไม่กล้าเริ่ม': 'The Hermit',
-    'รู้สึกว่าความสัมพันธ์บางอย่างมันคลอนแคลน': 'The Lovers',
-    'ทำไมเรื่องดี ๆ ถึงไม่ค่อยเกิดกับเราบ้าง': 'Wheel of Fortune',
-  };
+  const suits = ['Wands', 'Cups', 'Swords', 'Pentacles'];
+  const ranks = ['Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Page','Knight','Queen','King'];
+
+  const minorArcana = suits.flatMap(suit => ranks.map(rank => rank + ' of ' + suit));
+
+  const fullDeck = [...majorArcana, ...minorArcana]; // 78 cards total
+
+  function drawCard() {
+    const card = fullDeck[Math.floor(Math.random() * fullDeck.length)];
+    const reversed = Math.random() < 0.3; // 30% chance reversed
+    return { card, reversed };
+  }
+
+  // ── UI helpers ─────────────────────────────────────────────────────────
+  function updateCharCount() {
+    const input = document.getElementById('prompt-input');
+    const count = document.getElementById('char-count');
+    const btn = document.getElementById('submit-btn');
+    const len = input.value.trim().length;
+    count.textContent = input.value.length + '/200';
+    count.style.color = input.value.length > 180 ? '#ff6e84' : '#816f8f';
+    btn.disabled = len === 0;
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (document.getElementById('prompt-input').value.trim().length > 0) submitPrompt();
+    }
+  }
+
+  function fillPrompt(text) {
+    const input = document.getElementById('prompt-input');
+    input.value = text;
+    input.focus();
+    updateCharCount();
+    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 
   function showStep(n) {
     ['step-1','step-2','step-3'].forEach(id => {
@@ -199,55 +261,68 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function selectPrompt(btn, prompt) {
-    cardDrawn = tarotCards[prompt] || 'The Star';
-    document.querySelectorAll('.prompt-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    setTimeout(() => {
-      showStep(2);
-      callClaudeAPI(prompt, cardDrawn);
-    }, 600);
+  // ── Submit ─────────────────────────────────────────────────────────────
+  function submitPrompt() {
+    const prompt = document.getElementById('prompt-input').value.trim();
+    if (!prompt) return;
+    const { card, reversed } = drawCard();
+    showStep(2);
+    callClaudeAPI(prompt, card, reversed);
   }
 
-  async function callClaudeAPI(prompt, card) {
+  // ── Claude API ─────────────────────────────────────────────────────────
+  async function callClaudeAPI(prompt, card, reversed) {
+    const cardLabel = card + (reversed ? ' (Reversed)' : '');
     try {
       const response = await fetch('/.netlify/functions/reading', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: prompt, card: card })
+        body: JSON.stringify({ prompt, card: cardLabel, reversed })
       });
 
       if (!response.ok) throw new Error('API error: ' + response.status);
 
       const data = await response.json();
-      showReading(card, data.reading, data.question);
+      showReading(card, reversed, data.reading, data.question);
 
     } catch (err) {
       console.error('Error:', err);
       showReading(
-        card,
-        card + ' มาในช่วงเวลาที่คุณรู้สึก "' + prompt + '" — ไพ่ใบนี้ไม่ได้บอกว่าคุณผิดหรือถูก แค่ชวนให้หยุดฟังสิ่งที่ใจกำลังพูดอยู่',
+        card, reversed,
+        card + (reversed ? ' (กลับหัว)' : '') + ' มาในช่วงเวลาที่คุณรู้สึก "' + prompt + '" — ไพ่ใบนี้ชวนให้หยุดฟังสิ่งที่ใจกำลังพูดอยู่',
         'มีอะไรที่คุณรู้อยู่แล้วแต่ยังไม่พร้อมจะบอกตัวเองไหม?'
       );
     }
   }
 
-  function showReading(card, reading, question) {
+  // ── Show reading ───────────────────────────────────────────────────────
+  function showReading(card, reversed, reading, question) {
     document.getElementById('card-name').textContent = card;
     document.getElementById('card-reading').textContent = reading;
     document.getElementById('card-question').textContent = '\u201c' + question + '\u201d';
+
+    // Reversed visual
+    const visual = document.getElementById('card-visual');
+    const badge = document.getElementById('reversed-badge');
+    if (reversed) {
+      visual.classList.add('card-reversed');
+      badge.classList.remove('hidden');
+    } else {
+      visual.classList.remove('card-reversed');
+      badge.classList.add('hidden');
+    }
+
     showStep(3);
   }
 
+  // ── Resonance ──────────────────────────────────────────────────────────
   function selectResonance(score) {
     const messages = {
       'ใช่เลย': 'ดีใจที่มันตรง ไพ่จำคุณไว้แล้ว',
       'ใกล้เคียง': 'บางอย่างที่ตรง บางอย่างที่ไม่ — นั่นก็เป็นคำตอบในตัวเอง',
       'ไม่ค่อยตรง': 'ไม่เป็นไร บางครั้งไพ่พูดถึงสิ่งที่ยังมาไม่ถึง'
     };
-    // Hide resonance buttons
     document.querySelectorAll('.resonance-btn').forEach(b => b.classList.add('hidden'));
-    // Show thank you below — reading stays visible above
     document.getElementById('thank-you-msg').textContent = messages[score] || '';
     document.getElementById('thank-you-section').classList.remove('hidden');
     document.getElementById('thank-you-section').scrollIntoView({ behavior: 'smooth' });
