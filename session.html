@@ -181,7 +181,7 @@
     <div class="h-px w-full bg-outline-variant/20"></div>
 
     <!-- Resonance -->
-    <div id="resonance-section" class="glass-obsidian p-10 rounded-2xl border border-outline-variant/10 text-center space-y-8">
+    <div class="glass-obsidian p-10 rounded-2xl border border-outline-variant/10 text-center space-y-8">
       <h4 class="font-headline text-2xl text-on-background">การ์ดใบนี้ตรงกับความรู้สึกคุณไหม?</h4>
       <div class="flex flex-wrap justify-center gap-4">
         <button onclick="selectResonance('ใช่เลย')" class="resonance-btn px-8 py-3 bg-primary text-on-primary font-body font-semibold rounded-full transition-all active:scale-95 hover:opacity-90">ใช่เลย</button>
@@ -258,11 +258,12 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // ── Submit ─────────────────────────────────────────────────────────────
+  // ── State ──────────────────────────────────────────────────────────────
   let currentPrompt = '';
   let currentCard = '';
   let currentReversed = false;
 
+  // ── Submit ─────────────────────────────────────────────────────────────
   function submitPrompt() {
     const prompt = document.getElementById('prompt-input').value.trim();
     if (!prompt) return;
@@ -274,25 +275,18 @@
     callClaudeAPI(prompt, card, reversed);
   }
 
-  // ── Claude API via Netlify Function ───────────────────────────────────
+  // ── Claude API ─────────────────────────────────────────────────────────
   async function callClaudeAPI(prompt, card, reversed) {
     const cardLabel = card + (reversed ? ' (Reversed)' : '');
     try {
       const response = await fetch('/.netlify/functions/reading', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt,
-          card: cardLabel,
-          reversed,
-          email: userEmail
-        })
+        body: JSON.stringify({ prompt, card: cardLabel, reversed, email: userEmail })
       });
-
-      if (!response.ok) throw new Error('API error: ' + response.status);
+      if (!response.ok) throw new Error('API error');
       const data = await response.json();
       showReading(card, reversed, data.reading, data.question);
-
     } catch (err) {
       console.error('Error:', err);
       showReading(
@@ -328,33 +322,22 @@
       'ไม่ค่อยตรง': 'ไม่เป็นไร บางครั้งไพ่พูดถึงสิ่งที่ยังมาไม่ถึง'
     };
 
-    // Update resonance score in Airtable
-    updateResonance(score);
-
+    // Hide buttons, show thank you
     document.querySelectorAll('.resonance-btn').forEach(b => b.classList.add('hidden'));
     document.getElementById('thank-you-msg').textContent = messages[score] || '';
     document.getElementById('thank-you-section').classList.remove('hidden');
     document.getElementById('thank-you-section').scrollIntoView({ behavior: 'smooth' });
-  }
 
-  // ── Update resonance in Airtable ───────────────────────────────────────
-  async function updateResonance(score) {
-    try {
-      await fetch('/.netlify/functions/reading', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'resonance',
-          email: userEmail,
-          prompt: currentPrompt,
-          card: currentCard,
-          reversed: currentReversed,
-          resonance: score
-        })
-      });
-    } catch (err) {
-      console.error('Resonance update error:', err);
-    }
+    // Update Airtable resonance score
+    fetch('/.netlify/functions/resonance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: userEmail,
+        prompt: currentPrompt,
+        score: score
+      })
+    }).catch(err => console.error('Resonance error:', err));
   }
 
   showStep(1);
