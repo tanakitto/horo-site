@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html class="dark" lang="th">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Personal Mythology Engine — Session</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#c998ff",
+          "on-primary": "#45007e",
+          "surface": "#150822",
+          "on-surface": "#f3deff",
+          "on-surface-variant": "#b8a4c6",
+          "surface-container": "#221232",
+          "surface-container-high": "#29173a",
+          "outline-variant": "#51425f",
+          "outline": "#816f8f",
+          "background": "#150822",
+          "on-background": "#f3deff",
+        },
+        fontFamily: {
+          "headline": ["Noto Serif", "serif"],
+          "body": ["Anuphan", "sans-serif"],
+          "label": ["Anuphan", "sans-serif"]
+        },
+      },
+    },
+  }
+</script>
+<style>
+  body {
+    background: radial-gradient(circle at 50% 50%, #150822 0%, #080015 100%);
+    color: #f3deff;
+    font-family: 'Anuphan', sans-serif;
+    min-height: 100dvh;
+  }
+  .glass-obsidian {
+    background: rgba(49, 29, 67, 0.4);
+    backdrop-filter: blur(12px);
+  }
+  .celestial-glow {
+    box-shadow: 0 0 40px rgba(201, 152, 255, 0.15);
+  }
+  .fade-in {
+    animation: fadeIn 0.8s ease-in-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .prompt-btn:hover {
+    border-color: rgba(201, 152, 255, 0.5);
+    background: rgba(201, 152, 255, 0.05);
+  }
+  .prompt-btn.selected {
+    border-color: #c998ff;
+    background: rgba(201, 152, 255, 0.1);
+  }
+  .spin {
+    animation: spin 1.5s linear infinite;
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .resonance-btn:hover {
+    opacity: 0.85;
+    transform: scale(0.98);
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 bg-[#150822] shadow-[0_0_20px_rgba(201,152,255,0.05)]">
+  <div class="flex items-center gap-3">
+    <span class="material-symbols-outlined text-purple-300" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
+    <h1 class="font-headline text-xl tracking-wide text-purple-300 italic">Personal Mythology Engine</h1>
+  </div>
+  <a href="/" class="text-[10px] uppercase tracking-widest text-[#816F8F] hover:text-[#C998FF] transition-colors font-label">← กลับ</a>
+</header>
+
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
+
+  <!-- STEP 1: Entry Prompts -->
+  <section id="step-1" class="min-h-screen flex flex-col justify-center items-center text-center space-y-10 fade-in">
+    <div class="space-y-3">
+      <p class="font-label text-primary tracking-[0.2rem] uppercase text-xs">The Beginning</p>
+      <h2 class="font-headline text-4xl md:text-5xl text-on-background">ตอนนี้รู้สึกอะไรอยู่?</h2>
+    </div>
+    <div class="w-full max-w-xl flex flex-col gap-4">
+      <button class="prompt-btn glass-obsidian p-6 rounded-xl text-left border border-outline-variant/30 transition-all" onclick="selectPrompt(this, 'รู้สึกเคว้ง ๆ บอกไม่ถูกว่าเพราะอะไร')">
+        <span class="font-body text-lg text-on-surface">รู้สึกเคว้ง ๆ บอกไม่ถูกว่าเพราะอะไร</span>
+      </button>
+      <button class="prompt-btn glass-obsidian p-6 rounded-xl text-left border border-outline-variant/30 transition-all" onclick="selectPrompt(this, 'ไม่รู้จะลองเปลี่ยนอะไรสักอย่างดีไหม')">
+        <span class="font-body text-lg text-on-surface">ไม่รู้จะลองเปลี่ยนอะไรสักอย่างดีไหม</span>
+      </button>
+      <button class="prompt-btn glass-obsidian p-6 rounded-xl text-left border border-outline-variant/30 transition-all" onclick="selectPrompt(this, 'มีเรื่องที่อยากทำ แต่ยังไม่กล้าเริ่ม')">
+        <span class="font-body text-lg text-on-surface">มีเรื่องที่อยากทำ แต่ยังไม่กล้าเริ่ม</span>
+      </button>
+      <button class="prompt-btn glass-obsidian p-6 rounded-xl text-left border border-outline-variant/30 transition-all" onclick="selectPrompt(this, 'รู้สึกว่าความสัมพันธ์บางอย่างมันคลอนแคลน')">
+        <span class="font-body text-lg text-on-surface">รู้สึกว่าความสัมพันธ์บางอย่างมันคลอนแคลน</span>
+      </button>
+      <button class="prompt-btn glass-obsidian p-6 rounded-xl text-left border border-outline-variant/30 transition-all" onclick="selectPrompt(this, 'ทำไมเรื่องดี ๆ ถึงไม่ค่อยเกิดกับเราบ้าง')">
+        <span class="font-body text-lg text-on-surface">ทำไมเรื่องดี ๆ ถึงไม่ค่อยเกิดกับเราบ้าง</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- STEP 2: Loading -->
+  <section id="step-2" class="hidden min-h-screen flex flex-col justify-center items-center text-center space-y-8 fade-in">
+    <div class="relative w-24 h-24">
+      <div class="w-24 h-24 rounded-full border-t-2 border-primary/60 spin absolute inset-0"></div>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
+      </div>
+    </div>
+    <p class="font-headline italic text-2xl text-on-background/80">หลับตา ทำใจให้สบายๆ</p>
+    <p class="font-body text-on-surface-variant text-sm">กำลังจั่วไพ่ให้คุณ...</p>
+  </section>
+
+  <!-- STEP 3: Card + Reading + Resonance (all in one page) -->
+  <section id="step-3" class="hidden py-12 space-y-16 fade-in">
+
+    <!-- Card -->
+    <div class="flex flex-col items-center gap-10">
+      <div class="relative w-48 h-72 shrink-0 rounded-xl overflow-hidden shadow-2xl celestial-glow">
+        <div class="w-full h-full bg-gradient-to-b from-[#2D0060] to-[#080015] flex items-center justify-center">
+          <span class="material-symbols-outlined text-primary text-6xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
+        </div>
+      </div>
+
+      <!-- Reading -->
+      <div class="text-center space-y-6 max-w-xl">
+        <div>
+          <p class="font-label text-primary tracking-[0.2rem] uppercase text-xs mb-2">The Revelation</p>
+          <h3 id="card-name" class="font-headline text-4xl text-on-background"></h3>
+        </div>
+        <p id="card-reading" class="font-body text-lg leading-relaxed text-on-surface-variant"></p>
+        <p id="card-question" class="font-headline italic text-xl text-primary/80"></p>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="h-px w-full bg-outline-variant/20"></div>
+
+    <!-- Resonance — stays below reading, never replaces it -->
+    <div id="resonance-section" class="glass-obsidian p-10 rounded-2xl border border-outline-variant/10 text-center space-y-8">
+      <h4 class="font-headline text-2xl text-on-background">การ์ดใบนี้ตรงกับความรู้สึกคุณไหม?</h4>
+      <div class="flex flex-wrap justify-center gap-4">
+        <button onclick="selectResonance('ใช่เลย')" class="resonance-btn px-8 py-3 bg-primary text-on-primary font-body font-semibold rounded-full transition-all">
+          ใช่เลย
+        </button>
+        <button onclick="selectResonance('ใกล้เคียง')" class="resonance-btn px-8 py-3 border border-primary/40 text-primary font-body rounded-full hover:bg-primary/5 transition-all">
+          ใกล้เคียง
+        </button>
+        <button onclick="selectResonance('ไม่ค่อยตรง')" class="resonance-btn px-8 py-3 border border-outline/40 text-outline font-body rounded-full hover:bg-outline/5 transition-all">
+          ไม่ค่อยตรง
+        </button>
+      </div>
+      <!-- Thank you message — appears here after tapping, reading stays visible above -->
+      <div id="thank-you-section" class="hidden space-y-6 fade-in">
+        <div class="h-px w-full bg-outline-variant/20"></div>
+        <span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">stars</span>
+        <p id="thank-you-msg" class="font-body text-on-surface-variant text-lg"></p>
+        <button onclick="location.reload()" class="px-8 py-3 border border-primary/40 text-primary font-body rounded-full hover:bg-primary/5 transition-all">
+          เริ่มใหม่อีกครั้ง
+        </button>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<script>
+  let cardDrawn = '';
+
+  const tarotCards = {
+    'รู้สึกเคว้ง ๆ บอกไม่ถูกว่าเพราะอะไร': 'The Moon',
+    'ไม่รู้จะลองเปลี่ยนอะไรสักอย่างดีไหม': 'The Fool',
+    'มีเรื่องที่อยากทำ แต่ยังไม่กล้าเริ่ม': 'The Hermit',
+    'รู้สึกว่าความสัมพันธ์บางอย่างมันคลอนแคลน': 'The Lovers',
+    'ทำไมเรื่องดี ๆ ถึงไม่ค่อยเกิดกับเราบ้าง': 'Wheel of Fortune',
+  };
+
+  function showStep(n) {
+    ['step-1','step-2','step-3'].forEach(id => {
+      document.getElementById(id).classList.add('hidden');
+    });
+    document.getElementById('step-' + n).classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function selectPrompt(btn, prompt) {
+    cardDrawn = tarotCards[prompt] || 'The Star';
+    document.querySelectorAll('.prompt-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    setTimeout(() => {
+      showStep(2);
+      callClaudeAPI(prompt, cardDrawn);
+    }, 600);
+  }
+
+  async function callClaudeAPI(prompt, card) {
+    try {
+      const response = await fetch('/.netlify/functions/reading', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: prompt, card: card })
+      });
+
+      if (!response.ok) throw new Error('API error: ' + response.status);
+
+      const data = await response.json();
+      showReading(card, data.reading, data.question);
+
+    } catch (err) {
+      console.error('Error:', err);
+      showReading(
+        card,
+        card + ' มาในช่วงเวลาที่คุณรู้สึก "' + prompt + '" — ไพ่ใบนี้ไม่ได้บอกว่าคุณผิดหรือถูก แค่ชวนให้หยุดฟังสิ่งที่ใจกำลังพูดอยู่',
+        'มีอะไรที่คุณรู้อยู่แล้วแต่ยังไม่พร้อมจะบอกตัวเองไหม?'
+      );
+    }
+  }
+
+  function showReading(card, reading, question) {
+    document.getElementById('card-name').textContent = card;
+    document.getElementById('card-reading').textContent = reading;
+    document.getElementById('card-question').textContent = '\u201c' + question + '\u201d';
+    showStep(3);
+  }
+
+  function selectResonance(score) {
+    const messages = {
+      'ใช่เลย': 'ดีใจที่มันตรง ไพ่จำคุณไว้แล้ว',
+      'ใกล้เคียง': 'บางอย่างที่ตรง บางอย่างที่ไม่ — นั่นก็เป็นคำตอบในตัวเอง',
+      'ไม่ค่อยตรง': 'ไม่เป็นไร บางครั้งไพ่พูดถึงสิ่งที่ยังมาไม่ถึง'
+    };
+    // Hide resonance buttons
+    document.querySelectorAll('.resonance-btn').forEach(b => b.classList.add('hidden'));
+    // Show thank you below — reading stays visible above
+    document.getElementById('thank-you-msg').textContent = messages[score] || '';
+    document.getElementById('thank-you-section').classList.remove('hidden');
+    document.getElementById('thank-you-section').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  showStep(1);
+</script>
+
+</body>
+</html>

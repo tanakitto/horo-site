@@ -1,0 +1,16 @@
+[functions]
+  directory = "netlify/functions"
+```
+
+3. Save
+4. ลาก folder `horo_site` ทั้งหมดไปวางใน Netlify อีกครั้ง
+
+โครงสร้างสุดท้ายจะเป็น:
+```
+horo_site/
+  index.html
+  session.html
+  netlify.toml
+  netlify/
+    functions/
+      reading.js
