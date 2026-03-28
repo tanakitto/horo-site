@@ -4,8 +4,44 @@ exports.handler = async function(event, context) {
   }
 
   try {
-    const { prompt, card, reversed, email } = JSON.parse(event.body);
+    const { prompt, card, reversed, email, action } = JSON.parse(event.body);
 
+    const AIRTABLE_BASE_ID = 'appY0QrFxt71E2oqI';
+    const AIRTABLE_TABLE   = 'tblxbcHLIzwynN10A';
+    const AIRTABLE_URL     = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}`;
+    const AIRTABLE_HEADERS = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.AIRTABLE_TOKEN}`
+    };
+
+    // ── Resonance update only ────────────────────────────────────────────
+    if (action === 'resonance') {
+      // Find most recent record for this email+prompt and update resonance
+      const searchRes = await fetch(
+        `${AIRTABLE_URL}?filterByFormula=AND({User}="${email}",{Entry Prompt Chosen}="${prompt}")&sort[0][field]=Session Date&sort[0][direction]=desc&maxRecords=1`,
+        { headers: AIRTABLE_HEADERS }
+      );
+      const searchData = await searchRes.json();
+
+      if (searchData.records && searchData.records.length > 0) {
+        const recordId = searchData.records[0].id;
+        await fetch(`${AIRTABLE_URL}/${recordId}`, {
+          method: 'PATCH',
+          headers: AIRTABLE_HEADERS,
+          body: JSON.stringify({
+            fields: { 'Resonance Score': card } // reuse card param for score
+          })
+        });
+      }
+
+      return {
+        statusCode: 200,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ ok: true })
+      };
+    }
+
+    // ── Generate reading ─────────────────────────────────────────────────
     const reversedNote = reversed
       ? 'ไพ่ใบนี้จั่วออกมาในท่ากลับหัว (Reversed) — ความหมายจะเป็นด้านที่ถูกบล็อก ถูกกักไว้ หรือพลังงานที่ยังไม่ถูกปลดปล่อย'
       : 'ไพ่ใบนี้จั่วออกมาในท่าตรง (Upright)';
@@ -23,13 +59,6 @@ exports.handler = async function(event, context) {
 ตอบใน JSON format นี้เท่านั้น ไม่มี markdown หรือ backtick:
 {"reading": "การตีความ 3-4 ประโยค", "question": "คำถามปิด 1 ประโยค"}`;
 
-    const userMessage = `User รู้สึก: "${prompt}"
-ไพ่ที่จั่วได้: ${card}
-${reversed ? '(ไพ่กลับหัว)' : '(ไพ่ตรง)'}
-
-อ่านไพ่ใบนี้ให้ user คนนี้`;
-
-    // ── Call Claude API ──────────────────────────────────────────────────
     const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -41,47 +70,37 @@ ${reversed ? '(ไพ่กลับหัว)' : '(ไพ่ตรง)'}
         model: 'claude-sonnet-4-20250514',
         max_tokens: 600,
         system: systemPrompt,
-        messages: [{ role: 'user', content: userMessage }]
+        messages: [{ role: 'user', content: `User รู้สึก: "${prompt}"\nไพ่ที่จั่วได้: ${card}\n${reversed ? '(ไพ่กลับหัว)' : '(ไพ่ตรง)'}` }]
       })
     });
 
     const claudeData = await claudeRes.json();
-
-    if (!claudeData.content || !claudeData.content[0]) {
-      throw new Error('No content from Claude');
-    }
-
     const text = claudeData.content[0].text;
     const clean = text.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
 
     // ── Save to Airtable ─────────────────────────────────────────────────
-    const AIRTABLE_BASE_ID = 'appY0QrFxt71E2oqI';
-    const AIRTABLE_TABLE_ID = 'tblxbcHLIzwynN10A';
-
-    const airtablePayload = {
-      fields: {
-        Email: email || 'guest',
-        'Entry Prompt Chosen': prompt,
-        'Card Drawn': card,
-        'Resonance Score': 'pending',
-        'Session Date': new Date().toISOString().split('T')[0],
-        'Session Number': 1,
-        'Themes Tagged': detectTheme(prompt),
-      }
-    };
-
-    // Save to Airtable async (don't wait — don't block the reading response)
-    fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}`, {
+    const airtableRes = await fetch(AIRTABLE_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.AIRTABLE_TOKEN}`
-      },
-      body: JSON.stringify(airtablePayload)
-    }).catch(err => console.error('Airtable save error:', err));
+      headers: AIRTABLE_HEADERS,
+      body: JSON.stringify({
+        fields: {
+          'User': email || 'guest',
+          'Session Number': 1,
+          'Entry Prompt Chosen': prompt,
+          'Card Drawn': card,
+          'Interpretation': parsed.reading,
+          'Closing Question': parsed.question,
+          'Resonance Score': 'pending',
+          'Themes Tagged': detectTheme(prompt),
+          'Session Date': new Date().toISOString().split('T')[0]
+        }
+      })
+    });
 
-    // ── Return reading immediately ───────────────────────────────────────
+    const airtableData = await airtableRes.json();
+    console.log('Airtable response:', JSON.stringify(airtableData));
+
     return {
       statusCode: 200,
       headers: {
@@ -95,7 +114,7 @@ ${reversed ? '(ไพ่กลับหัว)' : '(ไพ่ตรง)'}
     };
 
   } catch (err) {
-    console.error('Error:', err);
+    console.error('Error:', err.message);
     return {
       statusCode: 500,
       headers: { 'Access-Control-Allow-Origin': '*' },
@@ -107,12 +126,11 @@ ${reversed ? '(ไพ่กลับหัว)' : '(ไพ่ตรง)'}
   }
 };
 
-// ── Detect theme from prompt ───────────────────────────────────────────────
 function detectTheme(prompt) {
   const p = prompt.toLowerCase();
-  if (p.includes('งาน') || p.includes('work') || p.includes('เลื่อนขั้น') || p.includes('ออก')) return 'work';
-  if (p.includes('แฟน') || p.includes('ความสัมพันธ์') || p.includes('รัก') || p.includes('love')) return 'relationship';
-  if (p.includes('เงิน') || p.includes('เงิน') || p.includes('หวย') || p.includes('money')) return 'money';
+  if (p.includes('งาน') || p.includes('ออก') || p.includes('เลื่อนขั้น')) return 'work';
+  if (p.includes('แฟน') || p.includes('ความสัมพันธ์') || p.includes('รัก')) return 'relationship';
+  if (p.includes('เงิน') || p.includes('หวย')) return 'money';
   if (p.includes('ตัวเอง') || p.includes('ชีวิต') || p.includes('เปลี่ยน')) return 'identity';
   if (p.includes('กลัว') || p.includes('กังวล') || p.includes('เครียด')) return 'fear';
   return 'change';
