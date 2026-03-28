@@ -7,7 +7,7 @@ exports.handler = async function(event, context) {
     const { prompt, card, reversed, email, action } = JSON.parse(event.body);
 
     const AIRTABLE_BASE_ID = 'appY0QrFxt71E2oqI';
-    const AIRTABLE_TABLE   = 'tblUL4uFoneOjZvUR';
+    const AIRTABLE_TABLE   = 'tbl3eGN7tW1HKyyX4';
     const AIRTABLE_URL     = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}`;
     const AIRTABLE_HEADERS = {
       'Content-Type': 'application/json',
