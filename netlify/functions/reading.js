@@ -86,7 +86,6 @@ exports.handler = async function(event, context) {
       body: JSON.stringify({
         fields: {
           'User': email || 'guest',
-          'Session Number': 1,
           'Entry Prompt Chosen': prompt,
           'Card Drawn': card,
           'Interpretation': parsed.reading,
