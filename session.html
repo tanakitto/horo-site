@@ -158,20 +158,16 @@
   <section id="step-3" class="hidden py-12 space-y-16 fade-in">
 
     <div class="flex flex-col items-center gap-10">
-
-      <!-- Card visual -->
       <div class="relative w-48 h-72 shrink-0 rounded-xl overflow-hidden shadow-2xl celestial-glow">
         <div id="card-visual" class="w-full h-full bg-gradient-to-b from-[#2D0060] to-[#080015] flex items-center justify-center transition-transform duration-700">
           <span class="material-symbols-outlined text-primary text-6xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
         </div>
       </div>
 
-      <!-- Reading -->
       <div class="text-center space-y-5 max-w-xl">
         <div class="space-y-2">
           <p class="font-label text-primary tracking-[0.2rem] uppercase text-xs">The Revelation</p>
           <h3 id="card-name" class="font-headline text-4xl text-on-background"></h3>
-          <!-- Reversed badge — uses emoji instead of material icon -->
           <div id="reversed-badge" class="hidden reversed-badge inline-flex items-center gap-2 px-3 py-1 rounded-full mt-1">
             <span class="text-base">🔃</span>
             <span class="font-label text-primary text-xs uppercase tracking-widest">กลับหัว (Reversed)</span>
@@ -205,6 +201,10 @@
 </main>
 
 <script>
+  // ── Get email from URL or localStorage ────────────────────────────────
+  const urlParams = new URLSearchParams(window.location.search);
+  const userEmail = urlParams.get('email') || localStorage.getItem('horo_email') || 'guest';
+
   // ── Full 78-card deck ──────────────────────────────────────────────────
   const majorArcana = [
     'The Fool', 'The Magician', 'The High Priestess', 'The Empress',
@@ -214,15 +214,14 @@
     'The Tower', 'The Star', 'The Moon', 'The Sun',
     'Judgement', 'The World'
   ];
-
   const suits = ['Wands', 'Cups', 'Swords', 'Pentacles'];
   const ranks = ['Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Page','Knight','Queen','King'];
   const minorArcana = suits.flatMap(suit => ranks.map(rank => rank + ' of ' + suit));
-  const fullDeck = [...majorArcana, ...minorArcana]; // 78 cards
+  const fullDeck = [...majorArcana, ...minorArcana];
 
   function drawCard() {
     const card = fullDeck[Math.floor(Math.random() * fullDeck.length)];
-    const reversed = Math.random() < 0.3; // 30% reversed
+    const reversed = Math.random() < 0.3;
     return { card, reversed };
   }
 
@@ -231,10 +230,9 @@
     const input = document.getElementById('prompt-input');
     const count = document.getElementById('char-count');
     const btn = document.getElementById('submit-btn');
-    const len = input.value.trim().length;
     count.textContent = input.value.length + '/200';
     count.style.color = input.value.length > 180 ? '#ff6e84' : '#816f8f';
-    btn.disabled = len === 0;
+    btn.disabled = input.value.trim().length === 0;
   }
 
   function handleKey(e) {
@@ -261,26 +259,37 @@
   }
 
   // ── Submit ─────────────────────────────────────────────────────────────
+  let currentPrompt = '';
+  let currentCard = '';
+  let currentReversed = false;
+
   function submitPrompt() {
     const prompt = document.getElementById('prompt-input').value.trim();
     if (!prompt) return;
     const { card, reversed } = drawCard();
+    currentPrompt = prompt;
+    currentCard = card;
+    currentReversed = reversed;
     showStep(2);
     callClaudeAPI(prompt, card, reversed);
   }
 
-  // ── Claude API ─────────────────────────────────────────────────────────
+  // ── Claude API via Netlify Function ───────────────────────────────────
   async function callClaudeAPI(prompt, card, reversed) {
     const cardLabel = card + (reversed ? ' (Reversed)' : '');
     try {
       const response = await fetch('/.netlify/functions/reading', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, card: cardLabel, reversed })
+        body: JSON.stringify({
+          prompt,
+          card: cardLabel,
+          reversed,
+          email: userEmail
+        })
       });
 
       if (!response.ok) throw new Error('API error: ' + response.status);
-
       const data = await response.json();
       showReading(card, reversed, data.reading, data.question);
 
@@ -299,7 +308,6 @@
     document.getElementById('card-name').textContent = card;
     document.getElementById('card-reading').textContent = reading;
     document.getElementById('card-question').textContent = '\u201c' + question + '\u201d';
-
     const visual = document.getElementById('card-visual');
     const badge = document.getElementById('reversed-badge');
     if (reversed) {
@@ -309,7 +317,6 @@
       visual.classList.remove('card-reversed');
       badge.classList.add('hidden');
     }
-
     showStep(3);
   }
 
@@ -320,10 +327,34 @@
       'ใกล้เคียง': 'บางอย่างที่ตรง บางอย่างที่ไม่ — นั่นก็เป็นคำตอบในตัวเอง',
       'ไม่ค่อยตรง': 'ไม่เป็นไร บางครั้งไพ่พูดถึงสิ่งที่ยังมาไม่ถึง'
     };
+
+    // Update resonance score in Airtable
+    updateResonance(score);
+
     document.querySelectorAll('.resonance-btn').forEach(b => b.classList.add('hidden'));
     document.getElementById('thank-you-msg').textContent = messages[score] || '';
     document.getElementById('thank-you-section').classList.remove('hidden');
     document.getElementById('thank-you-section').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ── Update resonance in Airtable ───────────────────────────────────────
+  async function updateResonance(score) {
+    try {
+      await fetch('/.netlify/functions/reading', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'resonance',
+          email: userEmail,
+          prompt: currentPrompt,
+          card: currentCard,
+          reversed: currentReversed,
+          resonance: score
+        })
+      });
+    } catch (err) {
+      console.error('Resonance update error:', err);
+    }
   }
 
   showStep(1);
