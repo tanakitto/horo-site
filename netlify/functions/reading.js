@@ -4,7 +4,7 @@ exports.handler = async function(event, context) {
   }
 
   try {
-    const { prompt, card, reversed, email, action } = JSON.parse(event.body);
+    const { prompt, card, reversed, email, history } = JSON.parse(event.body);
 
     const AIRTABLE_BASE_ID = 'appY0QrFxt71E2oqI';
     const AIRTABLE_TABLE   = 'tbl3eGN7tW1HKyyX4';
@@ -14,39 +14,35 @@ exports.handler = async function(event, context) {
       'Authorization': `Bearer ${process.env.AIRTABLE_TOKEN}`
     };
 
-    // ── Resonance update only ────────────────────────────────────────────
-    if (action === 'resonance') {
-      // Find most recent record for this email+prompt and update resonance
-      const searchRes = await fetch(
-        `${AIRTABLE_URL}?filterByFormula=AND({User}="${email}",{Entry Prompt Chosen}="${prompt}")&sort[0][field]=Session Date&sort[0][direction]=desc&maxRecords=1`,
-        { headers: AIRTABLE_HEADERS }
-      );
-      const searchData = await searchRes.json();
-
-      if (searchData.records && searchData.records.length > 0) {
-        const recordId = searchData.records[0].id;
-        await fetch(`${AIRTABLE_URL}/${recordId}`, {
-          method: 'PATCH',
-          headers: AIRTABLE_HEADERS,
-          body: JSON.stringify({
-            fields: { 'Resonance Score': card } // reuse card param for score
-          })
-        });
-      }
-
-      return {
-        statusCode: 200,
-        headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ ok: true })
-      };
-    }
-
-    // ── Generate reading ─────────────────────────────────────────────────
     const reversedNote = reversed
       ? 'ไพ่ใบนี้จั่วออกมาในท่ากลับหัว (Reversed) — ความหมายจะเป็นด้านที่ถูกบล็อก ถูกกักไว้ หรือพลังงานที่ยังไม่ถูกปลดปล่อย'
       : 'ไพ่ใบนี้จั่วออกมาในท่าตรง (Upright)';
 
+    // ── Build history context ────────────────────────────────────────────
+    let historyContext = '';
+    let sessionNumber = 1;
+
+    if (history && history.length > 0) {
+      sessionNumber = history.length + 1;
+      const lastSession = history[0]; // most recent session
+
+      historyContext = `
+ข้อมูลจาก session ก่อนหน้า (ใช้เพื่อสร้าง continuity):
+- ครั้งที่แล้ว user รู้สึก: "${lastSession.prompt}"
+- ไพ่ที่จั่วได้: ${lastSession.card}
+- คำถามปิดที่ให้ไว้: "${lastSession.question}"
+- User บอกว่าการ์ดนั้น: ${lastSession.resonance || 'ไม่ได้ระบุ'}
+${history.length > 1 ? `- ก่อนหน้านั้น user เคยถามเรื่อง: "${history[1].prompt}"` : ''}
+
+นี่คือ session ที่ ${sessionNumber} ของ user คนนี้`;
+    }
+
+    // ── Build system prompt ──────────────────────────────────────────────
+    const isReturning = history && history.length > 0;
+
     const systemPrompt = `คุณคือ Mora นักอ่านไพ่ทาโรต์ที่มีปรัชญาหนึ่งเดียว: "ความชัดเจนสำคัญกว่าความสบายใจ"
+
+${historyContext}
 
 กฎการอ่านไพ่:
 - ใช้ภาษาไทยที่อบอุ่น สงบ ไม่เร่งรีบ
@@ -54,11 +50,13 @@ exports.handler = async function(event, context) {
 - ${reversedNote}
 - สำหรับไพ่กลับหัว: อ่านถึงพลังงานที่ถูกกักไว้ สิ่งที่ยังไม่เกิด หรือสิ่งที่ต้องปลดปล่อย
 - อย่าบอกว่า "คุณควร..." — ใช้ "บางทีมันอาจจะ..." หรือ "ไพ่ใบนี้ชวนให้คิดว่า..."
+${isReturning ? `- User นี้กลับมาแล้ว — เริ่มต้นด้วยการอ้างอิง session ก่อนหน้าอย่างเป็นธรรมชาติ เช่น "ครั้งที่แล้วคุณบอกว่า..." หรือ "ดูเหมือนว่าเรื่อง... ยังอยู่กับคุณ"` : '- นี่คือ session แรกของ user — ไม่ต้องอ้างอิงอะไรก่อนหน้า'}
 - จบด้วยคำถามที่ user เอาไปนั่งคิดคนเดียวได้คืนนี้
 
 ตอบใน JSON format นี้เท่านั้น ไม่มี markdown หรือ backtick:
 {"reading": "การตีความ 3-4 ประโยค", "question": "คำถามปิด 1 ประโยค"}`;
 
+    // ── Call Claude ──────────────────────────────────────────────────────
     const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -70,7 +68,10 @@ exports.handler = async function(event, context) {
         model: 'claude-sonnet-4-20250514',
         max_tokens: 600,
         system: systemPrompt,
-        messages: [{ role: 'user', content: `User รู้สึก: "${prompt}"\nไพ่ที่จั่วได้: ${card}\n${reversed ? '(ไพ่กลับหัว)' : '(ไพ่ตรง)'}` }]
+        messages: [{
+          role: 'user',
+          content: `User รู้สึก: "${prompt}"\nไพ่ที่จั่วได้: ${card}\n${reversed ? '(ไพ่กลับหัว)' : '(ไพ่ตรง)'}`
+        }]
       })
     });
 
@@ -98,7 +99,7 @@ exports.handler = async function(event, context) {
     });
 
     const airtableData = await airtableRes.json();
-    console.log('Airtable response:', JSON.stringify(airtableData));
+    console.log('Airtable:', JSON.stringify(airtableData));
 
     return {
       statusCode: 200,
@@ -108,7 +109,8 @@ exports.handler = async function(event, context) {
       },
       body: JSON.stringify({
         reading: parsed.reading,
-        question: parsed.question
+        question: parsed.question,
+        sessionNumber
       })
     };
 
