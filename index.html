@@ -1,393 +1,479 @@
 <!DOCTYPE html>
-<html class="dark" lang="th">
+<html lang="th">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Lumina — Your Personal Oracle</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<title>Lumina — มากกว่าการดูดวง คือการทำความเข้าใจตนเอง</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;1,400;1,600&family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-  tailwind.config = {
-    darkMode: "class",
-    theme: {
-      extend: {
-        colors: {
-          "primary": "#c998ff",
-          "on-primary": "#45007e",
-          "surface": "#150822",
-          "on-surface": "#f3deff",
-          "on-surface-variant": "#b8a4c6",
-          "surface-container": "#221232",
-          "surface-container-lowest": "#000000",
-          "surface-container-low": "#1b0c29",
-          "surface-container-high": "#29173a",
-          "outline": "#816f8f",
-          "outline-variant": "#51425f",
-          "background": "#150822",
-          "on-background": "#f3deff",
-        },
-        fontFamily: {
-          "headline": ["Cinzel", "serif"],
-          "body": ["Anuphan", "sans-serif"],
-          "label": ["Anuphan", "sans-serif"]
-        },
-      },
-    },
-  }
-</script>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
-  body {
-    background-color: #150822;
-    color: #f3deff;
-    font-family: 'Anuphan', sans-serif;
-  }
-  .material-symbols-outlined {
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  }
-  .oracle-glow {
-    background: radial-gradient(circle at center, rgba(201, 152, 255, 0.08) 0%, rgba(21, 8, 34, 0) 70%);
-  }
-  .glass-card {
-    background: rgba(49, 29, 67, 0.4);
-    backdrop-filter: blur(12px);
-  }
-  .privacy-tooltip {
-    display: none;
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #221232;
-    border: 1px solid #51425f;
-    border-radius: 8px;
-    padding: 14px 18px;
-    width: 300px;
-    font-size: 14px;
-    color: #b8a4c6;
-    line-height: 1.7;
-    z-index: 100;
-    margin-bottom: 8px;
-    text-align: left;
-    font-family: 'Anuphan', sans-serif;
-  }
-  .privacy-trigger:hover .privacy-tooltip { display: block; }
-
-  .mode-card {
-    background: rgba(49, 29, 67, 0.3);
-    border: 1px solid rgba(81, 66, 95, 0.4);
-    transition: all 0.2s;
-    cursor: pointer;
-  }
-  .mode-card:hover {
-    border-color: rgba(201, 152, 255, 0.5);
-    background: rgba(201, 152, 255, 0.05);
-    transform: translateY(-2px);
-  }
-  .mode-card.coming-soon {
-    opacity: 0.5;
-    cursor: default;
-  }
-  .mode-card.coming-soon:hover {
-    transform: none;
-    border-color: rgba(81, 66, 95, 0.4);
-    background: rgba(49, 29, 67, 0.3);
-  }
-  .mode-toggle { cursor: pointer; }
-  .mode-toggle.active-mode {
-    border-color: rgba(201,152,255,0.6) !important;
-    background: rgba(201,152,255,0.1) !important;
-  }
-  .mode-toggle.active-mode span { color: #c998ff !important; }
-  .mode-toggle.active-mode svg { stroke: #c998ff !important; }
+  * { box-sizing: border-box; }
+  body { background: #faf9f6; color: #1a1c1a; font-family: 'Anuphan', sans-serif; }
+  .serif { font-family: 'Anuphan', sans-serif; font-weight: 600; letter-spacing: -0.01em; }
+  .gold-btn { background: linear-gradient(135deg, #745b00 0%, #d4af37 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 20px rgba(116,91,0,0.2); color: white; transition: all 0.2s; }
+  .gold-btn:hover { box-shadow: 0 8px 30px rgba(116,91,0,0.3); transform: translateY(-1px); }
+  .glass-nav { backdrop-filter: blur(16px); background: rgba(250,249,246,0.88); }
+  .oracle-glow { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(233,195,73,0.12) 0%, transparent 70%); pointer-events: none; }
+  .fade-up { opacity: 0; transform: translateY(24px); transition: all 0.7s ease; }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+  .lang-btn { transition: all 0.2s; padding-bottom: 2px; font-size: 12px; letter-spacing: 0.1em; }
+  .lang-btn.active { color: #745b00; border-bottom: 2px solid #d4af37; }
+  .mode-card { background: white; border-radius: 24px; padding: 28px; transition: all 0.3s; cursor: pointer; box-shadow: 0 2px 20px rgba(26,28,26,0.04); }
+  .mode-card:hover { box-shadow: 0 12px 40px -8px rgba(116,91,0,0.1); transform: translateY(-2px); }
+  .mode-card.active { box-shadow: 0 0 0 2px #d4af37, 0 12px 40px -8px rgba(116,91,0,0.1); }
+  .privacy-wrap { position: relative; }
+  .privacy-tip { display: none; position: absolute; bottom: 130%; left: 0; background: white; border-radius: 16px; padding: 16px 18px; width: 280px; font-size: 13px; color: #4d4635; line-height: 1.65; z-index: 100; box-shadow: 0 8px 40px rgba(26,28,26,0.1); }
+  .privacy-wrap:hover .privacy-tip { display: block; }
+  .coming-badge { background: rgba(116,91,0,0.08); color: #745b00; border-radius: 99px; padding: 3px 12px; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+  input:focus { outline: none; border-bottom-color: #d4af37 !important; }
 </style>
 </head>
 <body>
 
-<!-- Nav -->
-<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 max-w-7xl mx-auto left-1/2 -translate-x-1/2 bg-[#1B0C29] shadow-[0_0_15px_rgba(201,152,255,0.05)]">
-  <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-    <span class="material-symbols-outlined text-primary text-lg">auto_awesome</span>
-    <div class="font-headline text-lg text-[#C998FF] tracking-widest">LUMINA</div>
-  </a>
-  <div class="flex items-center gap-6">
-    <span class="text-[#C998FF] border-b-2 border-[#C998FF] pb-1 font-label text-xs uppercase tracking-widest">Explore</span>
+<nav class="fixed top-0 w-full z-50 glass-nav border-b border-amber-100/40 shadow-[0_4px_40px_rgba(26,28,26,0.04)]">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2 hover:opacity-75 transition-opacity">
+      <span class="material-symbols-outlined text-amber-700" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
+      <span class="serif text-xl italic text-amber-800">Lumina</span>
+    </a>
+    <div class="flex items-center gap-5">
+      <div class="flex items-center gap-2 text-stone-600 uppercase tracking-widest">
+        <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24">language</span>
+        <button class="lang-btn active" onclick="setLang('th')">TH</button>
+        <span class="opacity-20 text-xs">|</span>
+        <button class="lang-btn" onclick="setLang('en')">EN</button>
+        <span class="opacity-20 text-xs">|</span>
+        <button class="lang-btn" onclick="setLang('jp')">JP</button>
+      </div>
+      <a href="/tip.html" id="nav-support" class="hidden sm:block gold-btn px-5 py-2.5 rounded-full text-sm font-semibold tracking-wide">☕ สนับสนุน</a>
+    </div>
   </div>
 </nav>
 
-<main class="relative overflow-hidden pt-24">
-  <div class="absolute inset-0 z-0 pointer-events-none opacity-20 oracle-glow"></div>
+<main class="pt-20">
 
   <!-- Hero -->
-  <section class="relative z-10 min-h-screen flex flex-col items-center justify-center text-center px-4 max-w-5xl mx-auto">
-    <div class="mb-8 p-1 rounded-full border border-outline-variant/30 inline-flex items-center gap-2 px-4 bg-surface-container-low">
-      <span class="material-symbols-outlined text-primary text-sm">auto_awesome</span>
-      <span class="font-label text-xs uppercase tracking-[0.2em] text-on-surface-variant">Your Personal Oracle</span>
-    </div>
+  <section class="relative min-h-screen flex items-center overflow-hidden">
+    <div class="oracle-glow w-[600px] h-[600px] top-10 -left-32"></div>
+    <div class="oracle-glow w-[400px] h-[400px] bottom-0 right-0"></div>
+    <div class="max-w-6xl mx-auto px-6 py-28 grid md:grid-cols-2 gap-16 items-center w-full">
+      <div class="fade-up">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100/60 text-amber-800 text-xs font-semibold tracking-widest uppercase mb-8">
+          <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
+          <span id="t-badge">Your Personal Oracle</span>
+        </div>
+        <h1 class="serif text-5xl md:text-6xl leading-[1.15] mb-5 tracking-tight">
+          <span id="t-h1a">มากกว่า</span><br/>
+          <em class="text-amber-700" id="t-h1b">คำทำนาย</em>
+        </h1>
+        <p class="text-xl text-stone-700 mb-3 max-w-md leading-relaxed" id="t-sub">คือการทำความเข้าใจตนเอง</p>
+        <p class="text-base text-stone-600 mb-10 max-w-md leading-relaxed" id="t-body">ไม่ว่าคุณจะมาเพื่อหาคำตอบ หาแรงบันดาลใจ หรือแค่อยากมีพื้นที่ให้ตัวเองได้คิด — Lumina พร้อมรับฟัง และจำคุณได้ในทุกครั้งที่กลับมา</p>
 
-    <h1 class="font-headline text-4xl md:text-6xl lg:text-7xl text-on-background leading-tight mb-6 font-bold tracking-widest uppercase">
-      Lumina
-    </h1>
-
-    <p class="font-headline text-lg md:text-xl text-primary/80 mb-4 tracking-wide">
-      มากกว่าการดูดวง
-    </p>
-
-    <p class="font-body text-base text-on-surface-variant max-w-xl mx-auto mb-4 leading-relaxed">
-      คือการทำความเข้าใจตัวเอง
-    </p>
-
-    <p class="font-body text-sm text-on-surface-variant/60 max-w-xl mx-auto mb-12 leading-relaxed">
-      ไม่ว่าจะเป็นไพ่ทาโรต์ อักษรรูน หรือสัญลักษณ์อื่นๆ — Lumina จำได้ว่าคุณคิดอะไร รู้สึกอะไร และกำลังเผชิญอะไรอยู่
-    </p>
-
-    <!-- Mode Toggle -->
-    <div class="w-full max-w-lg mb-2">
-      <p class="font-label text-xs uppercase tracking-[0.2em] text-on-surface-variant mb-3 text-center">เลือกโหมดการทำนาย</p>
-      <div class="grid grid-cols-3 gap-2" id="mode-selector">
-        <button onclick="setMode('tarot-single')" data-mode="tarot-single"
-          class="mode-toggle px-3 py-3 rounded-xl border border-outline-variant/30 bg-transparent flex flex-col items-center gap-2 transition-all hover:border-primary/30">
-          <span class="material-symbols-outlined text-on-surface-variant text-xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
-          <span class="font-headline text-[10px] tracking-widest uppercase text-on-surface-variant">Tarot</span>
-          <span class="font-body text-xs text-on-surface-variant/60">Single Card</span>
-        </button>
-        <button onclick="setMode('tarot-three')" data-mode="tarot-three"
-          class="mode-toggle px-3 py-3 rounded-xl border border-outline-variant/30 bg-transparent flex flex-col items-center gap-2 transition-all hover:border-primary/30">
-          <span class="material-symbols-outlined text-on-surface-variant text-xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">view_week</span>
-          <span class="font-headline text-[10px] tracking-widest uppercase text-on-surface-variant">Tarot</span>
-          <span class="font-body text-xs text-on-surface-variant/60">3-Card Spread</span>
-        </button>
-        <button onclick="setMode('rune')" data-mode="rune"
-          class="mode-toggle px-3 py-3 rounded-xl border border-outline-variant/30 bg-transparent flex flex-col items-center gap-2 transition-all hover:border-primary/30">
-          <span class="text-on-surface-variant font-headline text-lg leading-none">ᚱ</span>
-          <span class="font-headline text-[10px] tracking-widest uppercase text-on-surface-variant">Rune</span>
-          <span class="font-body text-xs text-on-surface-variant/60">Elder Futhark</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Email + CTA -->
-    <div class="w-full max-w-md flex flex-col gap-3">
-      <div class="relative group">
-        <input id="email-input" type="email" placeholder="Email (ไม่บังคับ)"
-          class="w-full bg-surface-container-lowest border border-outline-variant/30 text-on-surface rounded-lg py-4 px-6 focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none placeholder:text-outline font-body text-base"/>
-        <div class="absolute inset-0 rounded-lg border border-primary/20 pointer-events-none group-focus-within:border-primary/50 transition-colors"></div>
-      </div>
-
-      <div class="relative privacy-trigger flex items-center gap-2 px-2 cursor-default w-fit">
-        <span class="material-symbols-outlined text-outline text-sm">info</span>
-        <span class="font-body text-sm text-outline">ทำไมต้องใส่ email?</span>
-        <div class="privacy-tooltip">
-          <p class="font-bold text-on-surface-variant mb-2" style="font-family:'Anuphan',sans-serif">email ใช้เพื่ออะไร?</p>
-          <p>เพื่อให้ระบบจำคุณได้ระหว่าง sessions — ไม่ได้ใช้ส่ง newsletter หรือโฆษณาใดๆ</p>
-          <p class="mt-3 font-bold text-on-surface-variant mb-1" style="font-family:'Anuphan',sans-serif">ข้อมูลที่เก็บ:</p>
-          <p>email, ความรู้สึกที่พิมพ์, ไพ่ที่จั่วได้, วันที่</p>
-          <p class="mt-3 text-outline">ไม่ใส่ก็ได้ — ระบบยังทำงานได้ปกติ</p>
+        <div class="max-w-md space-y-3">
+          <div class="bg-stone-50 rounded-2xl px-5 py-4 border-b-2 border-stone-200 focus-within:border-amber-400 transition-colors">
+            <input id="email-input" type="email" class="w-full bg-transparent text-base text-stone-700 placeholder:text-stone-700 focus:outline-none" />
+          </div>
+          <div class="privacy-wrap flex items-center gap-2 cursor-default w-fit">
+            <span class="material-symbols-outlined text-stone-700 text-sm" style="font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24">info</span>
+            <span class="text-sm text-stone-600" id="t-privacy-hint">Email ช่วยให้ Lumina จำคุณได้ระหว่าง sessions</span>
+            <div class="privacy-tip">
+              <p class="font-semibold text-stone-700 mb-2" id="t-tt-title">ทำไมต้องใส่ email?</p>
+              <p id="t-tt-body">เพื่อให้ระบบจำ session ของคุณได้ — ไม่มีการส่ง newsletter ข้อมูลที่เก็บ: email, ความรู้สึก, ไพ่ที่จั่ว, วันที่</p>
+              <p class="mt-2 text-stone-600 text-xs" id="t-tt-skip">ไม่ใส่ก็ได้ — ระบบยังทำงานได้ปกติ</p>
+            </div>
+          </div>
+          <p id="email-error" class="hidden text-red-400 text-sm">กรุณาใส่ email ที่ถูกต้อง</p>
+          <button onclick="startSession()" class="gold-btn w-full py-4 rounded-2xl font-semibold text-sm tracking-widest uppercase">
+            <span id="t-cta">เริ่มต้นเลย →</span>
+          </button>
+          <p class="text-sm text-stone-700 text-center">
+            <span id="t-or">หรือ</span>
+            <button onclick="startSessionGuest()" class="text-amber-600 underline underline-offset-2 ml-1" id="t-guest">เริ่มเลยโดยไม่ใส่ email</button>
+          </p>
         </div>
       </div>
 
-      <p id="email-error" class="hidden text-left px-2 text-sm text-red-400 font-body">กรุณาใส่ email ที่ถูกต้อง</p>
-
-      <button onclick="startSession()"
-        class="bg-primary text-on-primary font-label font-bold py-4 px-8 rounded-lg text-sm uppercase tracking-widest shadow-[0_0_15px_rgba(201,152,255,0.2)] hover:scale-[0.98] active:scale-95 transition-all duration-300">
-        เริ่มต้นเลย →
-      </button>
-
-      <p class="font-body text-sm text-on-surface-variant/60 text-center">
-        หรือ <span class="text-primary cursor-pointer underline underline-offset-2" onclick="startSessionGuest()">เริ่มเลยโดยไม่ใส่ email</span>
-      </p>
-    </div>
-
-    <!-- Decorative -->
-    <div class="mt-20 relative w-full aspect-[21/9] rounded-2xl overflow-hidden glass-card border border-outline-variant/10">
-      <img alt="Mystical celestial portal" class="w-full h-full object-cover opacity-60"
-        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtOvfJuFPbHP1ujq5iWEj5J7r2uerBUIYfP44eYreTPubq6UIpqktkb2Xe0aU88SAVhlb_CsMvxV3OxT7faoYJh-3CPX4t7G00-emVnigzpJaa9DZ2ONoCnyI5JAyXbEiVbHkfdtLjkfLw5Pa0t7hIWbw9EOQqdCS3-4yigNUk_DP8hY8ZyFEF82ZSoG10j6PBYqHj50vDmSMre0zMTLx9rG8r1SElxbBROweqmjtYXkQrDFDWWNPxCdt60wUOd5CuhwYO4HJcMoQ"/>
-      <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+      <div class="hidden md:flex items-center justify-center fade-up" style="transition-delay:0.2s">
+        <div class="relative w-72 h-72">
+          <div class="absolute inset-0 bg-amber-100/30 blur-[80px] rounded-full"></div>
+          <div class="relative w-full h-full rounded-full border border-amber-200/40 bg-white/50 backdrop-blur-sm flex items-center justify-center shadow-[0_20px_80px_rgba(116,91,0,0.07)]">
+            <div class="text-center px-8 space-y-3">
+              <span class="material-symbols-outlined text-5xl text-amber-600" style="font-variation-settings:'FILL' 1,'wght' 300,'GRAD' 0,'opsz' 48">auto_awesome</span>
+              <p class="serif italic text-amber-700 text-base leading-relaxed" id="t-oracle-quote">"ความชัดเจนสำคัญ<br/>กว่าความสบายใจ"</p>
+              <p class="text-xs text-stone-600 tracking-widest uppercase">— Mora, Your Oracle</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- Reading Modes -->
-  <section class="relative z-10 py-32 px-6 max-w-5xl mx-auto">
-    <div class="text-center mb-16">
-      <h2 class="font-headline text-2xl md:text-3xl text-on-background mb-4 tracking-widest uppercase">Choose Your Reading</h2>
-      <div class="h-px w-24 bg-primary/30 mx-auto"></div>
+  <!-- Mode selector -->
+  <section class="bg-stone-50/60 py-24">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-14 fade-up">
+        <p class="text-sm tracking-[0.2em] uppercase text-stone-600 mb-3" id="t-mode-label">เลือกวิธีการอ่าน</p>
+        <h2 class="serif text-3xl md:text-4xl" id="t-mode-title">เส้นทางสู่ความชัดเจน</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+        <div class="mode-card active" onclick="selectMode('tarot-single',this)">
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center mb-5">
+            <span class="material-symbols-outlined text-amber-700 text-2xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
+          </div>
+          <h3 class="serif text-lg italic mb-2" id="t-m1t">Tarot — Single Card</h3>
+          <p class="text-base text-stone-600 leading-relaxed" id="t-m1d">จั่วไพ่หนึ่งใบ รับการอ่านที่เชื่อมกับความรู้สึกของคุณโดยตรง</p>
+        </div>
+        <div class="mode-card" onclick="selectMode('tarot-three',this)">
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center mb-5">
+            <span class="material-symbols-outlined text-amber-700 text-2xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">view_week</span>
+          </div>
+          <h3 class="serif text-lg italic mb-2" id="t-m2t">Tarot — 3 Card Spread</h3>
+          <p class="text-base text-stone-600 leading-relaxed" id="t-m2d">อดีต · ปัจจุบัน · อนาคต — มองภาพรวมของสิ่งที่กำลังเกิดขึ้น</p>
+        </div>
+        <div class="mode-card" onclick="selectMode('rune',this)">
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center mb-5">
+            <span class="serif text-amber-700 text-2xl">ᚱ</span>
+          </div>
+          <h3 class="serif text-lg italic mb-2" id="t-m3t">Rune Reading</h3>
+          <p class="text-base text-stone-600 leading-relaxed" id="t-m3d">อักษรรูน Elder Futhark — พลังงานโบราณที่ตรงไปตรงมา</p>
+        </div>
+      </div>
+      <div class="bg-white/70 rounded-2xl p-5 flex items-center justify-between fade-up">
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-stone-600 text-xl" style="font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24">more_horiz</span>
+          </div>
+          <div>
+            <p class="text-base font-medium text-stone-800" id="t-soon-title">กำลังมา — Celtic Cross, I Ching, Omikuji, Numerology</p>
+            <p class="text-sm text-stone-600 mt-0.5" id="t-soon-sub">รวมอยู่ใน Lumina Plus · เร็วๆ นี้</p>
+          </div>
+        </div>
+        <span class="coming-badge flex-shrink-0" id="t-soon-badge">Coming Soon</span>
+      </div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+  </section>
 
-      <!-- Tarot Single -->
-      <div class="mode-card rounded-2xl p-6 flex flex-col items-center text-center gap-4" onclick="startSession('tarot-single')">
-        <div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant/30">
-          <span class="material-symbols-outlined text-primary text-2xl">auto_awesome</span>
+  <!-- Philosophy -->
+  <section class="py-32">
+    <div class="max-w-5xl mx-auto px-6 grid md:grid-cols-2 gap-20 items-center">
+      <div class="fade-up">
+        <p class="text-sm tracking-[0.2em] uppercase text-stone-600 mb-4" id="t-phil-label">ปรัชญาของ Lumina</p>
+        <h2 class="serif text-4xl leading-[1.25] mb-8" id="t-phil-title">ไพ่ไม่ได้ทำนายอนาคต<br/><em class="text-amber-700">มันสะท้อนปัจจุบัน</em></h2>
+        <div class="space-y-4 text-base text-stone-700 leading-relaxed">
+          <p id="t-phil1">บางคนถามว่า "AI ดูดวงได้ไหม?" — ถ้าตีความว่าการใช้ AI คือเจตนาเพียวๆ ไม่ได้มีความคิดของปัจเจกบุคคลมาร่วมด้วย เราว่ามันก็เป็นอีกทางเลือกหนึ่งนะ</p>
+          <p id="t-phil2">เวลาคุณจั่วไพ่กับ Lumina ไม่ใช่ AI ที่กำหนดผล แต่คือพลังงานของความตั้งใจที่เลือกสัญลักษณ์ให้คุณ — เหมือนกับที่คุณจั่วไพ่จากที่อื่นๆ</p>
+          <p id="t-phil3">สิ่งที่ Lumina ทำได้คือ อ่านสัญลักษณ์นั้นร่วมกับสิ่งที่คุณบอกมา — ไม่ใช่คำตอบสำเร็จรูป แต่เป็นกระจกที่อาจจะช่วยให้คุณมองอะไรได้ชัดขึ้น</p>
         </div>
-        <div>
-          <p class="font-headline text-sm tracking-widest uppercase text-on-background mb-1">Tarot</p>
-          <p class="font-body text-xs text-on-surface-variant">Single Card Reading</p>
-        </div>
-        <span class="font-label text-[10px] text-primary/60 uppercase tracking-widest">Active</span>
       </div>
-
-      <!-- 3-card spread -->
-      <div class="mode-card rounded-2xl p-6 flex flex-col items-center text-center gap-4" onclick="startSession('tarot-three')">
-        <div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant/30">
-          <span class="material-symbols-outlined text-primary text-2xl">view_week</span>
+      <div class="fade-up space-y-5">
+        <div class="bg-stone-50 rounded-3xl p-8">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-8 h-8 rounded-lg bg-stone-200/60 flex items-center justify-center">
+              <span class="serif font-bold text-stone-600 text-xs">AI</span>
+            </div>
+            <span class="font-semibold text-stone-700" id="t-powered-label">Powered by Claude AI</span>
+          </div>
+          <p class="text-base text-stone-700 leading-relaxed" id="t-powered-body">Lumina ใช้ Claude โดย Anthropic ในการตีความ — เราเลือก Claude เพราะมันอ่านบริบทได้ละเอียด ไม่ใช่แค่ตอบตามสคริปต์สำเร็จรูป</p>
         </div>
-        <div>
-          <p class="font-headline text-sm tracking-widest uppercase text-on-background mb-1">3-Card Spread</p>
-          <p class="font-body text-xs text-on-surface-variant">Past · Present · Future</p>
+        <div class="bg-amber-50/60 rounded-3xl p-8">
+          <p class="serif italic text-lg text-amber-700 mb-3" id="t-trust-quote">"เราไม่ปิดบังว่าใช้ AI"</p>
+          <p class="text-base text-stone-700 leading-relaxed" id="t-trust-body">การดูดวงกับ Lumina ไม่ต่างจากการดูดวงที่ใช้ระบบดิจิทัลช่วย — สิ่งสำคัญคือ intention ของคุณ ไม่ใช่ว่า 0 กับ 1 หรือมือมนุษย์คือคนจั่ว</p>
         </div>
-        <span class="font-label text-[10px] text-primary/60 uppercase tracking-widest">Active</span>
       </div>
-
-      <!-- Rune -->
-      <div class="mode-card rounded-2xl p-6 flex flex-col items-center text-center gap-4" onclick="startSession('rune')">
-        <div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant/30">
-          <span class="text-primary text-2xl font-headline">ᚱ</span>
-        </div>
-        <div>
-          <p class="font-headline text-sm tracking-widest uppercase text-on-background mb-1">Rune</p>
-          <p class="font-body text-xs text-on-surface-variant">Elder Futhark Reading</p>
-        </div>
-        <span class="font-label text-[10px] text-primary/60 uppercase tracking-widest">Active</span>
-      </div>
-
-      <!-- Coming soon -->
-      <div class="mode-card coming-soon rounded-2xl p-6 flex flex-col items-center text-center gap-4">
-        <div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant/30">
-          <span class="material-symbols-outlined text-outline text-2xl">more_horiz</span>
-        </div>
-        <div>
-          <p class="font-headline text-sm tracking-widest uppercase text-on-background mb-1">More</p>
-          <p class="font-body text-xs text-on-surface-variant">I Ching · Omikuji · Astrology</p>
-        </div>
-        <span class="font-label text-[10px] text-outline uppercase tracking-widest">Coming Soon</span>
-      </div>
-
     </div>
   </section>
 
   <!-- How it works -->
-  <section class="relative z-10 py-16 px-6 max-w-7xl mx-auto">
-    <div class="text-center mb-16">
-      <h2 class="font-headline text-2xl md:text-3xl text-on-background mb-4 tracking-widest uppercase">How Lumina Works</h2>
-      <div class="h-px w-24 bg-primary/30 mx-auto"></div>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-24 items-start">
-      <div class="flex flex-col items-center text-center group">
-        <div class="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center mb-8 border border-outline-variant/20 group-hover:border-primary/40 transition-colors">
-          <span class="material-symbols-outlined text-primary text-3xl">psychology</span>
-        </div>
-        <h3 class="font-headline text-sm tracking-widest uppercase text-on-background mb-4">บอกว่าตอนนี้รู้สึกอะไร</h3>
-        <p class="font-body text-base text-on-surface-variant leading-relaxed">พิมพ์ความรู้สึกของคุณ หรือเลือกจากตัวอย่างที่เราเตรียมไว้</p>
+  <section class="bg-stone-50/60 py-24">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-14">
+        <p class="text-sm tracking-[0.2em] uppercase text-stone-600 mb-3" id="t-how-label">วิธีที่ Lumina ทำงาน</p>
+        <h2 class="serif text-3xl md:text-4xl" id="t-how-title">ทุก session คือการสนทนา</h2>
       </div>
-      <div class="flex flex-col items-center text-center group md:mt-16">
-        <div class="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center mb-8 border border-outline-variant/20 group-hover:border-primary/40 transition-colors">
-          <span class="material-symbols-outlined text-primary text-3xl">auto_stories</span>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="text-center fade-up">
+          <div class="w-14 h-14 rounded-2xl bg-white mx-auto flex items-center justify-center mb-6 shadow-sm">
+            <span class="material-symbols-outlined text-amber-700 text-2xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">psychology</span>
+          </div>
+          <h3 class="serif text-lg italic mb-2" id="t-how1t">บอกว่าตอนนี้รู้สึกอะไร</h3>
+          <p class="text-base text-stone-700 leading-relaxed" id="t-how1b">ไม่ต้องใช้ภาษาสวยงาม แค่พูดตรงๆ ว่าวันนี้ใจอยู่ที่ไหน</p>
         </div>
-        <h3 class="font-headline text-sm tracking-widest uppercase text-on-background mb-4">ได้รับการอ่านเฉพาะสำหรับคุณ</h3>
-        <p class="font-body text-base text-on-surface-variant leading-relaxed">ไม่ใช่คำทำนายทั่วไป แต่อ่านจากสิ่งที่คุณบอกมาโดยตรง</p>
-      </div>
-      <div class="flex flex-col items-center text-center group">
-        <div class="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center mb-8 border border-outline-variant/20 group-hover:border-primary/40 transition-colors">
-          <span class="material-symbols-outlined text-primary text-3xl">all_inclusive</span>
+        <div class="text-center fade-up" style="transition-delay:0.15s">
+          <div class="w-14 h-14 rounded-2xl bg-white mx-auto flex items-center justify-center mb-6 shadow-sm">
+            <span class="material-symbols-outlined text-amber-700 text-2xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_stories</span>
+          </div>
+          <h3 class="serif text-lg italic mb-2" id="t-how2t">รับการอ่านที่เป็นของคุณ</h3>
+          <p class="text-base text-stone-700 leading-relaxed" id="t-how2b">ไม่ใช่คำทำนายสำเร็จรูป — Lumina อ่านจากสิ่งที่คุณบอกมาจริงๆ</p>
         </div>
-        <h3 class="font-headline text-sm tracking-widest uppercase text-on-background mb-4">ยิ่งกลับมา ยิ่งเข้าใจมากขึ้น</h3>
-        <p class="font-body text-base text-on-surface-variant leading-relaxed">Lumina จำ pattern ของคุณ และอ่านได้แม่นยำขึ้นทุกครั้ง</p>
+        <div class="text-center fade-up" style="transition-delay:0.3s">
+          <div class="w-14 h-14 rounded-2xl bg-white mx-auto flex items-center justify-center mb-6 shadow-sm">
+            <span class="material-symbols-outlined text-amber-700 text-2xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">memory</span>
+          </div>
+          <h3 class="serif text-lg italic mb-2" id="t-how3t">Lumina จำคุณได้</h3>
+          <p class="text-base text-stone-700 leading-relaxed" id="t-how3b">ยิ่งกลับมา ยิ่งเข้าใจ — เหมือนคุยกับคนที่รู้จักคุณ ไม่ใช่แปลกหน้าทุกครั้ง</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Closing -->
-  <section class="relative z-10 py-48 text-center px-6">
-    <div class="max-w-4xl mx-auto border-t border-outline-variant/10 pt-24">
-      <span class="font-label text-[10px] uppercase tracking-[0.4em] text-primary mb-8 block">The Mirror Within</span>
-      <p class="font-headline text-2xl md:text-4xl text-on-background leading-tight tracking-wide">
-        "มากกว่าการดูดวง<br/>คือการทำความเข้าใจตนเอง"
-      </p>
-      <div class="mt-16">
-        <button onclick="startSessionGuest()"
-          class="bg-transparent border border-primary/40 text-primary font-label font-bold py-4 px-12 rounded-lg text-xs uppercase tracking-widest hover:bg-primary/5 transition-all">
-          Begin Your Journey
-        </button>
+  <!-- Tip teaser -->
+  <section class="py-24">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <div class="bg-white rounded-3xl p-10 shadow-[0_4px_40px_rgba(26,28,26,0.06)]">
+        <span class="text-4xl block mb-5">☕</span>
+        <h2 class="serif text-3xl italic mb-3" id="t-tip-title">ถ้า Lumina ช่วยให้คุณคิดได้ชัดขึ้น</h2>
+        <p class="text-base text-stone-600 leading-relaxed mb-8 max-w-md mx-auto" id="t-tip-body">สนับสนุน Lumina ได้ในราคาแก้วกาแฟ — ช่วยให้เราพัฒนาต่อได้และ keep it free สำหรับทุกคน</p>
+        <a href="/tip.html" class="gold-btn inline-block px-10 py-4 rounded-2xl font-semibold text-sm tracking-widest uppercase" id="t-tip-btn">สนับสนุน Lumina 🙏</a>
+        <p class="text-sm text-stone-700 mt-4" id="t-tip-sub">ไม่บังคับ · จ่ายครั้งเดียว · ไม่มี subscription</p>
       </div>
     </div>
   </section>
+
+  <!-- Plus teaser -->
+  <section class="bg-stone-50/60 py-16">
+    <div class="max-w-4xl mx-auto px-6">
+      <div class="bg-white rounded-3xl p-10 flex flex-col md:flex-row items-center justify-between gap-8">
+        <div>
+          <div class="flex items-center gap-3 mb-3">
+            <span class="serif text-xl italic text-amber-700" id="t-plus-title">Lumina Plus</span>
+            <span class="coming-badge" id="t-plus-badge">Coming Soon</span>
+          </div>
+          <p class="text-base text-stone-600 leading-relaxed max-w-md" id="t-plus-body">Celtic Cross · I Ching · Omikuji · Numerology · Session history ย้อนหลัง · Priority reading</p>
+        </div>
+        <button class="flex-shrink-0 border-2 border-amber-200 text-amber-700 font-semibold px-8 py-3 rounded-2xl text-sm opacity-60 cursor-default" id="t-plus-notify">แจ้งเตือนเมื่อพร้อม →</button>
+      </div>
+    </div>
+  </section>
+
 </main>
 
-<!-- Footer -->
-<footer class="w-full py-16 flex flex-col items-center justify-center space-y-6 text-center bg-[#080015] border-t border-outline-variant/5">
-  <div class="font-headline text-lg text-[#C998FF] tracking-widest">LUMINA</div>
-  <p class="font-body text-[#816F8F] text-base max-w-md">มากกว่าการดูดวง คือการทำความเข้าใจตนเอง</p>
-  <p class="font-body text-[#816F8F] text-base max-w-sm leading-relaxed">
-    ข้อมูลที่คุณแชร์จะถูกเก็บเพื่อสร้าง continuity ระหว่าง sessions เท่านั้น ไม่มีการส่งต่อให้บุคคลที่สาม
-  </p>
-  <div class="flex gap-8">
-    <a class="text-[#51425F] hover:text-[#C998FF] font-label text-sm uppercase tracking-widest transition-all" href="#">Privacy</a>
-    <a class="text-[#51425F] hover:text-[#C998FF] font-label text-sm uppercase tracking-widest transition-all" href="#">Terms</a>
-  </div>
-  <div class="pt-4 opacity-30">
-    <span class="material-symbols-outlined text-[#C998FF]">stars</span>
+<footer class="bg-stone-900 text-stone-700 py-16">
+  <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start gap-10">
+    <div>
+      <div class="flex items-center gap-2 mb-3">
+        <span class="material-symbols-outlined text-amber-400 text-lg" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
+        <span class="serif text-xl italic text-amber-400">Lumina</span>
+      </div>
+      <p class="text-base text-stone-600 max-w-xs leading-relaxed" id="t-footer-desc">มากกว่าการดูดวง คือการทำความเข้าใจตนเอง</p>
+      <p class="text-sm text-stone-700 mt-4 max-w-xs leading-relaxed" id="t-footer-privacy">ข้อมูลที่คุณแชร์จะถูกเก็บเพื่อ continuity ระหว่าง sessions เท่านั้น ไม่มีการส่งต่อให้บุคคลที่สาม</p>
+    </div>
+    <div class="flex gap-12">
+      <div>
+        <p class="text-sm tracking-widest uppercase text-stone-600 mb-3" id="t-footer-links-label">Links</p>
+        <div class="space-y-2">
+          <a href="/tip.html" class="block text-sm text-stone-600 hover:text-amber-400 transition-colors" id="t-footer-support">สนับสนุน</a>
+          <a href="#" class="block text-sm text-stone-600 hover:text-amber-400 transition-colors" id="t-footer-privacy-link">Privacy</a>
+        </div>
+      </div>
+      <div>
+        <p class="text-sm tracking-widest uppercase text-stone-600 mb-3">Powered by</p>
+        <p class="text-sm text-stone-600">Claude AI by Anthropic</p>
+        <p class="text-xs text-stone-600 mt-1">Hosted on Netlify</p>
+      </div>
+    </div>
   </div>
 </footer>
 
 <script>
-  function validateEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+// ── All translatable text ───────────────────────────────────────────────
+const T = {
+  th: {
+    'nav-support': '☕ สนับสนุน',
+    'email-placeholder': 'Email (ไม่บังคับ)',
+    't-badge': 'Your Personal Oracle',
+    't-h1a': 'มากกว่า', 't-h1b': 'คำทำนาย',
+    't-sub': 'คือการทำความเข้าใจตนเอง',
+    't-body': 'ไม่ว่าคุณจะมาเพื่อหาคำตอบ หาแรงบันดาลใจ หรือแค่อยากมีพื้นที่ให้ตัวเองได้คิด — Lumina พร้อมรับฟัง และจำคุณได้ในทุกครั้งที่กลับมา',
+    't-privacy-hint': 'Email ช่วยให้ Lumina จำคุณได้ระหว่าง sessions',
+    't-tt-title': 'ทำไมต้องใส่ email?',
+    't-tt-body': 'เพื่อให้ระบบจำ session ของคุณได้ — ไม่มีการส่ง newsletter ข้อมูลที่เก็บ: email, ความรู้สึก, ไพ่ที่จั่ว, วันที่',
+    't-tt-skip': 'ไม่ใส่ก็ได้ — ระบบยังทำงานได้ปกติ',
+    't-cta': 'เริ่มต้นเลย →', 't-or': 'หรือ', 't-guest': 'เริ่มเลยโดยไม่ใส่ email',
+    't-oracle-quote': '"ความชัดเจนสำคัญ<br/>กว่าความสบายใจ"',
+    't-mode-label': 'เลือกวิธีการอ่าน', 't-mode-title': 'เส้นทางสู่ความชัดเจน',
+    't-m1t': 'Tarot — Single Card', 't-m1d': 'จั่วไพ่หนึ่งใบ รับการอ่านที่เชื่อมกับความรู้สึกของคุณโดยตรง',
+    't-m2t': 'Tarot — 3 Card Spread', 't-m2d': 'อดีต · ปัจจุบัน · อนาคต — มองภาพรวมของสิ่งที่กำลังเกิดขึ้น',
+    't-m3t': 'Rune Reading', 't-m3d': 'อักษรรูน Elder Futhark — พลังงานโบราณที่ตรงไปตรงมา',
+    't-soon-title': 'กำลังมา — Celtic Cross, I Ching, Omikuji, Numerology',
+    't-soon-sub': 'รวมอยู่ใน Lumina Plus · เร็วๆ นี้', 't-soon-badge': 'Coming Soon',
+    't-phil-label': 'ปรัชญาของ Lumina',
+    't-phil-title': 'ไพ่ไม่ได้ทำนายอนาคต|มันสะท้อนปัจจุบัน',
+    't-phil1': 'บางคนถามว่า "AI ดูดวงได้ไหม?" — ถ้าตีความว่าการใช้ AI คือเจตนาเพียวๆ ไม่ได้มีความคิดของปัจเจกบุคคลมาร่วมด้วย เราว่ามันก็เป็นอีกทางเลือกหนึ่งนะ',
+    't-phil2': 'เวลาคุณจั่วไพ่กับ Lumina ไม่ใช่ AI ที่กำหนดผล แต่คือพลังงานของความตั้งใจที่เลือกสัญลักษณ์ให้คุณ — เหมือนกับที่คุณจั่วไพ่จากที่อื่นๆ',
+    't-phil3': 'สิ่งที่ Lumina ทำได้คือ อ่านสัญลักษณ์นั้นร่วมกับสิ่งที่คุณบอกมา — ไม่ใช่คำตอบสำเร็จรูป แต่เป็นกระจกที่อาจจะช่วยให้คุณมองอะไรได้ชัดขึ้น',
+    't-powered-label': 'Powered by Claude AI',
+    't-powered-body': 'Lumina ใช้ Claude โดย Anthropic ในการตีความ — เราเลือก Claude เพราะมันอ่านบริบทได้ละเอียด ไม่ใช่แค่ตอบตามสคริปต์สำเร็จรูป',
+    't-trust-quote': '"เราไม่ปิดบังว่าใช้ AI"',
+    't-trust-body': 'การดูดวงกับ Lumina ไม่ต่างจากการดูดวงที่ใช้ระบบดิจิทัลช่วย — สิ่งสำคัญคือ intention ของคุณ ไม่ใช่ว่า 0 กับ 1 หรือมือมนุษย์คือคนจั่ว',
+    't-how-label': 'วิธีที่ Lumina ทำงาน', 't-how-title': 'ทุก session คือการสนทนา',
+    't-how1t': 'บอกว่าตอนนี้รู้สึกอะไร', 't-how1b': 'ไม่ต้องใช้ภาษาสวยงาม แค่พูดตรงๆ ว่าวันนี้ใจอยู่ที่ไหน',
+    't-how2t': 'รับการอ่านที่เป็นของคุณ', 't-how2b': 'ไม่ใช่คำทำนายสำเร็จรูป — Lumina อ่านจากสิ่งที่คุณบอกมาจริงๆ',
+    't-how3t': 'Lumina จำคุณได้', 't-how3b': 'ยิ่งกลับมา ยิ่งเข้าใจ — เหมือนคุยกับคนที่รู้จักคุณ ไม่ใช่แปลกหน้าทุกครั้ง',
+    't-tip-title': 'ถ้า Lumina ช่วยให้คุณคิดได้ชัดขึ้น',
+    't-tip-body': 'สนับสนุน Lumina ได้ในราคาแก้วกาแฟ — ช่วยให้เราพัฒนาต่อได้และ keep it free สำหรับทุกคน',
+    't-tip-btn': 'สนับสนุน Lumina 🙏', 't-tip-sub': 'ไม่บังคับ · จ่ายครั้งเดียว · ไม่มี subscription',
+    't-plus-title': 'Lumina Plus', 't-plus-badge': 'Coming Soon',
+    't-plus-body': 'Celtic Cross · I Ching · Omikuji · Numerology · Session history ย้อนหลัง · Priority reading',
+    't-plus-notify': 'แจ้งเตือนเมื่อพร้อม →',
+    't-footer-desc': 'มากกว่าการดูดวง คือการทำความเข้าใจตนเอง',
+    't-footer-privacy': 'ข้อมูลที่คุณแชร์จะถูกเก็บเพื่อ continuity ระหว่าง sessions เท่านั้น ไม่มีการส่งต่อให้บุคคลที่สาม',
+    't-footer-links-label': 'Links', 't-footer-support': 'สนับสนุน', 't-footer-privacy-link': 'Privacy',
+  },
+  en: {
+    'nav-support': '☕ Support',
+    'email-placeholder': 'Email (optional)',
+    't-badge': 'Your Personal Oracle',
+    't-h1a': 'More than', 't-h1b': 'Fortune Telling',
+    't-sub': "It's about understanding yourself",
+    't-body': "Whether you're looking for answers, inspiration, or just space to think — Lumina listens, and remembers you every time you return.",
+    't-privacy-hint': 'Email helps Lumina remember you between sessions',
+    't-tt-title': 'Why email?',
+    't-tt-body': 'To remember your sessions — no newsletters, no ads. We store: email, what you shared, card drawn, date.',
+    't-tt-skip': 'Optional — Lumina works without it',
+    't-cta': 'Begin Reading →', 't-or': 'or', 't-guest': 'continue without email',
+    't-oracle-quote': '"Clarity over<br/>comfort"',
+    't-mode-label': 'Choose your reading', 't-mode-title': 'Your path to clarity',
+    't-m1t': 'Tarot — Single Card', 't-m1d': 'Draw one card for a reading connected directly to how you feel',
+    't-m2t': 'Tarot — 3 Card Spread', 't-m2d': 'Past · Present · Future — see the bigger picture',
+    't-m3t': 'Rune Reading', 't-m3d': 'Elder Futhark — ancient symbols, direct energy',
+    't-soon-title': 'Coming — Celtic Cross, I Ching, Omikuji, Numerology',
+    't-soon-sub': 'Included in Lumina Plus · Coming soon', 't-soon-badge': 'Coming Soon',
+    't-phil-label': 'The Philosophy of Lumina',
+    't-phil-title': "Cards don't predict the future|They reflect the present",
+    't-phil1': 'Some ask "Can AI do divination?" — if you interpret using AI as pure intention without individual bias, we think it\'s a valid alternative.',
+    't-phil2': "When you draw with Lumina, it's not AI determining the outcome — it's the energy of your intention choosing the symbol, just like drawing cards anywhere else.",
+    't-phil3': "What Lumina does is read that symbol alongside what you've shared — not a scripted answer, but a mirror that might help you see things more clearly.",
+    't-powered-label': 'Powered by Claude AI',
+    't-powered-body': 'Lumina uses Claude by Anthropic for interpretation — we chose Claude because it reads context deeply, not just from a template.',
+    't-trust-quote': '"We don\'t hide that we use AI"',
+    't-trust-body': "Divination with Lumina is no different from any digital divination tool. What matters is your intention, not whether fingers or algorithms draw the card.",
+    't-how-label': 'How Lumina Works', 't-how-title': 'Every session is a conversation',
+    't-how1t': 'Share how you feel', 't-how1b': "No need for perfect words. Just say where your heart is today.",
+    't-how2t': 'Receive your reading', 't-how2b': "Not a template response — Lumina reads from what you actually shared.",
+    't-how3t': 'Lumina remembers you', 't-how3b': "The more you return, the better it knows you. Like talking to someone who actually knows you.",
+    't-tip-title': 'If Lumina helped you see things more clearly',
+    't-tip-body': 'Support Lumina for the price of a coffee — helps us keep developing and keep it free for everyone.',
+    't-tip-btn': 'Support Lumina 🙏', 't-tip-sub': 'Optional · One-time · No subscription',
+    't-plus-title': 'Lumina Plus', 't-plus-badge': 'Coming Soon',
+    't-plus-body': 'Celtic Cross · I Ching · Omikuji · Numerology · Session history · Priority reading',
+    't-plus-notify': 'Notify me →',
+    't-footer-desc': 'More than fortune telling — understanding yourself.',
+    't-footer-privacy': 'Data shared is stored for session continuity only. Never shared with third parties.',
+    't-footer-links-label': 'Links', 't-footer-support': 'Support', 't-footer-privacy-link': 'Privacy',
+  },
+  jp: {
+    'nav-support': '☕ サポート',
+    'email-placeholder': 'メール（任意）',
+    't-badge': 'あなたの個人オラクル',
+    't-h1a': '占いを超えた', 't-h1b': '自己理解の旅',
+    't-sub': 'ルミナは、あなたの心の声に耳を傾けます',
+    't-body': '答えを探している方も、インスピレーションが必要な方も、ただ考える時間が欲しい方も — Luminaは聞いて、覚えています。',
+    't-privacy-hint': 'メールでセッション間の記憶が可能になります',
+    't-tt-title': 'なぜメールが必要？',
+    't-tt-body': 'セッションを記憶するためです — ニュースレターや広告はありません。保存: メール、シェアした内容、引いたカード、日付。',
+    't-tt-skip': '任意です — なくても動作します',
+    't-cta': '読み始める →', 't-or': 'または', 't-guest': 'メールなしで続ける',
+    't-oracle-quote': '"安心より<br/>明晰さを"',
+    't-mode-label': '読み方を選んでください', 't-mode-title': '明晰さへの道',
+    't-m1t': 'タロット — 1枚引き', 't-m1d': '今の気持ちに直接つながる1枚のカードを引きます',
+    't-m2t': 'タロット — 3枚スプレッド', 't-m2d': '過去・現在・未来 — 全体像を見渡す',
+    't-m3t': 'ルーン占い', 't-m3d': 'エルダーフサルク — 直接的で古代のエネルギー',
+    't-soon-title': 'もうすぐ — ケルティッククロス, 易経, おみくじ, 数秘術',
+    't-soon-sub': 'Lumina Plusに含まれます · 近日公開', 't-soon-badge': 'Coming Soon',
+    't-phil-label': 'Luminaの哲学',
+    't-phil-title': 'カードは未来を予言しない|現在を映す鏡',
+    't-phil1': '「AIで占いはできるの？」という問いに対して — AIを使うことが純粋な意図であり、個人の思考が入らないと解釈するなら、それも一つの選択肢だと思います。',
+    't-phil2': 'Luminaでカードを引く時、結果を決めるのはAIではありません — あなたの意図のエネルギーがシンボルを選ぶのです。他の場所でカードを引くのと同じように。',
+    't-phil3': 'Luminaができることは、そのシンボルとあなたが伝えたことを合わせて読むこと — テンプレートの答えではなく、物事をより明確に見るための鏡かもしれません。',
+    't-powered-label': 'Claude AIによって動作',
+    't-powered-body': 'LuminaはAnthropicのClaudeを解釈に使用しています — コンテキストを深く読む能力のためClaudeを選びました。',
+    't-trust-quote': '"AIを使っていることを隠しません"',
+    't-trust-body': 'Luminaでの占いは、デジタルツールを使った占いと変わりません。大切なのはあなたの意図であり、指かアルゴリズムがカードを引くかではありません。',
+    't-how-label': 'Luminaの使い方', 't-how-title': 'すべてのセッションは対話',
+    't-how1t': '今の気持ちをシェア', 't-how1b': '完璧な言葉は必要ありません。今日の心の状態をそのまま伝えてください。',
+    't-how2t': 'あなただけの読みを受け取る', 't-how2b': 'テンプレートの回答ではありません — あなたが実際に伝えたことから読みます。',
+    't-how3t': 'Luminaはあなたを覚えています', 't-how3b': '戻るたびに理解が深まります。本当にあなたを知る人と話すように。',
+    't-tip-title': 'Luminaが物事をより明確に見る助けになったなら',
+    't-tip-body': 'コーヒー1杯の値段でLuminaをサポートできます — 開発を続け、すべての人に無料で提供するために。',
+    't-tip-btn': 'Luminaをサポート 🙏', 't-tip-sub': '任意 · 一回払い · サブスクなし',
+    't-plus-title': 'Lumina Plus', 't-plus-badge': 'Coming Soon',
+    't-plus-body': 'ケルティッククロス · 易経 · おみくじ · 数秘術 · セッション履歴 · 優先読み',
+    't-plus-notify': '通知を受け取る →',
+    't-footer-desc': '占いを超えた — 自己理解の旅。',
+    't-footer-privacy': 'データはセッション継続のためだけに保存されます。第三者への共有はありません。',
+    't-footer-links-label': 'Links', 't-footer-support': 'サポート', 't-footer-privacy-link': 'Privacy',
   }
+};
 
-  function startSession(mode) {
-    const email = document.getElementById('email-input').value.trim();
-    const errorEl = document.getElementById('email-error');
-    if (email && !validateEmail(email)) {
-      errorEl.classList.remove('hidden');
-      return;
-    }
-    errorEl.classList.add('hidden');
-    const m = mode || 'tarot-single';
-    if (email) {
-      localStorage.setItem('horo_email', email);
-      window.location.href = `/session.html?email=${encodeURIComponent(email)}&mode=${m}`;
-    } else {
-      localStorage.removeItem('horo_email');
-      window.location.href = `/session.html?mode=${m}`;
+let currentLang = 'th';
+let selectedMode = 'tarot-single';
+
+function setLang(lang) {
+  currentLang = lang;
+  const c = T[lang];
+  // Update all lang buttons
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+  // Update email placeholder
+  document.getElementById('email-input').placeholder = c['email-placeholder'];
+  // Update nav support
+  document.getElementById('nav-support').textContent = c['nav-support'];
+  // Update all elements with t- IDs
+  for (const [id, text] of Object.entries(c)) {
+    if (id.startsWith('t-')) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      if (id === 't-oracle-quote' || id === 't-trust-quote') {
+        el.innerHTML = text;
+      } else if (id === 't-phil-title') {
+        const parts = text.split('|');
+        el.innerHTML = parts[0] + '<br/><em class="text-amber-700">' + parts[1] + '</em>';
+      } else {
+        el.textContent = text;
+      }
     }
   }
+  localStorage.setItem('lumina_lang', lang);
+}
 
-  function startSessionGuest() {
+function selectMode(mode, el) {
+  selectedMode = mode;
+  document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function validateEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+
+function startSession() {
+  const email = document.getElementById('email-input').value.trim();
+  const err = document.getElementById('email-error');
+  if (email && !validateEmail(email)) { err.classList.remove('hidden'); return; }
+  err.classList.add('hidden');
+  if (email) {
+    localStorage.setItem('horo_email', email);
+    location.href = `/session.html?email=${encodeURIComponent(email)}&mode=${selectedMode}&lang=${currentLang}`;
+  } else {
     localStorage.removeItem('horo_email');
-    window.location.href = '/session.html?mode=tarot-single';
+    location.href = `/session.html?mode=${selectedMode}&lang=${currentLang}`;
   }
+}
 
-  document.getElementById('email-input').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') startSession();
-  });
+function startSessionGuest() {
+  localStorage.removeItem('horo_email');
+  location.href = `/session.html?mode=${selectedMode}&lang=${currentLang}`;
+}
 
-  let selectedMode = 'tarot-single';
-  function setMode(mode) {
-    selectedMode = mode;
-    document.querySelectorAll('.mode-toggle').forEach(btn => btn.classList.remove('active-mode'));
-    const active = document.querySelector(`.mode-toggle[data-mode="${mode}"]`);
-    if (active) active.classList.add('active-mode');
-  }
-  // Init default active
-  document.addEventListener('DOMContentLoaded', () => setMode('tarot-single'));
+document.getElementById('email-input').addEventListener('keydown', e => { if (e.key === 'Enter') startSession(); });
 
-  // Override startSession to use selectedMode
-  const _origStart = startSession;
-  function startSession(modeOverride) {
-    const email = document.getElementById('email-input').value.trim();
-    const errorEl = document.getElementById('email-error');
-    if (email && !validateEmail(email)) { errorEl.classList.remove('hidden'); return; }
-    errorEl.classList.add('hidden');
-    const m = modeOverride || selectedMode;
-    if (email) {
-      localStorage.setItem('horo_email', email);
-      window.location.href = `/session.html?email=${encodeURIComponent(email)}&mode=${m}`;
-    } else {
-      localStorage.removeItem('horo_email');
-      window.location.href = `/session.html?mode=${m}`;
-    }
-  }
+// Restore saved lang
+const saved = localStorage.getItem('lumina_lang') || 'th';
+setLang(saved);
+
+// Scroll animations
+const obs = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.1 });
+document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
 </script>
-
 </body>
 </html>
