@@ -146,22 +146,22 @@
       <p class="font-label text-xs uppercase tracking-[0.2em] text-on-surface-variant mb-3 text-center">เลือกโหมดการทำนาย</p>
       <div class="grid grid-cols-3 gap-2" id="mode-selector">
         <button onclick="setMode('tarot-single')" data-mode="tarot-single"
-          class="mode-toggle active-mode px-3 py-3 rounded-xl border border-primary/50 bg-primary/10 flex flex-col items-center gap-2 transition-all">
-          <span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
-          <span class="font-headline text-[10px] tracking-widest uppercase text-primary">Tarot</span>
-          <span class="font-body text-[10px] text-on-surface-variant">Single Card</span>
+          class="mode-toggle px-3 py-3 rounded-xl border border-outline-variant/30 bg-transparent flex flex-col items-center gap-2 transition-all hover:border-primary/30">
+          <span class="material-symbols-outlined text-on-surface-variant text-xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
+          <span class="font-headline text-[10px] tracking-widest uppercase text-on-surface-variant">Tarot</span>
+          <span class="font-body text-[10px] text-on-surface-variant/60">Single Card</span>
         </button>
         <button onclick="setMode('tarot-three')" data-mode="tarot-three"
           class="mode-toggle px-3 py-3 rounded-xl border border-outline-variant/30 bg-transparent flex flex-col items-center gap-2 transition-all hover:border-primary/30">
           <span class="material-symbols-outlined text-on-surface-variant text-xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">view_week</span>
           <span class="font-headline text-[10px] tracking-widest uppercase text-on-surface-variant">Tarot</span>
-          <span class="font-body text-[10px] text-on-surface-variant">3-Card Spread</span>
+          <span class="font-body text-[10px] text-on-surface-variant/60">3-Card Spread</span>
         </button>
         <button onclick="setMode('rune')" data-mode="rune"
           class="mode-toggle px-3 py-3 rounded-xl border border-outline-variant/30 bg-transparent flex flex-col items-center gap-2 transition-all hover:border-primary/30">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="text-on-surface-variant"><line x1="12" y1="3" x2="12" y2="21"/><line x1="7" y1="8" x2="12" y2="3"/><line x1="17" y1="8" x2="12" y2="3"/></svg>
+          <span class="text-on-surface-variant font-headline text-lg leading-none">ᚱ</span>
           <span class="font-headline text-[10px] tracking-widest uppercase text-on-surface-variant">Rune</span>
-          <span class="font-body text-[10px] text-on-surface-variant">Elder Futhark</span>
+          <span class="font-body text-[10px] text-on-surface-variant/60">Elder Futhark</span>
         </button>
       </div>
     </div>
@@ -364,14 +364,12 @@
   let selectedMode = 'tarot-single';
   function setMode(mode) {
     selectedMode = mode;
-    document.querySelectorAll('.mode-toggle').forEach(btn => {
-      btn.classList.remove('active-mode');
-      btn.querySelectorAll('span').forEach(s => s.style.color = '');
-      btn.querySelectorAll('svg').forEach(s => s.style.stroke = '');
-    });
-    const active = document.querySelector(`[data-mode="${mode}"]`);
+    document.querySelectorAll('.mode-toggle').forEach(btn => btn.classList.remove('active-mode'));
+    const active = document.querySelector(`.mode-toggle[data-mode="${mode}"]`);
     if (active) active.classList.add('active-mode');
   }
+  // Init default active
+  document.addEventListener('DOMContentLoaded', () => setMode('tarot-single'));
 
   // Override startSession to use selectedMode
   const _origStart = startSession;
