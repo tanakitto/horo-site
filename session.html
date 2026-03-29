@@ -210,10 +210,6 @@
         <div class="tarot-fallback">
           <div class="tarot-fallback-star">✦</div>
         </div>
-        <img id="tarot-img" class="tarot-img hidden" alt="tarot card"
-          onload="this.classList.remove('hidden'); document.getElementById('tarot-wrap').classList.add('tarot-img-loaded')"
-          onerror="this.classList.add('hidden')"
-        />
         <div class="tarot-footer" id="tarot-footer"></div>
       </div>
 
@@ -358,13 +354,9 @@
     callClaudeAPI(prompt, card, reversed);
   }
 
-  // ── Fetch AI card image from Pollinations ─────────────────────────────
+  // ── Card image — pattern only (AI image removed) ──────────────────────
   function loadCardImage(cardName, reversed) {
-    const prompt = `tarot card illustration, ${cardName}, mystical dark purple and gold art nouveau style, ornate border, ethereal cosmic background, no text, vertical card format, highly detailed`;
-    const encoded = encodeURIComponent(prompt);
-    const url = `https://image.pollinations.ai/prompt/${encoded}?width=400&height=640&seed=${Math.floor(Math.random()*9999)}&nologo=true`;
-    const img = document.getElementById('tarot-img');
-    img.src = url;
+    // Pattern fallback is the main visual — no external image needed
   }
 
   async function callClaudeAPI(prompt, card, reversed) {
