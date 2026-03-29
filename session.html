@@ -5,7 +5,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Lumina — Session</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
   tailwind.config = {
@@ -39,100 +39,73 @@
     font-family: 'Anuphan', sans-serif;
     min-height: 100dvh;
   }
-  .glass-obsidian {
-    background: rgba(49, 29, 67, 0.4);
-    backdrop-filter: blur(12px);
-  }
+  .glass-obsidian { background: rgba(49,29,67,0.4); backdrop-filter: blur(12px); }
   .fade-in { animation: fadeIn 0.8s ease-in-out; }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
   .suggestion-btn {
-    background: rgba(49, 29, 67, 0.4);
-    border: 1px solid rgba(81, 66, 95, 0.4);
+    background: rgba(49,29,67,0.4);
+    border: 1px solid rgba(81,66,95,0.4);
     transition: all 0.2s;
   }
-  .suggestion-btn:hover {
-    border-color: rgba(201, 152, 255, 0.5);
-    background: rgba(201, 152, 255, 0.05);
-  }
+  .suggestion-btn:hover { border-color: rgba(201,152,255,0.5); background: rgba(201,152,255,0.05); }
   .spin { animation: spin 1.5s linear infinite; }
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-  textarea:focus {
-    outline: none;
-    border-color: rgba(201, 152, 255, 0.6);
-    box-shadow: 0 0 0 2px rgba(201, 152, 255, 0.1);
-  }
-  .return-card {
-    background: rgba(201, 152, 255, 0.05);
-    border: 1px solid rgba(201, 152, 255, 0.2);
-  }
+  @keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+  textarea:focus { outline:none; border-color:rgba(201,152,255,0.6); box-shadow:0 0 0 2px rgba(201,152,255,0.1); }
+  .return-card { background:rgba(201,152,255,0.05); border:1px solid rgba(201,152,255,0.2); }
 
-  /* ── Tarot card ──────────────────────────────────────────────────────── */
+  /* ── Single card ── */
   .tarot-wrap {
-    width: 200px;
-    height: 320px;
-    border-radius: 14px;
-    overflow: hidden;
-    position: relative;
-    box-shadow: 0 0 60px rgba(201,152,255,0.25), 0 20px 60px rgba(0,0,0,0.7);
-    transition: transform 0.6s ease;
+    width: 180px; height: 290px;
+    border-radius: 12px; overflow: hidden; position: relative;
+    box-shadow: 0 0 50px rgba(201,152,255,0.2), 0 20px 50px rgba(0,0,0,0.6);
+    transition: transform 0.5s ease;
+    flex-shrink: 0;
   }
   .tarot-wrap.reversed { transform: rotate(180deg); }
-
-  /* AI image fills card */
-  .tarot-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  /* Fallback pattern shown while image loads */
-  .tarot-fallback {
-    position: absolute;
-    inset: 0;
+  .tarot-back {
+    width:100%; height:100%;
     background: linear-gradient(145deg, #1a0535 0%, #2d0060 50%, #150822 100%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
+    display: flex; align-items:center; justify-content:center; position:relative;
   }
-  .tarot-fallback::before {
-    content: '';
-    position: absolute;
-    inset: 10px;
-    border: 1px solid rgba(201,152,255,0.3);
-    border-radius: 8px;
+  .tarot-back::before { content:''; position:absolute; inset:8px; border:1px solid rgba(201,152,255,0.3); border-radius:6px; }
+  .tarot-back::after { content:''; position:absolute; inset:14px; border:1px solid rgba(201,152,255,0.12); border-radius:4px; }
+  .tarot-pattern {
+    position:absolute; inset:0;
+    background-image: radial-gradient(circle at 50% 50%, rgba(201,152,255,0.08) 0%, transparent 60%),
+      repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(201,152,255,0.04) 8px, rgba(201,152,255,0.04) 9px);
   }
-  .tarot-fallback-star {
-    font-size: 52px;
-    position: relative;
-    z-index: 2;
-  }
-  .tarot-img-loaded .tarot-fallback { display: none; }
-
+  .tarot-star { position:relative; z-index:2; font-size:40px; }
   .tarot-footer {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    padding: 20px 12px 14px;
+    position:absolute; bottom:0; left:0; right:0;
+    padding:16px 10px 10px;
     background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
-    text-align: center;
-    font-family: 'Cinzel', serif;
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    color: rgba(201,152,255,0.9);
-    text-transform: uppercase;
+    text-align:center;
+    font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.15em; color:rgba(201,152,255,0.85);
+    text-transform:uppercase;
   }
-  .reversed-badge {
-    background: rgba(201, 152, 255, 0.15);
-    border: 1px solid rgba(201, 152, 255, 0.3);
+
+  /* ── 3-card spread ── */
+  .three-spread { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
+  .spread-slot { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .spread-label { font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.2em; color:rgba(201,152,255,0.6); text-transform:uppercase; }
+
+  /* ── Rune stone ── */
+  .rune-wrap {
+    width:160px; height:200px;
+    border-radius:50% 50% 40% 40% / 60% 60% 40% 40%;
+    background: radial-gradient(ellipse at 30% 30%, #3d1a6e, #1a0535 70%, #080015);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+    box-shadow: 0 0 50px rgba(201,152,255,0.15), inset 0 2px 8px rgba(201,152,255,0.1), 0 20px 40px rgba(0,0,0,0.7);
+    position:relative;
+    flex-shrink:0;
   }
+  .rune-symbol {
+    font-size:72px; color:rgba(201,152,255,0.9);
+    font-family:'Cinzel',serif;
+    text-shadow: 0 0 20px rgba(201,152,255,0.5);
+  }
+  .rune-name { font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.2em; color:rgba(201,152,255,0.6); text-transform:uppercase; }
+  .reversed-badge { background:rgba(201,152,255,0.15); border:1px solid rgba(201,152,255,0.3); }
 </style>
 </head>
 <body>
@@ -142,7 +115,7 @@
     <span class="material-symbols-outlined text-purple-300 text-lg" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
     <h1 class="font-headline text-lg tracking-widest text-purple-300">LUMINA</h1>
   </div>
-  <a href="/" class="text-[10px] uppercase tracking-widest text-[#816F8F] hover:text-[#C998FF] transition-colors font-label">← กลับ</a>
+  <a href="/" class="font-body text-[10px] uppercase tracking-widest text-[#816F8F] hover:text-[#C998FF] transition-colors">← กลับ</a>
 </header>
 
 <main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
@@ -155,8 +128,13 @@
       <p id="return-text" class="font-body text-on-surface-variant text-sm leading-relaxed"></p>
     </div>
 
+    <!-- Mode badge -->
+    <div id="mode-badge" class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-outline-variant/30 bg-surface-container-low">
+      <span id="mode-icon" class="material-symbols-outlined text-primary text-sm" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
+      <span id="mode-label" class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Tarot · Single Card</span>
+    </div>
+
     <div class="space-y-3">
-      <p class="font-label text-primary tracking-[0.2rem] uppercase text-xs">The Beginning</p>
       <h2 class="font-headline text-3xl md:text-4xl text-on-background tracking-wide">ตอนนี้รู้สึกอะไรอยู่?</h2>
       <p class="font-body text-on-surface-variant text-sm">พิมพ์ในช่องด้านล่าง หรือเลือกจากตัวอย่าง</p>
     </div>
@@ -171,12 +149,12 @@
       </div>
       <button id="submit-btn" onclick="submitPrompt()"
         class="w-full py-4 bg-primary text-on-primary font-label font-bold rounded-xl text-sm uppercase tracking-widest transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-40"
-        disabled>จั่วไพ่เลย →</button>
+        disabled>จั่วเลย →</button>
     </div>
 
     <div class="w-full max-w-xl flex items-center gap-4">
       <div class="flex-1 h-px bg-outline-variant/20"></div>
-      <span class="text-xs text-outline font-label uppercase tracking-widest">หรือเลือกจากนี้</span>
+      <span class="font-label text-xs text-outline uppercase tracking-widest">หรือเลือกจากนี้</span>
       <div class="flex-1 h-px bg-outline-variant/20"></div>
     </div>
 
@@ -197,40 +175,92 @@
         <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
       </div>
     </div>
-    <p class="font-headline text-xl text-on-background/80 tracking-widest">กำลังจั่วไพ่...</p>
+    <p class="font-headline text-xl text-on-background/80 tracking-widest">กำลังจั่ว...</p>
     <p class="font-body text-on-surface-variant text-sm">หลับตา ทำใจให้สบายๆ</p>
   </section>
 
-  <!-- STEP 3: Card + Reading + Resonance -->
+  <!-- STEP 3: Reading result -->
   <section id="step-3" class="hidden py-12 space-y-16 fade-in">
-    <div class="flex flex-col items-center gap-10">
 
-      <!-- Tarot card with AI image -->
-      <div id="tarot-wrap" class="tarot-wrap">
-        <div class="tarot-fallback">
-          <div class="tarot-fallback-star">✦</div>
+    <!-- Visual area — changes per mode -->
+    <div id="visual-area" class="flex flex-col items-center gap-10">
+
+      <!-- Single card (default) -->
+      <div id="single-card-view" class="flex flex-col items-center gap-6">
+        <div id="tarot-wrap" class="tarot-wrap">
+          <div class="tarot-back">
+            <div class="tarot-pattern"></div>
+            <div class="tarot-star">✦</div>
+            <div class="tarot-footer" id="tarot-footer"></div>
+          </div>
         </div>
-        <div class="tarot-footer" id="tarot-footer"></div>
+        <div id="reversed-badge" class="hidden reversed-badge inline-flex items-center gap-2 px-3 py-1 rounded-full">
+          <span class="text-sm">🔃</span>
+          <span class="font-label text-primary text-xs uppercase tracking-widest">Reversed</span>
+        </div>
       </div>
 
+      <!-- 3-card spread view -->
+      <div id="three-card-view" class="hidden three-spread">
+        <div class="spread-slot">
+          <p class="spread-label">Past</p>
+          <div class="tarot-wrap" style="width:120px;height:190px">
+            <div class="tarot-back">
+              <div class="tarot-pattern"></div>
+              <div class="tarot-star" style="font-size:28px">✦</div>
+              <div class="tarot-footer" id="card1-footer" style="font-size:7px"></div>
+            </div>
+          </div>
+        </div>
+        <div class="spread-slot" style="margin-top:-20px">
+          <p class="spread-label">Present</p>
+          <div class="tarot-wrap" style="width:140px;height:220px;box-shadow:0 0 60px rgba(201,152,255,0.3)">
+            <div class="tarot-back">
+              <div class="tarot-pattern"></div>
+              <div class="tarot-star" style="font-size:36px">✦</div>
+              <div class="tarot-footer" id="card2-footer" style="font-size:8px"></div>
+            </div>
+          </div>
+        </div>
+        <div class="spread-slot">
+          <p class="spread-label">Future</p>
+          <div class="tarot-wrap" style="width:120px;height:190px">
+            <div class="tarot-back">
+              <div class="tarot-pattern"></div>
+              <div class="tarot-star" style="font-size:28px">✦</div>
+              <div class="tarot-footer" id="card3-footer" style="font-size:7px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rune view -->
+      <div id="rune-view" class="hidden flex flex-col items-center gap-4">
+        <div class="rune-wrap">
+          <div class="rune-symbol" id="rune-symbol">ᚱ</div>
+          <div class="rune-name" id="rune-name"></div>
+        </div>
+        <div id="rune-reversed-badge" class="hidden reversed-badge inline-flex items-center gap-2 px-3 py-1 rounded-full">
+          <span class="text-sm">🔃</span>
+          <span class="font-label text-primary text-xs uppercase tracking-widest">Reversed</span>
+        </div>
+      </div>
+
+      <!-- Text content -->
       <div class="text-center space-y-5 max-w-xl">
         <div class="space-y-2">
           <p id="session-label" class="font-label text-primary tracking-[0.2rem] uppercase text-xs">The Revelation</p>
-          <h3 id="card-name" class="font-headline text-3xl text-on-background tracking-wide"></h3>
-          <div id="reversed-badge" class="hidden reversed-badge inline-flex items-center gap-2 px-3 py-1 rounded-full mt-1">
-            <span class="text-base">🔃</span>
-            <span class="font-label text-primary text-xs uppercase tracking-widest">Reversed</span>
-          </div>
+          <h3 id="card-name" class="font-headline text-2xl text-on-background tracking-wide"></h3>
         </div>
         <p id="card-reading" class="font-body text-base leading-relaxed text-on-surface-variant"></p>
-        <p id="card-question" class="font-headline text-lg text-primary/80 tracking-wide"></p>
+        <p id="card-question" class="font-headline text-base text-primary/80 tracking-wide"></p>
       </div>
     </div>
 
     <div class="h-px w-full bg-outline-variant/20"></div>
 
     <div class="glass-obsidian p-10 rounded-2xl border border-outline-variant/10 text-center space-y-8">
-      <h4 class="font-headline text-xl text-on-background tracking-wide">การอ่านครั้งนี้ตรงกับความรู้สึกคุณไหม?</h4>
+      <h4 class="font-headline text-lg text-on-background tracking-wide">การอ่านครั้งนี้ตรงกับความรู้สึกคุณไหม?</h4>
       <div class="flex flex-wrap justify-center gap-4">
         <button onclick="selectResonance('ใช่เลย')" class="resonance-btn px-8 py-3 bg-primary text-on-primary font-body font-semibold rounded-full transition-all active:scale-95 hover:opacity-90">ใช่เลย</button>
         <button onclick="selectResonance('ใกล้เคียง')" class="resonance-btn px-8 py-3 border border-primary/40 text-primary font-body rounded-full hover:bg-primary/5 active:scale-95 transition-all">ใกล้เคียง</button>
@@ -251,183 +281,198 @@
   const urlParams = new URLSearchParams(window.location.search);
   const emailFromUrl = urlParams.get('email');
   const userEmail = emailFromUrl || localStorage.getItem('horo_email') || 'guest';
+  const readingMode = urlParams.get('mode') || 'tarot-single';
 
   const sessionKey = 'lumina_session_active';
   const isFirstVisitThisTab = !sessionStorage.getItem(sessionKey);
   sessionStorage.setItem(sessionKey, '1');
 
-  const majorArcana = [
-    'The Fool','The Magician','The High Priestess','The Empress',
-    'The Emperor','The Hierophant','The Lovers','The Chariot',
-    'Strength','The Hermit','Wheel of Fortune','Justice',
-    'The Hanged Man','Death','Temperance','The Devil',
-    'The Tower','The Star','The Moon','The Sun','Judgement','The World'
-  ];
+  // ── Tarot deck ─────────────────────────────────────────────────────────
+  const majorArcana = ['The Fool','The Magician','The High Priestess','The Empress','The Emperor','The Hierophant','The Lovers','The Chariot','Strength','The Hermit','Wheel of Fortune','Justice','The Hanged Man','Death','Temperance','The Devil','The Tower','The Star','The Moon','The Sun','Judgement','The World'];
   const suits = ['Wands','Cups','Swords','Pentacles'];
   const ranks = ['Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Page','Knight','Queen','King'];
-  const minorArcana = suits.flatMap(suit => ranks.map(rank => rank + ' of ' + suit));
+  const minorArcana = suits.flatMap(s => ranks.map(r => r + ' of ' + s));
   const fullDeck = [...majorArcana, ...minorArcana];
 
+  // ── Rune deck ───────────────────────────────────────────────────────────
+  const runes = [
+    {symbol:'ᚠ',name:'Fehu'},{symbol:'ᚢ',name:'Uruz'},{symbol:'ᚦ',name:'Thurisaz'},
+    {symbol:'ᚨ',name:'Ansuz'},{symbol:'ᚱ',name:'Raidho'},{symbol:'ᚲ',name:'Kenaz'},
+    {symbol:'ᚷ',name:'Gebo'},{symbol:'ᚹ',name:'Wunjo'},{symbol:'ᚺ',name:'Hagalaz'},
+    {symbol:'ᚾ',name:'Nauthiz'},{symbol:'ᛁ',name:'Isa'},{symbol:'ᛃ',name:'Jera'},
+    {symbol:'ᛇ',name:'Eihwaz'},{symbol:'ᛈ',name:'Perthro'},{symbol:'ᛉ',name:'Algiz'},
+    {symbol:'ᛊ',name:'Sowilo'},{symbol:'ᛏ',name:'Tiwaz'},{symbol:'ᛒ',name:'Berkano'},
+    {symbol:'ᛖ',name:'Ehwaz'},{symbol:'ᛗ',name:'Mannaz'},{symbol:'ᛚ',name:'Laguz'},
+    {symbol:'ᛜ',name:'Ingwaz'},{symbol:'ᛞ',name:'Dagaz'},{symbol:'ᛟ',name:'Othala'}
+  ];
+
   function drawCard() {
-    return {
-      card: fullDeck[Math.floor(Math.random() * fullDeck.length)],
-      reversed: Math.random() < 0.3
-    };
+    return { card: fullDeck[Math.floor(Math.random()*fullDeck.length)], reversed: Math.random()<0.3 };
+  }
+  function drawThree() {
+    const shuffled = [...fullDeck].sort(()=>Math.random()-0.5);
+    return [
+      {card:shuffled[0],reversed:Math.random()<0.3},
+      {card:shuffled[1],reversed:Math.random()<0.3},
+      {card:shuffled[2],reversed:Math.random()<0.3}
+    ];
+  }
+  function drawRune() {
+    return { rune: runes[Math.floor(Math.random()*runes.length)], reversed: Math.random()<0.4 };
   }
 
-  let currentPrompt = '';
-  let currentCard = '';
-  let currentReversed = false;
-  let userHistory = [];
-  let resonanceSaved = false;
+  let currentPrompt='', currentCard='', currentReversed=false, userHistory=[], resonanceSaved=false;
+
+  // ── Setup mode UI ──────────────────────────────────────────────────────
+  function setupMode() {
+    const badge = document.getElementById('mode-badge');
+    const icon = document.getElementById('mode-icon');
+    const label = document.getElementById('mode-label');
+    if (readingMode === 'tarot-three') {
+      label.textContent = 'Tarot · 3-Card Spread';
+    } else if (readingMode === 'rune') {
+      icon.textContent = 'rune_reading';
+      label.textContent = 'Rune · Elder Futhark';
+      badge.querySelector('#mode-icon').style.display = 'none';
+      // show rune icon as text
+      const runeIcon = document.createElement('span');
+      runeIcon.textContent = 'ᚱ';
+      runeIcon.className = 'text-primary text-sm font-headline';
+      badge.insertBefore(runeIcon, label);
+    }
+  }
 
   // ── Load history ───────────────────────────────────────────────────────
   async function loadHistory() {
-    if (userEmail === 'guest' || !isFirstVisitThisTab) return;
+    if (userEmail==='guest'||!isFirstVisitThisTab) return;
     try {
-      const res = await fetch('/.netlify/functions/history', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail })
-      });
+      const res = await fetch('/.netlify/functions/history',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:userEmail})});
       const data = await res.json();
-      userHistory = data.sessions || [];
-      if (data.isReturning && userHistory.length > 0) {
+      userHistory = data.sessions||[];
+      if (data.isReturning&&userHistory.length>0) {
         const last = userHistory[0];
-        const lastDate = last.date ? new Date(last.date) : null;
+        const lastDate = last.date?new Date(last.date):null;
         const today = new Date();
         const todayStr = today.toISOString().split('T')[0];
-        const lastDateStr = lastDate ? lastDate.toISOString().split('T')[0] : null;
-        if (lastDateStr && lastDateStr !== todayStr) {
-          const daysSince = lastDate ? Math.floor((today - lastDate) / (1000*60*60*24)) : null;
-          let txt = '';
-          if (daysSince === 1) txt = 'คุณมาที่นี่เมื่อวาน — มีอะไรที่เปลี่ยนไปบ้างไหม?';
-          else if (daysSince <= 7) txt = `คุณมาที่นี่เมื่อ ${daysSince} วันก่อน — ตอนนี้เป็นยังไงบ้าง?`;
-          else if (daysSince <= 30) txt = `ผ่านมาเกือบ ${daysSince} วันแล้ว — อะไรพาคุณกลับมา?`;
-          else txt = 'ห่างหายไปนาน — ยินดีที่คุณกลับมา';
+        const lastDateStr = lastDate?lastDate.toISOString().split('T')[0]:null;
+        if (lastDateStr&&lastDateStr!==todayStr) {
+          const d = lastDate?Math.floor((today-lastDate)/(1000*60*60*24)):null;
+          let txt = d===1?'คุณมาที่นี่เมื่อวาน — มีอะไรที่เปลี่ยนไปบ้างไหม?':d<=7?`คุณมาที่นี่เมื่อ ${d} วันก่อน — ตอนนี้เป็นยังไงบ้าง?`:d<=30?`ผ่านมาเกือบ ${d} วันแล้ว — อะไรพาคุณกลับมา?`:'ห่างหายไปนาน — ยินดีที่คุณกลับมา';
           document.getElementById('return-text').textContent = txt;
           document.getElementById('return-greeting').classList.remove('hidden');
         }
       }
-    } catch(e) { console.error(e); }
+    } catch(e){console.error(e);}
   }
 
   function updateCharCount() {
-    const input = document.getElementById('prompt-input');
-    const count = document.getElementById('char-count');
-    const btn = document.getElementById('submit-btn');
-    count.textContent = input.value.length + '/200';
-    count.style.color = input.value.length > 180 ? '#ff6e84' : '#816f8f';
-    btn.disabled = input.value.trim().length === 0;
+    const input=document.getElementById('prompt-input');
+    document.getElementById('char-count').textContent=input.value.length+'/200';
+    document.getElementById('submit-btn').disabled=input.value.trim().length===0;
   }
-
-  function handleKey(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      if (document.getElementById('prompt-input').value.trim().length > 0) submitPrompt();
-    }
-  }
-
-  function fillPrompt(text) {
-    const input = document.getElementById('prompt-input');
-    input.value = text;
-    input.focus();
-    updateCharCount();
-    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-
-  function showStep(n) {
-    ['step-1','step-2','step-3'].forEach(id => document.getElementById(id).classList.add('hidden'));
-    document.getElementById('step-' + n).classList.remove('hidden');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+  function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(document.getElementById('prompt-input').value.trim().length>0)submitPrompt();}}
+  function fillPrompt(text){const i=document.getElementById('prompt-input');i.value=text;i.focus();updateCharCount();i.scrollIntoView({behavior:'smooth',block:'center'});}
+  function showStep(n){['step-1','step-2','step-3'].forEach(id=>document.getElementById(id).classList.add('hidden'));document.getElementById('step-'+n).classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});}
 
   function submitPrompt() {
     const prompt = document.getElementById('prompt-input').value.trim();
     if (!prompt) return;
-    const { card, reversed } = drawCard();
     currentPrompt = prompt;
-    currentCard = card;
-    currentReversed = reversed;
     resonanceSaved = false;
     showStep(2);
-    callClaudeAPI(prompt, card, reversed);
+
+    if (readingMode === 'rune') {
+      const {rune, reversed} = drawRune();
+      currentCard = rune.name;
+      currentReversed = reversed;
+      callReadingAPI(prompt, rune.name + (reversed?' (Reversed)':''), reversed, 'rune', rune);
+    } else if (readingMode === 'tarot-three') {
+      const cards = drawThree();
+      currentCard = cards.map(c=>c.card).join(' | ');
+      currentReversed = false;
+      callReadingAPI(prompt, cards.map(c=>c.card+(c.reversed?' (R)':'')).join(', '), false, 'three', cards);
+    } else {
+      const {card, reversed} = drawCard();
+      currentCard = card;
+      currentReversed = reversed;
+      callReadingAPI(prompt, card+(reversed?' (Reversed)':''), reversed, 'single', null);
+    }
   }
 
-  // ── Card image — pattern only (AI image removed) ──────────────────────
-  function loadCardImage(cardName, reversed) {
-    // Pattern fallback is the main visual — no external image needed
-  }
-
-  async function callClaudeAPI(prompt, card, reversed) {
-    const cardLabel = card + (reversed ? ' (Reversed)' : '');
+  async function callReadingAPI(prompt, cardLabel, reversed, type, extra) {
     try {
       const response = await fetch('/.netlify/functions/reading', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt, card: cardLabel, reversed,
-          email: userEmail, history: userHistory
-        })
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({prompt, card:cardLabel, reversed, email:userEmail, history:userHistory, readingType:type})
       });
       if (!response.ok) throw new Error('API error');
       const data = await response.json();
-      if (data.sessionNumber > 1) {
-        document.getElementById('session-label').textContent = `Session ${data.sessionNumber}`;
-      }
-      showReading(card, reversed, data.reading, data.question);
+      if (data.sessionNumber>1) document.getElementById('session-label').textContent=`Session ${data.sessionNumber}`;
+      showReading(data.reading, data.question, type, extra, reversed);
     } catch(err) {
       console.error(err);
       showReading(
-        card, reversed,
-        card + ' มาในช่วงเวลาที่คุณรู้สึก "' + prompt + '" — ไพ่ใบนี้ชวนให้หยุดฟังสิ่งที่ใจกำลังพูดอยู่',
-        'มีอะไรที่คุณรู้อยู่แล้วแต่ยังไม่พร้อมจะบอกตัวเองไหม?'
+        cardLabel+' มาในช่วงเวลาที่คุณรู้สึก "'+prompt+'" — ชวนให้หยุดฟังสิ่งที่ใจกำลังพูดอยู่',
+        'มีอะไรที่คุณรู้อยู่แล้วแต่ยังไม่พร้อมจะบอกตัวเองไหม?',
+        type, extra, reversed
       );
     }
   }
 
-  function showReading(card, reversed, reading, question) {
-    document.getElementById('card-name').textContent = card;
-    document.getElementById('tarot-footer').textContent = card.toUpperCase();
+  function showReading(reading, question, type, extra, reversed) {
     document.getElementById('card-reading').textContent = reading;
-    document.getElementById('card-question').textContent = '\u201c' + question + '\u201d';
+    document.getElementById('card-question').textContent = '\u201c'+question+'\u201d';
 
-    const wrap = document.getElementById('tarot-wrap');
-    if (reversed) {
-      wrap.classList.add('reversed');
-      document.getElementById('reversed-badge').classList.remove('hidden');
+    // Hide all views first
+    document.getElementById('single-card-view').classList.add('hidden');
+    document.getElementById('three-card-view').classList.add('hidden');
+    document.getElementById('rune-view').classList.add('hidden');
+
+    if (type === 'rune') {
+      document.getElementById('rune-view').classList.remove('hidden');
+      document.getElementById('rune-symbol').textContent = extra.symbol;
+      document.getElementById('rune-name').textContent = extra.name.toUpperCase();
+      document.getElementById('card-name').textContent = extra.name + (reversed?' (Reversed)':'');
+      if (reversed) document.getElementById('rune-reversed-badge').classList.remove('hidden');
+      else document.getElementById('rune-reversed-badge').classList.add('hidden');
+
+    } else if (type === 'three') {
+      document.getElementById('three-card-view').classList.remove('hidden');
+      document.getElementById('card1-footer').textContent = extra[0].card;
+      document.getElementById('card2-footer').textContent = extra[1].card;
+      document.getElementById('card3-footer').textContent = extra[2].card;
+      document.getElementById('card-name').textContent = extra.map(c=>c.card+(c.reversed?' ↓':'')).join(' · ');
+
     } else {
-      wrap.classList.remove('reversed');
-      document.getElementById('reversed-badge').classList.add('hidden');
+      document.getElementById('single-card-view').classList.remove('hidden');
+      const wrap = document.getElementById('tarot-wrap');
+      document.getElementById('tarot-footer').textContent = currentCard;
+      document.getElementById('card-name').textContent = currentCard;
+      if (reversed) {
+        wrap.classList.add('reversed');
+        document.getElementById('reversed-badge').classList.remove('hidden');
+      } else {
+        wrap.classList.remove('reversed');
+        document.getElementById('reversed-badge').classList.add('hidden');
+      }
     }
-
-    // Load AI image
-    loadCardImage(card, reversed);
     showStep(3);
   }
 
   function selectResonance(score) {
     if (resonanceSaved) return;
     resonanceSaved = true;
-    const messages = {
-      'ใช่เลย': 'ดีใจที่มันตรง Lumina จำคุณไว้แล้ว',
-      'ใกล้เคียง': 'บางอย่างที่ตรง บางอย่างที่ไม่ — นั่นก็เป็นคำตอบในตัวเอง',
-      'ไม่ค่อยตรง': 'ไม่เป็นไร บางครั้งไพ่พูดถึงสิ่งที่ยังมาไม่ถึง'
-    };
-    document.querySelectorAll('.resonance-btn').forEach(b => b.classList.add('hidden'));
-    document.getElementById('thank-you-msg').textContent = messages[score] || '';
+    const messages = {'ใช่เลย':'ดีใจที่มันตรง Lumina จำคุณไว้แล้ว','ใกล้เคียง':'บางอย่างที่ตรง บางอย่างที่ไม่ — นั่นก็เป็นคำตอบในตัวเอง','ไม่ค่อยตรง':'ไม่เป็นไร บางครั้งสัญลักษณ์พูดถึงสิ่งที่ยังมาไม่ถึง'};
+    document.querySelectorAll('.resonance-btn').forEach(b=>b.classList.add('hidden'));
+    document.getElementById('thank-you-msg').textContent = messages[score]||'';
     document.getElementById('thank-you-section').classList.remove('hidden');
-    document.getElementById('thank-you-section').scrollIntoView({ behavior: 'smooth' });
-
-    if (userEmail !== 'guest') {
-      fetch('/.netlify/functions/resonance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail, prompt: currentPrompt, score })
-      }).catch(err => console.error('Resonance error:', err));
+    document.getElementById('thank-you-section').scrollIntoView({behavior:'smooth'});
+    if (userEmail!=='guest') {
+      fetch('/.netlify/functions/resonance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:userEmail,prompt:currentPrompt,score})}).catch(console.error);
     }
   }
 
+  setupMode();
   showStep(1);
   loadHistory();
 </script>
