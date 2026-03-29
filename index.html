@@ -28,6 +28,11 @@
   .privacy-wrap:hover .privacy-tip { display: block; }
   .coming-badge { background: rgba(116,91,0,0.08); color: #745b00; border-radius: 99px; padding: 3px 12px; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
   input:focus { outline: none; border-bottom-color: #d4af37 !important; }
+  .mode-btn-sm { cursor: pointer; }
+  .mode-btn-sm.active-sm { border-color: #d4af37 !important; background: rgba(212,175,55,0.06) !important; }
+  .mode-btn-sm.active-sm .mode-icon-sm { color: #745b00 !important; }
+  .mode-btn-sm.active-sm .mode-title-sm { color: #745b00 !important; }
+  .mode-btn-sm.active-sm .mode-sub-sm { color: #a08030 !important; }
 </style>
 </head>
 <body>
@@ -72,6 +77,32 @@
         <p class="text-base text-stone-600 mb-10 max-w-md leading-relaxed" id="t-body">ไม่ว่าคุณจะมาเพื่อหาคำตอบ หาแรงบันดาลใจ หรือแค่อยากมีพื้นที่ให้ตัวเองได้คิด — Lumina พร้อมรับฟัง และจำคุณได้ในทุกครั้งที่กลับมา</p>
 
         <div class="max-w-md space-y-3">
+
+          <!-- Mode selector inline -->
+          <div>
+            <p class="text-xs text-stone-400 uppercase tracking-widest mb-2" id="t-mode-label-sm">เลือกโหมดการทำนาย</p>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="selectMode('tarot-single',this)" data-mode="tarot-single"
+                class="mode-btn-sm active-sm flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-stone-200 bg-white transition-all hover:border-amber-300">
+                <span class="material-symbols-outlined text-stone-500 text-lg mode-icon-sm" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
+                <span class="text-xs text-stone-500 font-medium mode-title-sm">Tarot</span>
+                <span class="text-[10px] text-stone-400 mode-sub-sm" id="t-sm1">Single</span>
+              </button>
+              <button onclick="selectMode('tarot-three',this)" data-mode="tarot-three"
+                class="mode-btn-sm flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-stone-200 bg-white transition-all hover:border-amber-300">
+                <span class="material-symbols-outlined text-stone-500 text-lg mode-icon-sm" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">view_week</span>
+                <span class="text-xs text-stone-500 font-medium mode-title-sm">Tarot</span>
+                <span class="text-[10px] text-stone-400 mode-sub-sm" id="t-sm2">3-Card</span>
+              </button>
+              <button onclick="selectMode('rune',this)" data-mode="rune"
+                class="mode-btn-sm flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-stone-200 bg-white transition-all hover:border-amber-300">
+                <span class="text-stone-500 text-lg mode-icon-sm font-serif">ᚱ</span>
+                <span class="text-xs text-stone-500 font-medium mode-title-sm">Rune</span>
+                <span class="text-[10px] text-stone-400 mode-sub-sm" id="t-sm3">Futhark</span>
+              </button>
+            </div>
+          </div>
+
           <div class="bg-stone-50 rounded-2xl px-5 py-4 border-b-2 border-stone-200 focus-within:border-amber-400 transition-colors">
             <input id="email-input" type="email" class="w-full bg-transparent text-base text-stone-700 placeholder:text-stone-700 focus:outline-none" />
           </div>
@@ -102,55 +133,10 @@
             <div class="text-center px-8 space-y-3">
               <span class="material-symbols-outlined text-5xl text-amber-600" style="font-variation-settings:'FILL' 1,'wght' 300,'GRAD' 0,'opsz' 48">auto_awesome</span>
               <p class="serif italic text-amber-700 text-base leading-relaxed" id="t-oracle-quote">"ความชัดเจนสำคัญ<br/>กว่าความสบายใจ"</p>
-              <p class="text-xs text-stone-600 tracking-widest uppercase">— Mora, Your Oracle</p>
+              <p class="text-xs text-stone-600 tracking-widest uppercase">— Lumina</p>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Mode selector -->
-  <section class="bg-stone-50/60 py-24">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="text-center mb-14 fade-up">
-        <p class="text-sm tracking-[0.2em] uppercase text-stone-600 mb-3" id="t-mode-label">เลือกวิธีการอ่าน</p>
-        <h2 class="serif text-3xl md:text-4xl" id="t-mode-title">เส้นทางสู่ความชัดเจน</h2>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-        <div class="mode-card active" onclick="selectMode('tarot-single',this)">
-          <div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center mb-5">
-            <span class="material-symbols-outlined text-amber-700 text-2xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
-          </div>
-          <h3 class="serif text-lg italic mb-2" id="t-m1t">Tarot — Single Card</h3>
-          <p class="text-base text-stone-600 leading-relaxed" id="t-m1d">จั่วไพ่หนึ่งใบ รับการอ่านที่เชื่อมกับความรู้สึกของคุณโดยตรง</p>
-        </div>
-        <div class="mode-card" onclick="selectMode('tarot-three',this)">
-          <div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center mb-5">
-            <span class="material-symbols-outlined text-amber-700 text-2xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">view_week</span>
-          </div>
-          <h3 class="serif text-lg italic mb-2" id="t-m2t">Tarot — 3 Card Spread</h3>
-          <p class="text-base text-stone-600 leading-relaxed" id="t-m2d">อดีต · ปัจจุบัน · อนาคต — มองภาพรวมของสิ่งที่กำลังเกิดขึ้น</p>
-        </div>
-        <div class="mode-card" onclick="selectMode('rune',this)">
-          <div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center mb-5">
-            <span class="serif text-amber-700 text-2xl">ᚱ</span>
-          </div>
-          <h3 class="serif text-lg italic mb-2" id="t-m3t">Rune Reading</h3>
-          <p class="text-base text-stone-600 leading-relaxed" id="t-m3d">อักษรรูน Elder Futhark — พลังงานโบราณที่ตรงไปตรงมา</p>
-        </div>
-      </div>
-      <div class="bg-white/70 rounded-2xl p-5 flex items-center justify-between fade-up">
-        <div class="flex items-center gap-4">
-          <div class="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center flex-shrink-0">
-            <span class="material-symbols-outlined text-stone-600 text-xl" style="font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24">more_horiz</span>
-          </div>
-          <div>
-            <p class="text-base font-medium text-stone-800" id="t-soon-title">กำลังมา — Celtic Cross, I Ching, Omikuji, Numerology</p>
-            <p class="text-sm text-stone-600 mt-0.5" id="t-soon-sub">รวมอยู่ใน Lumina Plus · เร็วๆ นี้</p>
-          </div>
-        </div>
-        <span class="coming-badge flex-shrink-0" id="t-soon-badge">Coming Soon</span>
       </div>
     </div>
   </section>
@@ -317,6 +303,7 @@ const T = {
     't-plus-title': 'Lumina Plus', 't-plus-badge': 'Coming Soon',
     't-plus-body': 'Celtic Cross · I Ching · Omikuji · Numerology · Session history ย้อนหลัง · Priority reading',
     't-plus-notify': 'แจ้งเตือนเมื่อพร้อม →',
+    't-mode-label-sm': 'เลือกโหมดการทำนาย', 't-sm1': 'Single', 't-sm2': '3-Card', 't-sm3': 'Futhark',
     't-footer-desc': 'มากกว่าการดูดวง คือการทำความเข้าใจตนเอง',
     't-footer-privacy': 'ข้อมูลที่คุณแชร์จะถูกเก็บเพื่อ continuity ระหว่าง sessions เท่านั้น ไม่มีการส่งต่อให้บุคคลที่สาม',
     't-footer-links-label': 'Links', 't-footer-support': 'สนับสนุน', 't-footer-privacy-link': 'Privacy',
@@ -359,6 +346,7 @@ const T = {
     't-plus-title': 'Lumina Plus', 't-plus-badge': 'Coming Soon',
     't-plus-body': 'Celtic Cross · I Ching · Omikuji · Numerology · Session history · Priority reading',
     't-plus-notify': 'Notify me →',
+    't-mode-label-sm': 'Choose reading mode', 't-sm1': 'Single', 't-sm2': '3-Card', 't-sm3': 'Futhark',
     't-footer-desc': 'More than fortune telling — understanding yourself.',
     't-footer-privacy': 'Data shared is stored for session continuity only. Never shared with third parties.',
     't-footer-links-label': 'Links', 't-footer-support': 'Support', 't-footer-privacy-link': 'Privacy',
@@ -401,6 +389,7 @@ const T = {
     't-plus-title': 'Lumina Plus', 't-plus-badge': 'Coming Soon',
     't-plus-body': 'ケルティッククロス · 易経 · おみくじ · 数秘術 · セッション履歴 · 優先読み',
     't-plus-notify': '通知を受け取る →',
+    't-mode-label-sm': '読み方を選択', 't-sm1': '1枚', 't-sm2': '3枚', 't-sm3': 'ルーン',
     't-footer-desc': '占いを超えた — 自己理解の旅。',
     't-footer-privacy': 'データはセッション継続のためだけに保存されます。第三者への共有はありません。',
     't-footer-links-label': 'Links', 't-footer-support': 'サポート', 't-footer-privacy-link': 'Privacy',
@@ -440,8 +429,17 @@ function setLang(lang) {
 
 function selectMode(mode, el) {
   selectedMode = mode;
+  // Handle both big mode cards and small mode buttons
   document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
+  document.querySelectorAll('.mode-btn-sm').forEach(c => c.classList.remove('active-sm'));
+  if (el.classList.contains('mode-card')) {
+    el.classList.add('active');
+    // Also sync small buttons
+    const sm = document.querySelector(`.mode-btn-sm[data-mode="${mode}"]`);
+    if (sm) sm.classList.add('active-sm');
+  } else {
+    el.classList.add('active-sm');
+  }
 }
 
 function validateEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
@@ -470,6 +468,11 @@ document.getElementById('email-input').addEventListener('keydown', e => { if (e.
 // Restore saved lang
 const saved = localStorage.getItem('lumina_lang') || 'th';
 setLang(saved);
+
+function scrollToEmail() {
+  document.getElementById('email-input').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => document.getElementById('email-input').focus(), 600);
+}
 
 // Scroll animations
 const obs = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.1 });
