@@ -285,6 +285,129 @@
 
 <script>
   const urlParams = new URLSearchParams(window.location.search);
+
+  // ── Session i18n ──────────────────────────────────────────────────────
+  const SESSION_T = {
+    th: {
+      title: 'ตอนนี้รู้สึกอะไรอยู่?',
+      subtitle: 'พิมพ์ในช่องด้านล่าง หรือเลือกจากตัวอย่าง',
+      placeholder: 'เช่น รู้สึกเคว้งๆ ไม่รู้เพราะอะไร...',
+      cta: 'จั่วเลย →',
+      orText: 'หรือเลือกจากนี้',
+      loading1: 'กำลังจั่ว...',
+      loading2: 'หลับตา ทำใจให้สบายๆ',
+      revelation: 'The Revelation',
+      resonanceQ: 'การอ่านครั้งนี้ตรงกับความรู้สึกคุณไหม?',
+      res1: 'ใช่เลย', res2: 'ใกล้เคียง', res3: 'ไม่ค่อยตรง',
+      resMsg1: 'ดีใจที่มันตรง Lumina จำคุณไว้แล้ว',
+      resMsg2: 'บางอย่างที่ตรง บางอย่างที่ไม่ — นั่นก็เป็นคำตอบในตัวเอง',
+      resMsg3: 'ไม่เป็นไร บางครั้งสัญลักษณ์พูดถึงสิ่งที่ยังมาไม่ถึง',
+      shareLabel: 'แชร์ผลการอ่าน',
+      shareCopy: 'คัดลอก', shareFb: 'Facebook', shareX: 'X / Twitter', shareLine: 'LINE',
+      copyConfirm: 'คัดลอกแล้ว ✓',
+      tiktokNote: 'สำหรับ TikTok / Instagram — กด "คัดลอก" แล้ววางใน bio หรือ caption ได้เลย',
+      restart: 'เริ่มใหม่อีกครั้ง',
+      returnHome: '← กลับ',
+      suggestions: ['รู้สึกเคว้ง ๆ บอกไม่ถูกว่าเพราะอะไร','ไม่รู้จะลองเปลี่ยนอะไรสักอย่างดีไหม','มีเรื่องที่อยากทำ แต่ยังไม่กล้าเริ่ม','รู้สึกว่าความสัมพันธ์บางอย่างมันคลอนแคลน','ทำไมเรื่องดี ๆ ถึงไม่ค่อยเกิดกับเราบ้าง'],
+      returnGreeting: 'ยินดีต้อนรับกลับมา',
+    },
+    en: {
+      title: 'How are you feeling right now?',
+      subtitle: 'Type below, or choose from suggestions',
+      placeholder: 'e.g. feeling lost, not sure why...',
+      cta: 'Draw →',
+      orText: 'or choose from these',
+      loading1: 'Drawing your card...',
+      loading2: 'Close your eyes, breathe easy',
+      revelation: 'The Revelation',
+      resonanceQ: 'Did this reading resonate with you?',
+      res1: 'Yes, exactly', res2: 'Somewhat', res3: 'Not really',
+      resMsg1: 'Glad it resonated. Lumina remembers.',
+      resMsg2: 'Some parts fit, some don't — that itself is an answer.',
+      resMsg3: 'That's okay. Sometimes symbols speak to what hasn't arrived yet.',
+      shareLabel: 'Share your reading',
+      shareCopy: 'Copy text', shareFb: 'Facebook', shareX: 'X / Twitter', shareLine: 'LINE',
+      copyConfirm: 'Copied ✓',
+      tiktokNote: 'For TikTok / Instagram — tap "Copy" then paste in your caption or bio.',
+      restart: 'Start again',
+      returnHome: '← Back',
+      suggestions: ['Feeling lost, can't explain why','Not sure if I should change something','There's something I want to do but can't start','A relationship feels unstable','Why don't good things happen to me more often'],
+      returnGreeting: 'Welcome back',
+    },
+    jp: {
+      title: '今、どんな気持ちですか？',
+      subtitle: '下に入力するか、例から選んでください',
+      placeholder: '例: なんとなく迷ってる、理由はわからない...',
+      cta: '引く →',
+      orText: 'または例から選ぶ',
+      loading1: 'カードを引いています...',
+      loading2: '目を閉じて、深呼吸して',
+      revelation: 'The Revelation',
+      resonanceQ: 'この読みはあなたに響きましたか？',
+      res1: 'はい、まさに', res2: 'ある程度', res3: 'あまり',
+      resMsg1: '響いてよかったです。Luminaは覚えています。',
+      resMsg2: '合う部分もあれば合わない部分も — それ自体が答えです。',
+      resMsg3: '大丈夫です。シンボルはまだ来ていないものを語ることがあります。',
+      shareLabel: '読みをシェア',
+      shareCopy: 'コピー', shareFb: 'Facebook', shareX: 'X / Twitter', shareLine: 'LINE',
+      copyConfirm: 'コピーしました ✓',
+      tiktokNote: 'TikTok / Instagram用 — 「コピー」してキャプションに貼り付けてください。',
+      restart: 'もう一度',
+      returnHome: '← 戻る',
+      suggestions: ['なんとなく迷っている、理由がわからない','何か変えるべきか迷っている','やりたいことがあるけど始められない','ある関係が不安定に感じる','なぜいいことが起きないのだろう'],
+      returnGreeting: 'お帰りなさい',
+    }
+  };
+
+  function applySessionLang(lang) {
+    const t = SESSION_T[lang] || SESSION_T['th'];
+    // Step 1 texts
+    const titleEl = document.querySelector('#step-1 h2');
+    if (titleEl) titleEl.textContent = t.title;
+    const subEl = document.querySelector('#step-1 p.font-body');
+    if (subEl) subEl.textContent = t.subtitle;
+    const textarea = document.getElementById('prompt-input');
+    if (textarea) textarea.placeholder = t.placeholder;
+    const submitBtn = document.getElementById('submit-btn');
+    if (submitBtn) submitBtn.textContent = t.cta;
+    // Or text
+    const orEl = document.querySelector('.font-label.text-sm.text-stone-500');
+    if (orEl) orEl.textContent = t.orText;
+    // Suggestions
+    const suggBtns = document.querySelectorAll('.suggestion-btn');
+    t.suggestions.forEach((s, i) => { if (suggBtns[i]) suggBtns[i].textContent = s; });
+    // Loading
+    const l1 = document.querySelector('#step-2 .font-headline');
+    if (l1) l1.textContent = t.loading1;
+    const l2 = document.querySelector('#step-2 .font-body');
+    if (l2) l2.textContent = t.loading2;
+    // Step 3
+    const revEl = document.getElementById('session-label');
+    if (revEl) revEl.textContent = t.revelation;
+    const resQ = document.querySelector('#step-3 h4');
+    if (resQ) resQ.textContent = t.resonanceQ;
+    // Resonance buttons
+    const resBtns = document.querySelectorAll('.resonance-btn');
+    if (resBtns[0]) resBtns[0].textContent = t.res1;
+    if (resBtns[1]) resBtns[1].textContent = t.res2;
+    if (resBtns[2]) resBtns[2].textContent = t.res3;
+    // Share label
+    const shareLabel = document.querySelector('.font-label.text-sm.text-stone-400');
+    if (shareLabel) shareLabel.textContent = t.shareLabel;
+    // Restart
+    const restartBtn = document.querySelector('#thank-you-section button[onclick="location.reload()"]');
+    if (restartBtn) restartBtn.textContent = t.restart;
+    // Back link
+    const backLink = document.querySelector('header a[href="/"]');
+    if (backLink) backLink.textContent = t.returnHome;
+    // Return greeting label
+    const greetLabel = document.querySelector('#return-greeting .font-label');
+    if (greetLabel) greetLabel.textContent = t.returnGreeting;
+    // Store resonance messages for use in selectResonance
+    window._resMessages = { [t.res1]: t.resMsg1, [t.res2]: t.resMsg2, [t.res3]: t.resMsg3 };
+    window._copyConfirm = t.copyConfirm;
+  }
+
   const sessionLang = urlParams.get('lang') || localStorage.getItem('lumina_lang') || 'th';
   const emailFromUrl = urlParams.get('email');
   const userEmail = emailFromUrl || localStorage.getItem('horo_email') || 'guest';
@@ -472,6 +595,7 @@
     if (platform === 'copy') {
       navigator.clipboard.writeText(text).then(() => {
         const el = document.getElementById('copy-confirm');
+        el.textContent = window._copyConfirm || 'คัดลอกแล้ว ✓';
         el.classList.remove('hidden');
         setTimeout(() => el.classList.add('hidden'), 3000);
       });
@@ -482,6 +606,7 @@
 
   showStep(1);
   loadHistory();
+  applySessionLang(sessionLang);
 </script>
 </body>
 </html>
