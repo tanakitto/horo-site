@@ -17,20 +17,20 @@ exports.handler = async function(event, context) {
     const AIRTABLE_BASE_ID = 'appY0QrFxt71E2oqI';
     const AIRTABLE_TABLE   = 'tbl3eGN7tW1HKyyX4';
     const encodedEmail = encodeURIComponent(email);
+    const formula = encodeURIComponent(`{User} = "${email}"`);
+    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}?filterByFormula=${formula}&sort[0][field]=Session Date&sort[0][direction]=desc&maxRecords=5`;
 
-    const res = await fetch(
-      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}?filterByFormula={User}="${encodedEmail}"&sort[0][field]=Session Date&sort[0][direction]=desc&maxRecords=3`,
-      {
-        headers: {
-          'Authorization': `Bearer ${process.env.AIRTABLE_TOKEN}`
-        }
+    const res = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${process.env.AIRTABLE_TOKEN}`,
+        'Content-Type': 'application/json'
       }
-    );
+    });
 
     const data = await res.json();
-    console.log('History fetch:', JSON.stringify(data));
+    const records = data.records || [];
 
-    if (!data.records || data.records.length === 0) {
+    if (records.length === 0) {
       return {
         statusCode: 200,
         headers: { 'Access-Control-Allow-Origin': '*' },
@@ -38,21 +38,19 @@ exports.handler = async function(event, context) {
       };
     }
 
-    const sessions = data.records.map(r => ({
-      prompt: r.fields['Entry Prompt Chosen'] || '',
+    // Return only privacy-safe metadata — theme, card, resonance, date
+    // Never return raw prompt text or full reading
+    const sessions = records.map(r => ({
+      theme: r.fields['Entry Prompt Chosen'] || 'general reflection', // this is now abstract theme
       card: r.fields['Card Drawn'] || '',
-      question: r.fields['Closing Question'] || '',
-      resonance: r.fields['Resonance Score'] || '',
-      date: r.fields['Session Date'] || '',
-      theme: r.fields['Themes Tagged'] || ''
+      resonance: r.fields['Resonance Score'] !== 'pending' ? r.fields['Resonance Score'] : null,
+      tag: r.fields['Themes Tagged'] || 'general',
+      date: r.fields['Session Date'] || null,
     }));
 
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({
         sessions,
         isReturning: sessions.length > 0
