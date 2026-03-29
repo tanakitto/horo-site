@@ -1,651 +1,603 @@
 <!DOCTYPE html>
-<html class="dark" lang="th">
+<html lang="th">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Lumina — Session</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;1,400&family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<script>
-  tailwind.config = {
-    darkMode: "class",
-    theme: {
-      extend: {
-        colors: {
-          "primary": "#745b00","on-primary": "#ffffff","surface": "#faf9f6",
-          "on-surface": "#1a1c1a","on-surface-variant": "#4d4635",
-          "outline-variant": "#d0c5af","outline": "#7f7663",
-          "background": "#faf9f6","on-background": "#1a1c1a",
-        },
-        fontFamily: { "headline": ["Anuphan","sans-serif"], "body": ["Anuphan","sans-serif"], "label": ["Anuphan","sans-serif"] },
-      },
-    },
-  }
-</script>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
-  body { background: #faf9f6; color: #1a1c1a; font-family: 'Anuphan', sans-serif; min-height: 100dvh; }
-  .glass { background: #f4f3f1; }
-  .fade-in { animation: fadeIn 0.8s ease-in-out; }
-  @keyframes fadeIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
-  .suggestion-btn { background: white; border: 1px solid #e8e4da; transition: all 0.2s; }
-  .suggestion-btn:hover { border-color: #d4af37; background: #fffef9; }
-  .spin { animation: spin 1.5s linear infinite; }
+  body { background: #faf9f6; color: #1a1c1a; font-family: 'Anuphan', sans-serif; min-height: 100vh; }
+  .gold-btn { background: linear-gradient(135deg, #745b00 0%, #d4af37 100%); color: white; }
+  .fade-in { animation: fadeIn 0.7s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  .spin { animation: spin 1.4s linear infinite; }
   @keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
-  textarea:focus { outline:none; border-color:#d4af37 !important; box-shadow:0 0 0 2px rgba(212,175,55,0.1); }
-  .return-card { background:rgba(212,175,55,0.06); border:1px solid rgba(212,175,55,0.2); }
-  .session-lang-btn { transition: all 0.2s; }
-  .session-lang-btn.active { color: #745b00; border-bottom: 1.5px solid #d4af37; }
-
-  /* Mode switcher */
-  .mode-btn { border: 1px solid #e8e4da; background: white; transition: all 0.2s; cursor: pointer; }
-  .mode-btn:hover { border-color: #d4af37; background: #fffef9; }
-  .mode-btn.active { border-color: #d4af37 !important; background: rgba(212,175,55,0.08) !important; }
-  .mode-btn.active .mode-icon { color: #745b00 !important; }
-  .mode-btn.active .mode-title { color: #745b00 !important; }
-  .mode-btn.active .mode-sub { color: #a08030 !important; }
-
-  /* Tarot card */
-  .tarot-wrap { width:180px; height:290px; border-radius:12px; overflow:hidden; position:relative; box-shadow: 0 0 50px rgba(201,152,255,0.2), 0 20px 50px rgba(0,0,0,0.6); transition: transform 0.5s ease; flex-shrink:0; }
-  .tarot-wrap.reversed { transform: rotate(180deg); }
-  .tarot-back { width:100%; height:100%; background: linear-gradient(145deg, #f5f0e0 0%, #ede3c4 50%, #f9f4e8 100%); display:flex; align-items:center; justify-content:center; position:relative; }
-  .tarot-back::before { content:''; position:absolute; inset:8px; border:1px solid rgba(116,91,0,0.2); border-radius:6px; }
-  .tarot-back::after { content:''; position:absolute; inset:14px; border:1px solid rgba(116,91,0,0.1); border-radius:4px; }
-  .tarot-pattern { position:absolute; inset:0; background-image: radial-gradient(circle at 50% 50%, rgba(212,175,55,0.15) 0%, transparent 60%), repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(116,91,0,0.04) 8px, rgba(116,91,0,0.04) 9px); }
-  .tarot-footer { position:absolute; bottom:0; left:0; right:0; padding:16px 10px 10px; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%); text-align:center; font-family:'Anuphan',sans-serif;font-weight:600; font-style:italic; font-size:10px; letter-spacing:0.08em; color:rgba(116,91,0,0.9); text-transform:uppercase; }
-
-  /* 3-card spread */
-  .three-spread { display:flex; gap:12px; justify-content:center; align-items:flex-end; flex-wrap:wrap; }
-  .spread-slot { display:flex; flex-direction:column; align-items:center; gap:8px; }
-  .spread-label { font-family:'Anuphan',sans-serif;font-weight:600; font-style:italic; font-size:10px; letter-spacing:0.05em; color:rgba(116,91,0,0.85); color:rgba(201,152,255,0.5); text-transform:uppercase; }
-
-  /* Rune stone */
-  .rune-wrap { width:150px; height:190px; border-radius:50% 50% 40% 40% / 60% 60% 40% 40%; background: radial-gradient(ellipse at 30% 30%, #8c6a2e, #5a4018 70%, #3d2a10); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; box-shadow: 0 0 40px rgba(116,91,0,0.15), inset 0 2px 8px rgba(255,220,100,0.1), 0 20px 40px rgba(0,0,0,0.2); position:relative; flex-shrink:0; }
-  .rune-svg-wrap { position:relative; z-index:2; filter: drop-shadow(0 0 12px rgba(255,200,50,0.5)); }
-  .rune-name-label { font-family:'Anuphan',sans-serif;font-weight:600; font-style:italic; font-size:11px; letter-spacing:0.05em; color:rgba(255,200,50,1.0); text-transform:uppercase; position:relative; z-index:2; }
-
-  .reversed-badge { background:rgba(116,91,0,0.08); border:1px solid rgba(116,91,0,0.2); }
-
-  /* Share button */
-  .share-btn { background: rgba(116,91,0,0.06); border: 1px solid rgba(116,91,0,0.15); transition: all 0.2s; }
-  .share-btn:hover { background: rgba(116,91,0,0.12); }
+  .mode-btn { border: 1.5px solid #e8e4da; background: white; border-radius: 12px; padding: 12px 8px; cursor: pointer; transition: all 0.15s; text-align: center; }
+  .mode-btn:hover { border-color: #d4af37; }
+  .mode-btn.active { border-color: #d4af37; background: rgba(212,175,55,0.07); }
+  .mode-btn.active .micon { color: #745b00; }
+  .mode-btn.active .mtitle { color: #745b00; }
+  .suggestion { background: white; border: 1.5px solid #e8e4da; border-radius: 12px; padding: 14px 18px; cursor: pointer; text-align: left; transition: all 0.15s; width: 100%; display: block; font-size: 15px; color: #374151; }
+  .suggestion:hover { border-color: #d4af37; background: #fffef9; }
+  .tarot-card { width: 160px; height: 250px; border-radius: 12px; background: linear-gradient(145deg, #f5f0e0, #ede3c4); position: relative; overflow: hidden; box-shadow: 0 8px 32px rgba(116,91,0,0.12); flex-shrink: 0; }
+  .tarot-card::before { content:''; position:absolute; inset:8px; border:1px solid rgba(116,91,0,0.2); border-radius:6px; }
+  .tarot-pattern { position:absolute; inset:0; background: radial-gradient(circle at 50% 40%, rgba(212,175,55,0.2) 0%, transparent 60%); }
+  .tarot-name { position:absolute; bottom:0; left:0; right:0; padding:14px 10px 10px; background: linear-gradient(to top, rgba(116,91,0,0.15), transparent); text-align:center; font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:rgba(116,91,0,0.8); }
+  .rune-stone { width: 130px; height: 165px; border-radius: 50% 50% 40% 40% / 55% 55% 45% 45%; background: radial-gradient(ellipse at 35% 30%, #8c6a2e, #4a3010); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; box-shadow: 0 12px 40px rgba(0,0,0,0.15), inset 0 2px 8px rgba(255,200,80,0.08); }
+  .lang-btn { font-size:11px; letter-spacing:0.1em; padding-bottom:1px; transition: all 0.15s; color: #9ca3af; }
+  .lang-btn.active { color: #745b00; border-bottom: 1.5px solid #d4af37; }
+  .res-btn { padding: 10px 28px; border-radius: 999px; font-size: 14px; cursor: pointer; transition: all 0.15s; }
+  .share-btn { border: 1.5px solid rgba(116,91,0,0.2); background: rgba(116,91,0,0.05); color: #745b00; border-radius: 999px; padding: 8px 18px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
+  .share-btn:hover { background: rgba(116,91,0,0.1); }
+  .return-banner { background: rgba(212,175,55,0.07); border: 1px solid rgba(212,175,55,0.25); border-radius: 16px; padding: 16px 20px; }
+  .three-spread { display: flex; gap: 10px; align-items: flex-end; justify-content: center; }
+  .three-spread .spread-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: rgba(116,91,0,0.6); text-align: center; margin-bottom: 6px; font-weight: 600; }
 </style>
 </head>
 <body>
 
-<header class="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 bg-white/90 backdrop-blur-md shadow-sm border-b border-amber-100/40">
-  <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-    <span class="material-symbols-outlined text-amber-700 text-lg" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
-    <span class="font-serif text-xl italic text-amber-800">Lumina</span>
-  </a>
-  <a href="/" class="font-body text-sm text-stone-600 hover:text-amber-700 transition-colors">← กลับ</a>
+<!-- HEADER -->
+<header style="position:fixed;top:0;width:100%;z-index:50;background:rgba(250,249,246,0.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(212,175,55,0.15);box-shadow:0 1px 12px rgba(0,0,0,0.04)">
+  <div style="max-width:680px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between">
+    <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none;opacity:0.9">
+      <span class="material-symbols-outlined" style="color:#b45309;font-size:20px;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
+      <span style="font-size:18px;color:#92400e;font-style:italic;font-weight:600">Lumina</span>
+    </a>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div style="display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:0.08em">
+        <button class="lang-btn" onclick="switchLang('th')">TH</button>
+        <span style="color:#e5e7eb;font-size:11px">|</span>
+        <button class="lang-btn" onclick="switchLang('en')">EN</button>
+        <span style="color:#e5e7eb;font-size:11px">|</span>
+        <button class="lang-btn" onclick="switchLang('jp')">JP</button>
+      </div>
+      <a id="back-link" href="/" style="font-size:14px;color:#9ca3af;text-decoration:none">← กลับ</a>
+    </div>
+  </div>
 </header>
 
-<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
+<main style="padding-top:80px;padding-bottom:80px">
 
-  <!-- STEP 1 -->
-  <section id="step-1" class="min-h-screen flex flex-col justify-center items-center text-center space-y-6 fade-in">
+<!-- STEP 1: Input -->
+<section id="step-1" style="min-height:90vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 20px;gap:24px;max-width:580px;margin:0 auto">
 
-    <div id="return-greeting" class="hidden w-full max-w-xl return-card rounded-2xl p-6 text-left space-y-2 fade-in">
-      <p class="font-label text-amber-700 text-sm uppercase tracking-widest">ยินดีต้อนรับกลับมา</p>
-      <p id="return-text" class="font-body text-stone-700 text-sm leading-relaxed"></p>
+  <!-- Return greeting -->
+  <div id="return-banner" class="return-banner fade-in" style="display:none;width:100%">
+    <p id="return-label" style="font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:#b45309;font-weight:600;margin-bottom:4px">ยินดีต้อนรับกลับมา</p>
+    <p id="return-text" style="font-size:14px;color:#6b7280"></p>
+  </div>
+
+  <!-- Mode switcher -->
+  <div style="width:100%">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      <button class="mode-btn active" data-mode="tarot-single" onclick="selectMode('tarot-single',this)">
+        <span class="material-symbols-outlined micon" style="font-size:22px;color:#9ca3af;display:block;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
+        <div class="mtitle" style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#9ca3af;margin-top:4px">Tarot</div>
+        <div id="m1sub" style="font-size:11px;color:#9ca3af;margin-top:2px">Single</div>
+      </button>
+      <button class="mode-btn" data-mode="tarot-three" onclick="selectMode('tarot-three',this)">
+        <span class="material-symbols-outlined micon" style="font-size:22px;color:#9ca3af;display:block;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">view_week</span>
+        <div class="mtitle" style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#9ca3af;margin-top:4px">Tarot</div>
+        <div id="m2sub" style="font-size:11px;color:#9ca3af;margin-top:2px">3-Card</div>
+      </button>
+      <button class="mode-btn" data-mode="rune" onclick="selectMode('rune',this)">
+        <span class="micon" style="font-size:20px;color:#9ca3af;display:block;line-height:1.3">ᚱ</span>
+        <div class="mtitle" style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#9ca3af;margin-top:4px">Rune</div>
+        <div id="m3sub" style="font-size:11px;color:#9ca3af;margin-top:2px">Futhark</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Title -->
+  <div style="text-align:center">
+    <h2 id="step1-title" style="font-size:clamp(28px,6vw,40px);font-weight:600;color:#1a1c1a;margin:0">ตอนนี้รู้สึกอะไรอยู่?</h2>
+    <p id="step1-sub" style="font-size:15px;color:#6b7280;margin-top:8px">พิมพ์ในช่องด้านล่าง หรือเลือกจากตัวอย่าง</p>
+  </div>
+
+  <!-- Textarea + CTA -->
+  <div style="width:100%">
+    <div style="position:relative">
+      <textarea id="prompt-input" maxlength="200" rows="3"
+        style="width:100%;background:white;border:1.5px solid #e8e4da;border-radius:14px;padding:16px 18px;font-size:15px;color:#374151;resize:none;font-family:'Anuphan',sans-serif;outline:none;box-sizing:border-box;transition:border-color 0.15s"
+        onfocus="this.style.borderColor='#d4af37'" onblur="this.style.borderColor='#e8e4da'"
+        oninput="onTextInput(this)"
+        id="prompt-input"></textarea>
+      <span id="char-count" style="position:absolute;bottom:10px;right:14px;font-size:12px;color:#9ca3af">0/200</span>
+    </div>
+    <button id="submit-btn" onclick="submitPrompt()"
+      style="width:100%;margin-top:10px;padding:16px;border:none;border-radius:14px;font-size:14px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;font-family:'Anuphan',sans-serif;transition:all 0.2s;background:linear-gradient(135deg,#745b00,#d4af37);color:white;opacity:0.55"
+      id="submit-btn">จั่วเลย →</button>
+  </div>
+
+  <!-- Suggestions -->
+  <div style="width:100%">
+    <p id="or-text" style="font-size:13px;color:#9ca3af;text-align:center;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.1em">หรือเลือกจากนี้</p>
+    <div id="suggestions" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+
+</section>
+
+<!-- STEP 2: Loading -->
+<section id="step-2" style="display:none;min-height:90vh;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:20px;padding:0 20px">
+  <div style="position:relative;width:80px;height:80px">
+    <div class="spin" style="position:absolute;inset:0;border-radius:50%;border:2px solid transparent;border-top-color:rgba(212,175,55,0.6)"></div>
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+      <span class="material-symbols-outlined" style="color:#b45309;font-size:24px;font-variation-settings:'FILL' 1,'wght' 300,'GRAD' 0,'opsz' 24">auto_awesome</span>
+    </div>
+  </div>
+  <p id="loading1" style="font-size:20px;font-weight:600;color:#374151">กำลังจั่ว...</p>
+  <p id="loading2" style="font-size:15px;color:#6b7280">หลับตา ทำใจให้สบายๆ</p>
+</section>
+
+<!-- STEP 3: Result -->
+<section id="step-3" style="display:none;padding:40px 20px;max-width:580px;margin:0 auto;flex-direction:column;gap:40px" class="fade-in">
+
+  <!-- Visual + Reading -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:28px">
+
+    <!-- Single card view -->
+    <div id="view-single" style="display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div class="tarot-card" id="tarot-wrap">
+        <div class="tarot-pattern"></div>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+          <span class="material-symbols-outlined" style="font-size:40px;color:rgba(116,91,0,0.25);font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 48">auto_awesome</span>
+        </div>
+        <div class="tarot-name" id="tarot-label"></div>
+      </div>
+      <div id="rev-badge" style="display:none;background:rgba(116,91,0,0.08);border:1px solid rgba(116,91,0,0.2);border-radius:99px;padding:4px 14px;font-size:12px;font-weight:600;color:#92400e">🔃 Reversed</div>
     </div>
 
-    <!-- Mode Switcher -->
-    <div class="w-full max-w-xl">
-      <div class="grid grid-cols-3 gap-2">
-        <button class="mode-btn active rounded-xl p-3 flex flex-col items-center gap-1" data-mode="tarot-single" onclick="setMode('tarot-single', this)">
-          <span class="material-symbols-outlined mode-icon text-amber-700 text-lg" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
-          <span class="mode-title font-headline text-[10px] tracking-widest uppercase text-primary">Tarot</span>
-          <span class="mode-sub font-body text-xs text-stone-600">Single Card</span>
-        </button>
-        <button class="mode-btn rounded-xl p-3 flex flex-col items-center gap-1" data-mode="tarot-three" onclick="setMode('tarot-three', this)">
-          <span class="material-symbols-outlined mode-icon text-stone-600 text-lg" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">view_week</span>
-          <span class="mode-title font-headline text-[10px] tracking-widest uppercase text-stone-700">Tarot</span>
-          <span class="mode-sub font-body text-xs text-stone-600">3-Card Spread</span>
-        </button>
-        <button class="mode-btn rounded-xl p-3 flex flex-col items-center gap-1" data-mode="rune" onclick="setMode('rune', this)">
-          <span class="mode-icon text-stone-600 font-serif text-lg leading-none">ᚱ</span>
-          <span class="mode-title font-headline text-[10px] tracking-widest uppercase text-stone-700">Rune</span>
-          <span class="mode-sub font-body text-xs text-stone-600">Elder Futhark</span>
-        </button>
+    <!-- 3-card view -->
+    <div id="view-three" style="display:none" class="three-spread">
+      <div>
+        <p class="spread-label" id="spread-past">Past</p>
+        <div class="tarot-card" style="width:110px;height:175px"><div class="tarot-pattern"></div><div class="tarot-name" id="c1-label"></div></div>
+      </div>
+      <div>
+        <p class="spread-label" id="spread-present">Present</p>
+        <div class="tarot-card" style="width:135px;height:215px;box-shadow:0 12px 40px rgba(116,91,0,0.18)"><div class="tarot-pattern"></div><div class="tarot-name" id="c2-label"></div></div>
+      </div>
+      <div>
+        <p class="spread-label" id="spread-future">Future</p>
+        <div class="tarot-card" style="width:110px;height:175px"><div class="tarot-pattern"></div><div class="tarot-name" id="c3-label"></div></div>
       </div>
     </div>
 
-    <div class="space-y-2">
-      <h2 class="font-headline text-3xl md:text-4xl text-on-background tracking-wide">ตอนนี้รู้สึกอะไรอยู่?</h2>
-      <p class="font-body text-stone-600 text-sm">พิมพ์ในช่องด้านล่าง หรือเลือกจากตัวอย่าง</p>
+    <!-- Rune view -->
+    <div id="view-rune" style="display:none;flex-direction:column;align-items:center;gap:12px">
+      <div class="rune-stone">
+        <svg id="rune-svg" viewBox="0 0 100 100" width="70" height="70" style="filter:drop-shadow(0 0 10px rgba(255,200,50,0.5))">
+          <g id="rune-paths" stroke="rgba(255,210,80,0.9)" stroke-width="5" stroke-linecap="round" fill="none"></g>
+        </svg>
+        <div id="rune-name-label" style="font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,200,80,0.8)"></div>
+      </div>
+      <div id="rune-rev-badge" style="display:none;background:rgba(116,91,0,0.08);border:1px solid rgba(116,91,0,0.2);border-radius:99px;padding:4px 14px;font-size:12px;color:#92400e">🔃 Reversed</div>
     </div>
 
-    <div class="w-full max-w-xl space-y-3">
-      <div class="relative">
-        <textarea id="prompt-input" maxlength="200" rows="3"
-          placeholder="เช่น รู้สึกเคว้งๆ ไม่รู้เพราะอะไร..."
-          class="w-full bg-stone-50 border border-stone-200 rounded-xl px-5 py-4 font-body text-stone-700 text-base resize-none placeholder:text-stone-700 transition-all"
-          oninput="updateCharCount()" onkeydown="handleKey(event)"></textarea>
-        <span id="char-count" class="absolute bottom-3 right-4 text-xs text-outline font-body">0/200</span>
-      </div>
-      <button id="submit-btn" onclick="submitPrompt()"
-        class="w-full py-4 font-label font-bold rounded-xl text-sm uppercase tracking-widest transition-all active:scale-[0.98]" style="background:linear-gradient(135deg,#745b00,#d4af37);color:white"
-        >จั่วเลย →</button>
+    <!-- Text -->
+    <div style="text-align:center;max-width:520px;width:100%">
+      <p id="session-label" style="font-size:12px;text-transform:uppercase;letter-spacing:0.2em;color:#b45309;margin-bottom:8px;font-weight:600">The Revelation</p>
+      <h3 id="card-name" style="font-size:28px;font-weight:700;color:#1a1c1a;margin:0 0 16px"></h3>
+      <p id="card-reading" style="font-size:17px;line-height:1.75;color:#374151;margin:0 0 16px"></p>
+      <p id="card-question" style="font-size:18px;font-style:italic;color:#92400e;margin:0"></p>
+    </div>
+  </div>
+
+  <div style="height:1px;background:#f0ede6"></div>
+
+  <!-- Resonance -->
+  <div style="background:#faf9f6;border-radius:20px;padding:32px;text-align:center">
+    <h4 id="res-q" style="font-size:18px;font-weight:600;color:#1a1c1a;margin:0 0 20px">การอ่านครั้งนี้ตรงกับความรู้สึกคุณไหม?</h4>
+    <div id="res-btns" style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px">
+      <button class="res-btn" onclick="selectResonance(0)" style="background:linear-gradient(135deg,#745b00,#d4af37);color:white;border:none" id="rb0">ใช่เลย</button>
+      <button class="res-btn" onclick="selectResonance(1)" style="background:transparent;border:1.5px solid rgba(116,91,0,0.3);color:#92400e" id="rb1">ใกล้เคียง</button>
+      <button class="res-btn" onclick="selectResonance(2)" style="background:transparent;border:1.5px solid #e5e7eb;color:#9ca3af" id="rb2">ไม่ค่อยตรง</button>
     </div>
 
-    <div class="w-full max-w-xl flex items-center gap-4">
-      <div class="flex-1 h-px bg-outline-variant/20"></div>
-      <span class="font-label text-xs text-stone-700 uppercase tracking-widest">หรือเลือกจากนี้</span>
-      <div class="flex-1 h-px bg-outline-variant/20"></div>
+    <!-- Thank you -->
+    <div id="thankyou" style="display:none;margin-top:24px" class="fade-in">
+      <div style="height:1px;background:#f0ede6;margin-bottom:20px"></div>
+      <div style="font-size:28px;margin-bottom:8px">✨</div>
+      <p id="thankyou-msg" style="font-size:17px;color:#374151;margin:0 0 20px"></p>
+
+      <!-- Share -->
+      <div style="margin-bottom:20px">
+        <p id="share-label" style="font-size:12px;text-transform:uppercase;letter-spacing:0.12em;color:#9ca3af;margin-bottom:12px;font-weight:600">แชร์ผลการอ่าน</p>
+        <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px">
+          <button class="share-btn" onclick="shareTo('facebook')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            Facebook
+          </button>
+          <button class="share-btn" onclick="shareTo('twitter')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            X / Twitter
+          </button>
+          <button class="share-btn" onclick="shareTo('line')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21.4 10.6C21.4 5.9 16.7 2 11 2S.6 5.9.6 10.6c0 4.3 3.8 7.9 8.9 8.5.3.1.8.3.9.6.1.3.1.7 0 1l-.1.9c0 .3-.2 1.1 1 .6 1.2-.5 6.4-3.8 8.7-6.5 1.6-1.8 2.4-3.6 2.4-5.1z"/></svg>
+            LINE
+          </button>
+          <button class="share-btn" onclick="shareTo('copy')" id="copy-btn">
+            <span class="material-symbols-outlined" style="font-size:14px;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">content_copy</span>
+            <span id="copy-label">คัดลอก</span>
+          </button>
+        </div>
+      </div>
+
+      <button onclick="location.reload()" id="restart-btn"
+        style="border:1.5px solid rgba(116,91,0,0.25);background:transparent;color:#92400e;border-radius:99px;padding:10px 28px;cursor:pointer;font-size:14px;font-family:'Anuphan',sans-serif;transition:all 0.15s">
+        เริ่มใหม่อีกครั้ง
+      </button>
     </div>
+  </div>
 
-    <div class="w-full max-w-xl flex flex-col gap-2">
-      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-stone-600" onclick="fillPrompt('รู้สึกเคว้ง ๆ บอกไม่ถูกว่าเพราะอะไร')">รู้สึกเคว้ง ๆ บอกไม่ถูกว่าเพราะอะไร</button>
-      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-stone-600" onclick="fillPrompt('ไม่รู้จะลองเปลี่ยนอะไรสักอย่างดีไหม')">ไม่รู้จะลองเปลี่ยนอะไรสักอย่างดีไหม</button>
-      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-stone-600" onclick="fillPrompt('มีเรื่องที่อยากทำ แต่ยังไม่กล้าเริ่ม')">มีเรื่องที่อยากทำ แต่ยังไม่กล้าเริ่ม</button>
-      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-stone-600" onclick="fillPrompt('รู้สึกว่าความสัมพันธ์บางอย่างมันคลอนแคลน')">รู้สึกว่าความสัมพันธ์บางอย่างมันคลอนแคลน</button>
-      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-stone-600" onclick="fillPrompt('ทำไมเรื่องดี ๆ ถึงไม่ค่อยเกิดกับเราบ้าง')">ทำไมเรื่องดี ๆ ถึงไม่ค่อยเกิดกับเราบ้าง</button>
-    </div>
-  </section>
-
-  <!-- STEP 2: Loading -->
-  <section id="step-2" class="hidden min-h-screen flex flex-col justify-center items-center text-center space-y-8 fade-in">
-    <div class="relative w-24 h-24">
-      <div class="w-24 h-24 rounded-full border-t-2 border-amber-400/60 spin absolute inset-0"></div>
-      <div class="absolute inset-0 flex items-center justify-center">
-        <span class="material-symbols-outlined text-amber-600 text-2xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
-      </div>
-    </div>
-    <p class="font-headline text-xl text-stone-600 tracking-widest">กำลังจั่ว...</p>
-    <p class="font-body text-stone-600 text-sm">หลับตา ทำใจให้สบายๆ</p>
-  </section>
-
-  <!-- STEP 3: Result -->
-  <section id="step-3" class="hidden py-12 space-y-16 fade-in">
-
-    <div class="flex flex-col items-center gap-10">
-
-      <!-- Single card -->
-      <div id="view-single" class="flex flex-col items-center gap-4">
-        <div id="tarot-wrap" class="tarot-wrap">
-          <div class="tarot-back">
-            <div class="tarot-pattern"></div>
-            <div class="tarot-footer" id="tarot-footer"></div>
-          </div>
-        </div>
-        <div id="reversed-badge" class="hidden reversed-badge inline-flex items-center gap-2 px-3 py-1 rounded-full">
-          <span class="text-sm">🔃</span>
-          <span class="font-label text-primary text-xs uppercase tracking-widest">Reversed</span>
-        </div>
-      </div>
-
-      <!-- 3-card spread -->
-      <div id="view-three" class="hidden three-spread">
-        <div class="spread-slot">
-          <p class="spread-label" style="font-size:10px">Past</p>
-          <div class="tarot-wrap" style="width:110px;height:175px">
-            <div class="tarot-back"><div class="tarot-pattern"></div><div class="tarot-footer" id="c1-footer" style="font-size:7px"></div></div>
-          </div>
-        </div>
-        <div class="spread-slot">
-          <p class="spread-label" style="font-size:10px">Present</p>
-          <div class="tarot-wrap" style="width:135px;height:215px;box-shadow:0 0 60px rgba(201,152,255,0.3)">
-            <div class="tarot-back"><div class="tarot-pattern"></div><div class="tarot-footer" id="c2-footer" style="font-size:8px"></div></div>
-          </div>
-        </div>
-        <div class="spread-slot">
-          <p class="spread-label" style="font-size:10px">Future</p>
-          <div class="tarot-wrap" style="width:110px;height:175px">
-            <div class="tarot-back"><div class="tarot-pattern"></div><div class="tarot-footer" id="c3-footer" style="font-size:7px"></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Rune -->
-      <div id="view-rune" class="hidden flex flex-col items-center gap-4">
-        <div class="rune-wrap">
-          <div class="rune-svg-wrap">
-            <svg id="rune-svg" viewBox="0 0 100 100" width="80" height="80">
-              <g id="rune-paths" stroke="rgba(255,220,100,0.9)" stroke-width="5" stroke-linecap="round" fill="none"></g>
-            </svg>
-          </div>
-          <div class="rune-name-label" id="rune-name-label"></div>
-        </div>
-        <div id="rune-rev-badge" class="hidden reversed-badge inline-flex items-center gap-2 px-3 py-1 rounded-full">
-          <span class="text-sm">🔃</span>
-          <span class="font-label text-primary text-xs uppercase tracking-widest">Reversed</span>
-        </div>
-      </div>
-
-      <!-- Text -->
-      <div class="text-center space-y-5 max-w-xl w-full">
-        <div class="space-y-2">
-          <p id="session-label" class="font-label text-amber-600 tracking-[0.2rem] uppercase text-sm">The Revelation</p>
-          <h3 id="card-name" class="font-headline text-3xl text-stone-800 tracking-wide"></h3>
-        </div>
-        <p id="card-reading" class="font-body text-base leading-relaxed text-stone-700"></p>
-        <p id="card-question" class="font-headline text-xl text-amber-700 tracking-wide"></p>
-      </div>
-    </div>
-
-    <div class="h-px w-full bg-stone-100"></div>
-
-    <!-- Resonance -->
-    <div class="bg-stone-50 p-8 rounded-2xl border border-stone-100 text-center space-y-6">
-      <h4 class="font-headline text-xl text-stone-800 tracking-wide">การอ่านครั้งนี้ตรงกับความรู้สึกคุณไหม?</h4>
-      <div id="resonance-btns" class="flex flex-wrap justify-center gap-4">
-        <button onclick="selectResonance('ใช่เลย')" class="resonance-btn px-8 py-3 text-white font-body font-semibold rounded-full transition-all active:scale-95 hover:opacity-90" style="background:linear-gradient(135deg,#745b00,#d4af37)">ใช่เลย</button>
-        <button onclick="selectResonance('ใกล้เคียง')" class="resonance-btn px-8 py-3 border border-amber-400/40 text-amber-700 font-body rounded-full hover:bg-amber-50 active:scale-95 transition-all">ใกล้เคียง</button>
-        <button onclick="selectResonance('ไม่ค่อยตรง')" class="resonance-btn px-8 py-3 border border-stone-200 text-stone-600 font-body rounded-full hover:bg-stone-50 active:scale-95 transition-all">ไม่ค่อยตรง</button>
-      </div>
-      <div id="thank-you-section" class="hidden space-y-6 fade-in pt-2">
-        <div class="h-px w-full bg-stone-100"></div>
-        <span class="text-3xl block">✨</span>
-        <p id="thank-you-msg" class="font-body text-stone-700 text-base"></p>
-
-        <!-- Share section -->
-        <div class="space-y-4">
-          <p class="font-label text-sm uppercase tracking-widest text-stone-600">แชร์ผลการอ่าน</p>
-
-          <!-- Social buttons -->
-          <div class="flex flex-wrap justify-center gap-3">
-
-            <!-- Facebook -->
-            <button onclick="shareTo('facebook')" class="share-btn px-4 py-2 rounded-full font-body text-sm text-amber-700 flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-              Facebook
-            </button>
-
-            <!-- X / Twitter -->
-            <button onclick="shareTo('twitter')" class="share-btn px-4 py-2 rounded-full font-body text-sm text-amber-700 flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-              X
-            </button>
-
-            <!-- Line -->
-            <button onclick="shareTo('line')" class="share-btn px-4 py-2 rounded-full font-body text-sm text-amber-700 flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
-              Line
-            </button>
-
-            <!-- Copy -->
-            <button onclick="shareTo('copy')" class="share-btn px-4 py-2 rounded-full font-body text-sm text-amber-700 flex items-center gap-2">
-              <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">content_copy</span>
-              คัดลอก
-            </button>
-
-          </div>
-
-          <!-- TikTok / IG note -->
-          <p class="font-body text-xs text-outline/60">สำหรับ TikTok / Instagram — กด "คัดลอก" แล้ววางใน caption ได้เลย</p>
-          <p id="copy-confirm" class="hidden font-body text-xs text-amber-600">คัดลอกแล้ว ✓</p>
-        </div>
-
-        <button onclick="location.reload()" class="px-8 py-3 border border-amber-300/50 text-amber-700 font-body rounded-full hover:bg-amber-50 transition-all">เริ่มใหม่อีกครั้ง</button>
-      </div>
-    </div>
-  </section>
-
+</section>
 </main>
 
 <script>
-  const urlParams = new URLSearchParams(window.location.search);
+// ─────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────
+const params   = new URLSearchParams(location.search);
+let lang       = params.get('lang') || localStorage.getItem('lumina_lang') || 'th';
+let mode       = params.get('mode') || 'tarot-single';
+const email    = params.get('email') || localStorage.getItem('horo_email') || 'guest';
+const sKey     = 'lumina_sess_active';
+const freshTab = !sessionStorage.getItem(sKey);
+sessionStorage.setItem(sKey, '1');
+let history    = [];
+let saved      = false;
+let lastCard = '', lastReading = '', lastQ = '';
 
-  // ── Session i18n ──────────────────────────────────────────────────────
-  const SESSION_T = {
-    th: {
-      title: 'ตอนนี้รู้สึกอะไรอยู่?',
-      subtitle: 'พิมพ์ในช่องด้านล่าง หรือเลือกจากตัวอย่าง',
-      placeholder: 'เช่น รู้สึกเคว้งๆ ไม่รู้เพราะอะไร...',
-      cta: 'จั่วเลย →',
-      orText: 'หรือเลือกจากนี้',
-      loading1: 'กำลังจั่ว...',
-      loading2: 'หลับตา ทำใจให้สบายๆ',
-      revelation: 'The Revelation',
-      resonanceQ: 'การอ่านครั้งนี้ตรงกับความรู้สึกคุณไหม?',
-      res1: 'ใช่เลย', res2: 'ใกล้เคียง', res3: 'ไม่ค่อยตรง',
-      resMsg1: 'ดีใจที่มันตรง Lumina จำคุณไว้แล้ว',
-      resMsg2: 'บางอย่างที่ตรง บางอย่างที่ไม่ — นั่นก็เป็นคำตอบในตัวเอง',
-      resMsg3: 'ไม่เป็นไร บางครั้งสัญลักษณ์พูดถึงสิ่งที่ยังมาไม่ถึง',
-      shareLabel: 'แชร์ผลการอ่าน',
-      shareCopy: 'คัดลอก', shareFb: 'Facebook', shareX: 'X / Twitter', shareLine: 'LINE',
-      copyConfirm: 'คัดลอกแล้ว ✓',
-      tiktokNote: 'สำหรับ TikTok / Instagram — กด "คัดลอก" แล้ววางใน bio หรือ caption ได้เลย',
-      restart: 'เริ่มใหม่อีกครั้ง',
-      returnHome: '← กลับ',
-      suggestions: ['รู้สึกเคว้ง ๆ บอกไม่ถูกว่าเพราะอะไร','ไม่รู้จะลองเปลี่ยนอะไรสักอย่างดีไหม','มีเรื่องที่อยากทำ แต่ยังไม่กล้าเริ่ม','รู้สึกว่าความสัมพันธ์บางอย่างมันคลอนแคลน','ทำไมเรื่องดี ๆ ถึงไม่ค่อยเกิดกับเราบ้าง'],
-      returnGreeting: 'ยินดีต้อนรับกลับมา',
-    },
-    en: {
-      title: 'How are you feeling right now?',
-      subtitle: 'Type below, or choose from suggestions',
-      placeholder: 'e.g. feeling lost, not sure why...',
-      cta: 'Draw →',
-      orText: 'or choose from these',
-      loading1: 'Drawing your card...',
-      loading2: 'Close your eyes, breathe easy',
-      revelation: 'The Revelation',
-      resonanceQ: 'Did this reading resonate with you?',
-      res1: 'Yes, exactly', res2: 'Somewhat', res3: 'Not really',
-      resMsg1: 'Glad it resonated. Lumina remembers.',
-      resMsg2: 'Some parts fit, some don't — that itself is an answer.',
-      resMsg3: 'That's okay. Sometimes symbols speak to what hasn't arrived yet.',
-      shareLabel: 'Share your reading',
-      shareCopy: 'Copy text', shareFb: 'Facebook', shareX: 'X / Twitter', shareLine: 'LINE',
-      copyConfirm: 'Copied ✓',
-      tiktokNote: 'For TikTok / Instagram — tap "Copy" then paste in your caption or bio.',
-      restart: 'Start again',
-      returnHome: '← Back',
-      suggestions: ['Feeling lost, can't explain why','Not sure if I should change something','There's something I want to do but can't start','A relationship feels unstable','Why don't good things happen to me more often'],
-      returnGreeting: 'Welcome back',
-    },
-    jp: {
-      title: '今、どんな気持ちですか？',
-      subtitle: '下に入力するか、例から選んでください',
-      placeholder: '例: なんとなく迷ってる、理由はわからない...',
-      cta: '引く →',
-      orText: 'または例から選ぶ',
-      loading1: 'カードを引いています...',
-      loading2: '目を閉じて、深呼吸して',
-      revelation: 'The Revelation',
-      resonanceQ: 'この読みはあなたに響きましたか？',
-      res1: 'はい、まさに', res2: 'ある程度', res3: 'あまり',
-      resMsg1: '響いてよかったです。Luminaは覚えています。',
-      resMsg2: '合う部分もあれば合わない部分も — それ自体が答えです。',
-      resMsg3: '大丈夫です。シンボルはまだ来ていないものを語ることがあります。',
-      shareLabel: '読みをシェア',
-      shareCopy: 'コピー', shareFb: 'Facebook', shareX: 'X / Twitter', shareLine: 'LINE',
-      copyConfirm: 'コピーしました ✓',
-      tiktokNote: 'TikTok / Instagram用 — 「コピー」してキャプションに貼り付けてください。',
-      restart: 'もう一度',
-      returnHome: '← 戻る',
-      suggestions: ['なんとなく迷っている、理由がわからない','何か変えるべきか迷っている','やりたいことがあるけど始められない','ある関係が不安定に感じる','なぜいいことが起きないのだろう'],
-      returnGreeting: 'お帰りなさい',
-    }
-  };
-
-  function switchSessionLang(lang) {
-    sessionLang = lang;
-    localStorage.setItem('lumina_lang', lang);
-    document.querySelectorAll('.session-lang-btn').forEach(b => b.classList.remove('active'));
-    const activeBtn = document.querySelector(`.session-lang-btn[onclick="switchSessionLang('${lang}')"]`);
-    if (activeBtn) activeBtn.classList.add('active');
-    applySessionLang(lang);
+// ─────────────────────────────────────────────────────────
+// TRANSLATIONS
+// ─────────────────────────────────────────────────────────
+const T = {
+  th: {
+    back:'← กลับ', m1:'Single', m2:'3-Card', m3:'Futhark',
+    title:'ตอนนี้รู้สึกอะไรอยู่?', sub:'พิมพ์ในช่องด้านล่าง หรือเลือกจากตัวอย่าง',
+    ph:'เช่น รู้สึกเคว้งๆ ไม่รู้เพราะอะไร...', cta:'จั่วเลย →',
+    or:'หรือเลือกจากนี้',
+    sugg:['รู้สึกเคว้ง ๆ บอกไม่ถูกว่าเพราะอะไร','ไม่รู้จะลองเปลี่ยนอะไรสักอย่างดีไหม','มีเรื่องที่อยากทำ แต่ยังไม่กล้าเริ่ม','รู้สึกว่าความสัมพันธ์บางอย่างมันคลอนแคลน','ทำไมเรื่องดี ๆ ถึงไม่ค่อยเกิดกับเราบ้าง'],
+    loading1:'กำลังจั่ว...', loading2:'หลับตา ทำใจให้สบายๆ',
+    rev:'The Revelation', resQ:'การอ่านครั้งนี้ตรงกับความรู้สึกคุณไหม?',
+    rb:['ใช่เลย','ใกล้เคียง','ไม่ค่อยตรง'],
+    rm:['ดีใจที่มันตรง Lumina จำคุณไว้แล้ว','บางอย่างที่ตรง บางอย่างที่ไม่ — นั่นก็เป็นคำตอบในตัวเอง','ไม่เป็นไร บางครั้งสัญลักษณ์พูดถึงสิ่งที่ยังมาไม่ถึง'],
+    shareLabel:'แชร์ผลการอ่าน', copy:'คัดลอก', copied:'คัดลอกแล้ว ✓',
+    restart:'เริ่มใหม่อีกครั้ง', welcome:'ยินดีต้อนรับกลับมา',
+    past:'Past', present:'Present', future:'Future',
+  },
+  en: {
+    back:'← Back', m1:'Single', m2:'3-Card', m3:'Futhark',
+    title:'How are you feeling right now?', sub:'Type below, or pick a suggestion',
+    ph:'e.g. feeling lost, not sure why...', cta:'Draw →',
+    or:'or choose from these',
+    sugg:["Feeling lost, can't explain why","Not sure if I should change something","There's something I want to do but can't start","A relationship feels unstable","Why don't good things happen to me more often"],
+    loading1:'Drawing your card...', loading2:'Close your eyes, breathe easy',
+    rev:'The Revelation', resQ:'Did this reading resonate with you?',
+    rb:['Yes, exactly','Somewhat','Not really'],
+    rm:['Glad it resonated. Lumina remembers.','Some parts fit, some don\'t — that itself is an answer.','That\'s okay. Sometimes symbols speak to what hasn\'t arrived yet.'],
+    shareLabel:'Share your reading', copy:'Copy', copied:'Copied ✓',
+    restart:'Start again', welcome:'Welcome back',
+    past:'Past', present:'Present', future:'Future',
+  },
+  jp: {
+    back:'← 戻る', m1:'1枚', m2:'3枚', m3:'ルーン',
+    title:'今、どんな気持ちですか？', sub:'下に入力するか、例から選んでください',
+    ph:'例: なんとなく迷ってる、理由はわからない...', cta:'引く →',
+    or:'または例から選ぶ',
+    sugg:['なんとなく迷っている、理由がわからない','何か変えるべきか迷っている','やりたいことがあるけど始められない','ある関係が不安定に感じる','なぜいいことが起きないのだろう'],
+    loading1:'カードを引いています...', loading2:'目を閉じて、深呼吸して',
+    rev:'The Revelation', resQ:'この読みはあなたに響きましたか？',
+    rb:['はい、まさに','ある程度','あまり'],
+    rm:['響いてよかったです。Luminaは覚えています。','合う部分もあれば合わない部分も — それ自体が答えです。','大丈夫です。シンボルはまだ来ていないものを語ることがあります。'],
+    shareLabel:'読みをシェア', copy:'コピー', copied:'コピーしました ✓',
+    restart:'もう一度', welcome:'お帰りなさい',
+    past:'過去', present:'現在', future:'未来',
   }
+};
 
-  function applySessionLang(lang) {
-    const t = SESSION_T[lang] || SESSION_T['th'];
-    // Step 1 texts
-    const titleEl = document.querySelector('#step-1 h2');
-    if (titleEl) titleEl.textContent = t.title;
-    const subEl = document.querySelector('#step-1 p.font-body');
-    if (subEl) subEl.textContent = t.subtitle;
-    const textarea = document.getElementById('prompt-input');
-    if (textarea) textarea.placeholder = t.placeholder;
-    const submitBtn = document.getElementById('submit-btn');
-    if (submitBtn) submitBtn.textContent = t.cta;
-    // Or text
-    const orEl = document.querySelector('.font-label.text-sm.text-stone-500');
-    if (orEl) orEl.textContent = t.orText;
-    // Suggestions
-    const suggBtns = document.querySelectorAll('.suggestion-btn');
-    t.suggestions.forEach((s, i) => { if (suggBtns[i]) suggBtns[i].textContent = s; });
-    // Loading
-    const l1 = document.querySelector('#step-2 .font-headline');
-    if (l1) l1.textContent = t.loading1;
-    const l2 = document.querySelector('#step-2 .font-body');
-    if (l2) l2.textContent = t.loading2;
-    // Step 3
-    const revEl = document.getElementById('session-label');
-    if (revEl) revEl.textContent = t.revelation;
-    const resQ = document.querySelector('#step-3 h4');
-    if (resQ) resQ.textContent = t.resonanceQ;
-    // Resonance buttons
-    const resBtns = document.querySelectorAll('.resonance-btn');
-    if (resBtns[0]) resBtns[0].textContent = t.res1;
-    if (resBtns[1]) resBtns[1].textContent = t.res2;
-    if (resBtns[2]) resBtns[2].textContent = t.res3;
-    // Share label
-    const shareLabel = document.querySelector('.font-label.text-sm.text-stone-400');
-    if (shareLabel) shareLabel.textContent = t.shareLabel;
-    // Restart
-    const restartBtn = document.querySelector('#thank-you-section button[onclick="location.reload()"]');
-    if (restartBtn) restartBtn.textContent = t.restart;
-    // Back link
-    const backLink = document.querySelector('header a[href="/"]');
-    if (backLink) backLink.textContent = t.returnHome;
-    // Return greeting label
-    const greetLabel = document.querySelector('#return-greeting .font-label');
-    if (greetLabel) greetLabel.textContent = t.returnGreeting;
-    // Update submit button text
-    const submitBtn = document.getElementById('submit-btn');
-    if (submitBtn) submitBtn.textContent = t.cta;
-    // Update back link
-    const backLink = document.getElementById('back-link');
-    if (backLink) backLink.textContent = t.returnHome;
-    // Store resonance messages for use in selectResonance
-    window._resMessages = { [t.res1]: t.resMsg1, [t.res2]: t.resMsg2, [t.res3]: t.resMsg3 };
-    window._copyConfirm = t.copyConfirm;
+// ─────────────────────────────────────────────────────────
+// DECKS
+// ─────────────────────────────────────────────────────────
+const major = ['The Fool','The Magician','The High Priestess','The Empress','The Emperor','The Hierophant','The Lovers','The Chariot','Strength','The Hermit','Wheel of Fortune','Justice','The Hanged Man','Death','Temperance','The Devil','The Tower','The Star','The Moon','The Sun','Judgement','The World'];
+const minor = ['Wands','Cups','Swords','Pentacles'].flatMap(s => ['Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Page','Knight','Queen','King'].map(r => r+' of '+s));
+const deck  = [...major, ...minor];
+const runes = [
+  {name:'Fehu',   paths:['M35,20 L35,80','M35,35 L55,25','M35,50 L55,40']},
+  {name:'Uruz',   paths:['M30,20 L30,80','M30,20 L55,50 L55,80']},
+  {name:'Thurisaz',paths:['M50,20 L50,80','M50,40 L65,30 L65,55 Z']},
+  {name:'Ansuz',  paths:['M35,20 L35,80','M35,35 L65,25','M35,50 L55,62']},
+  {name:'Raidho', paths:['M35,20 L35,80','M35,30 L60,42 L35,55','M50,55 L65,80']},
+  {name:'Kenaz',  paths:['M40,20 L40,80','M40,50 L65,30']},
+  {name:'Gebo',   paths:['M25,25 L75,75','M75,25 L25,75']},
+  {name:'Wunjo',  paths:['M35,20 L35,80','M35,20 L60,35 L35,50']},
+  {name:'Hagalaz',paths:['M30,20 L30,80','M70,20 L70,80','M30,50 L70,50']},
+  {name:'Nauthiz',paths:['M35,20 L35,80','M65,20 L65,80','M35,20 L65,80']},
+  {name:'Isa',    paths:['M50,20 L50,80']},
+  {name:'Jera',   paths:['M50,20 L70,35 L50,50','M50,50 L30,65 L50,80']},
+  {name:'Eihwaz', paths:['M50,15 L50,85','M50,30 L65,42','M50,60 L35,72']},
+  {name:'Perthro',paths:['M35,30 L35,70','M35,30 L65,40 L65,60 L35,70']},
+  {name:'Algiz',  paths:['M50,20 L50,80','M50,45 L30,25','M50,45 L70,25']},
+  {name:'Sowilo', paths:['M65,20 L35,50 L65,80']},
+  {name:'Tiwaz',  paths:['M50,20 L50,80','M30,45 L50,20 L70,45']},
+  {name:'Berkano',paths:['M35,20 L35,80','M35,20 L60,32 L35,50','M35,50 L60,65 L35,80']},
+  {name:'Ehwaz',  paths:['M35,20 L35,80','M65,20 L65,80','M35,50 L65,50']},
+  {name:'Mannaz', paths:['M30,20 L30,80','M70,20 L70,80','M30,20 L50,50 L70,20']},
+  {name:'Laguz',  paths:['M40,20 L40,80','M40,50 L65,80']},
+  {name:'Ingwaz', paths:['M50,20 L70,50 L50,80 L30,50 Z']},
+  {name:'Dagaz',  paths:['M25,50 L50,20 L75,50 L50,80 Z','M25,50 L75,50']},
+  {name:'Othala', paths:['M50,20 L70,45 L50,70 L30,45 Z','M30,45 L20,80','M70,45 L80,80']}
+];
+const rand = arr => arr[Math.floor(Math.random() * arr.length)];
+const drawOne   = () => ({ card: rand(deck), rev: Math.random() < 0.3 });
+const drawThree = () => { const s=[...deck].sort(()=>Math.random()-0.5); return [0,1,2].map(i=>({card:s[i],rev:Math.random()<0.3})); };
+const drawRune  = () => ({ rune: rand(runes), rev: Math.random() < 0.4 });
+
+// ─────────────────────────────────────────────────────────
+// APPLY LANGUAGE
+// ─────────────────────────────────────────────────────────
+function applyLang() {
+  const t = T[lang] || T.th;
+  // Lang buttons
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    const bl = b.getAttribute('onclick').match(/'(\w+)'/)[1];
+    b.classList.toggle('active', bl === lang);
+  });
+  // Nav
+  document.getElementById('back-link').textContent = t.back;
+  // Mode sub labels
+  document.getElementById('m1sub').textContent = t.m1;
+  document.getElementById('m2sub').textContent = t.m2;
+  document.getElementById('m3sub').textContent = t.m3;
+  // Step 1
+  document.getElementById('step1-title').textContent = t.title;
+  document.getElementById('step1-sub').textContent = t.sub;
+  document.getElementById('prompt-input').placeholder = t.ph;
+  document.getElementById('submit-btn').textContent = t.cta;
+  document.getElementById('or-text').textContent = t.or;
+  // Suggestions
+  const sg = document.getElementById('suggestions');
+  sg.innerHTML = '';
+  t.sugg.forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'suggestion';
+    btn.textContent = s;
+    btn.onclick = () => fillPrompt(s);
+    sg.appendChild(btn);
+  });
+  // Loading
+  document.getElementById('loading1').textContent = t.loading1;
+  document.getElementById('loading2').textContent = t.loading2;
+  // Step 3
+  document.getElementById('session-label').textContent = t.rev;
+  document.getElementById('res-q').textContent = t.resQ;
+  document.getElementById('rb0').textContent = t.rb[0];
+  document.getElementById('rb1').textContent = t.rb[1];
+  document.getElementById('rb2').textContent = t.rb[2];
+  document.getElementById('share-label').textContent = t.shareLabel;
+  document.getElementById('copy-label').textContent = t.copy;
+  document.getElementById('restart-btn').textContent = t.restart;
+  document.getElementById('spread-past').textContent = t.past;
+  document.getElementById('spread-present').textContent = t.present;
+  document.getElementById('spread-future').textContent = t.future;
+  document.getElementById('return-label').textContent = t.welcome;
+}
+
+function switchLang(l) {
+  lang = l;
+  localStorage.setItem('lumina_lang', l);
+  applyLang();
+}
+
+// ─────────────────────────────────────────────────────────
+// MODE SELECTION
+// ─────────────────────────────────────────────────────────
+function selectMode(m, el) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function initMode() {
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+}
+
+// ─────────────────────────────────────────────────────────
+// INPUT
+// ─────────────────────────────────────────────────────────
+function onTextInput(el) {
+  const len = el.value.length;
+  document.getElementById('char-count').textContent = len + '/200';
+  const btn = document.getElementById('submit-btn');
+  btn.style.opacity = el.value.trim() ? '1' : '0.55';
+}
+
+function fillPrompt(text) {
+  const el = document.getElementById('prompt-input');
+  el.value = text;
+  el.style.borderColor = '#d4af37';
+  document.getElementById('submit-btn').style.opacity = '1';
+  document.getElementById('char-count').textContent = text.length + '/200';
+}
+
+// ─────────────────────────────────────────────────────────
+// STEPS
+// ─────────────────────────────────────────────────────────
+function showStep(n) {
+  ['step-1','step-2','step-3'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    el.style.display = (i+1 === n) ? 'flex' : 'none';
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─────────────────────────────────────────────────────────
+// SUBMIT
+// ─────────────────────────────────────────────────────────
+function submitPrompt() {
+  const prompt = document.getElementById('prompt-input').value.trim();
+  if (!prompt) {
+    document.getElementById('prompt-input').focus();
+    return;
   }
+  saved = false;
+  showStep(2);
 
-  let sessionLang = urlParams.get('lang') || localStorage.getItem('lumina_lang') || 'th';
-  const emailFromUrl = urlParams.get('email');
-  const userEmail = emailFromUrl || localStorage.getItem('horo_email') || 'guest';
-
-  const sessionKey = 'lumina_session_active';
-  const isFirstVisitThisTab = !sessionStorage.getItem(sessionKey);
-  sessionStorage.setItem(sessionKey, '1');
-
-  // ── Active reading mode ────────────────────────────────────────────────
-  let currentMode = urlParams.get('mode') || 'tarot-single';
-
-  function setMode(mode, btn) {
-    currentMode = mode;
-    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-    if (btn) btn.classList.add('active');
+  if (mode === 'rune') {
+    const { rune, rev } = drawRune();
+    callAPI(prompt, rune.name + (rev ? ' (Reversed)' : ''), rev, 'rune', { rune, rev });
+  } else if (mode === 'tarot-three') {
+    const cards = drawThree();
+    callAPI(prompt, cards.map(c => c.card + (c.rev ? ' (R)' : '')).join(', '), false, 'three', cards);
+  } else {
+    const { card, rev } = drawOne();
+    callAPI(prompt, card + (rev ? ' (Reversed)' : ''), rev, 'single', null);
   }
+}
 
-  // Init active button from URL param - use data attribute
-  function initModeButtons() {
-    document.querySelectorAll('.mode-btn').forEach(b => {
-      b.classList.remove('active');
-      if (b.dataset.mode === currentMode) b.classList.add('active');
+// ─────────────────────────────────────────────────────────
+// API
+// ─────────────────────────────────────────────────────────
+async function callAPI(prompt, cardLabel, rev, type, extra) {
+  try {
+    const res = await fetch('/.netlify/functions/reading', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt, card: cardLabel, reversed: rev,
+        email, history, readingType: type, lang
+      })
+    });
+    if (!res.ok) throw new Error('api error');
+    const data = await res.json();
+    showResult(data.reading, data.question, type, extra, rev, cardLabel);
+  } catch (err) {
+    console.error(err);
+    showResult(
+      (T[lang]||T.th).loading2,
+      (T[lang]||T.th).resQ,
+      type, extra, rev, cardLabel
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// SHOW RESULT
+// ─────────────────────────────────────────────────────────
+function showResult(reading, question, type, extra, rev, cardLabel) {
+  lastCard = cardLabel; lastReading = reading; lastQ = question;
+  document.getElementById('card-reading').textContent = reading;
+  document.getElementById('card-question').textContent = '\u201c' + question + '\u201d';
+
+  document.getElementById('view-single').style.display = 'none';
+  document.getElementById('view-three').style.display = 'none';
+  document.getElementById('view-rune').style.display = 'none';
+
+  if (type === 'rune') {
+    document.getElementById('view-rune').style.display = 'flex';
+    document.getElementById('rune-paths').innerHTML = extra.rune.paths.map(d => `<path d="${d}"/>`).join('');
+    document.getElementById('rune-name-label').textContent = extra.rune.name.toUpperCase();
+    document.getElementById('card-name').textContent = extra.rune.name + (rev ? ' ↓' : '');
+    document.getElementById('rune-rev-badge').style.display = rev ? 'inline-block' : 'none';
+  } else if (type === 'three') {
+    document.getElementById('view-three').style.display = 'flex';
+    document.getElementById('c1-label').textContent = extra[0].card;
+    document.getElementById('c2-label').textContent = extra[1].card;
+    document.getElementById('c3-label').textContent = extra[2].card;
+    document.getElementById('card-name').textContent = extra.map(c => c.card + (c.rev ? ' ↓' : '')).join(' · ');
+  } else {
+    document.getElementById('view-single').style.display = 'flex';
+    document.getElementById('tarot-label').textContent = cardLabel.toUpperCase();
+    document.getElementById('card-name').textContent = cardLabel;
+    document.getElementById('tarot-wrap').style.transform = rev ? 'rotate(180deg)' : '';
+    document.getElementById('rev-badge').style.display = rev ? 'inline-block' : 'none';
+  }
+  showStep(3);
+}
+
+// ─────────────────────────────────────────────────────────
+// RESONANCE
+// ─────────────────────────────────────────────────────────
+function selectResonance(idx) {
+  if (saved) return;
+  saved = true;
+  const t = T[lang] || T.th;
+  document.getElementById('res-btns').style.display = 'none';
+  document.getElementById('thankyou-msg').textContent = t.rm[idx];
+  document.getElementById('thankyou').style.display = 'block';
+  document.getElementById('thankyou').scrollIntoView({ behavior: 'smooth' });
+
+  if (email !== 'guest') {
+    fetch('/.netlify/functions/resonance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, prompt: lastCard, score: t.rb[idx] })
+    }).catch(console.error);
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// SHARE
+// ─────────────────────────────────────────────────────────
+function shareTo(platform) {
+  const t = T[lang] || T.th;
+  const url = 'https://lumina-oracle.com';
+  const text = `✦ Lumina Oracle ✦\n\n${lastCard}\n\n${lastReading}\n\n"${lastQ}"\n\n${url}`;
+  const enc = encodeURIComponent;
+  if (platform === 'facebook') window.open(`https://www.facebook.com/sharer/sharer.php?u=${enc(url)}&quote=${enc(lastReading)}`, '_blank', 'width=600,height=500');
+  else if (platform === 'twitter') window.open(`https://twitter.com/intent/tweet?text=${enc(`${lastCard}\n\n${lastReading}\n\n${url}`)}`, '_blank', 'width=600,height=500');
+  else if (platform === 'line') window.open(`https://social-plugins.line.me/lineit/share?url=${enc(url)}&text=${enc(lastReading)}`, '_blank', 'width=600,height=500');
+  else {
+    navigator.clipboard.writeText(text).then(() => {
+      document.getElementById('copy-label').textContent = t.copied;
+      setTimeout(() => { document.getElementById('copy-label').textContent = t.copy; }, 3000);
     });
   }
+}
 
-  // ── Decks ──────────────────────────────────────────────────────────────
-  const major = ['The Fool','The Magician','The High Priestess','The Empress','The Emperor','The Hierophant','The Lovers','The Chariot','Strength','The Hermit','Wheel of Fortune','Justice','The Hanged Man','Death','Temperance','The Devil','The Tower','The Star','The Moon','The Sun','Judgement','The World'];
-  const suits = ['Wands','Cups','Swords','Pentacles'];
-  const ranks = ['Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Page','Knight','Queen','King'];
-  const minor = suits.flatMap(s=>ranks.map(r=>r+' of '+s));
-  const deck = [...major,...minor];
-
-  const runes = [
-    {name:'Fehu',   paths:['M35,20 L35,80','M35,35 L55,25','M35,50 L55,40']},
-    {name:'Uruz',   paths:['M30,20 L30,80','M30,20 L55,50 L55,80']},
-    {name:'Thurisaz',paths:['M50,20 L50,80','M50,40 L65,30 L65,55 Z']},
-    {name:'Ansuz',  paths:['M35,20 L35,80','M35,35 L65,25','M35,50 L55,62']},
-    {name:'Raidho', paths:['M35,20 L35,80','M35,30 L60,42 L35,55','M50,55 L65,80']},
-    {name:'Kenaz',  paths:['M40,20 L40,80','M40,50 L65,30']},
-    {name:'Gebo',   paths:['M25,25 L75,75','M75,25 L25,75']},
-    {name:'Wunjo',  paths:['M35,20 L35,80','M35,20 L60,35 L35,50']},
-    {name:'Hagalaz',paths:['M30,20 L30,80','M70,20 L70,80','M30,50 L70,50']},
-    {name:'Nauthiz',paths:['M35,20 L35,80','M65,20 L65,80','M35,20 L65,80']},
-    {name:'Isa',    paths:['M50,20 L50,80']},
-    {name:'Jera',   paths:['M50,20 L70,35 L50,50','M50,50 L30,65 L50,80']},
-    {name:'Eihwaz', paths:['M50,15 L50,85','M50,30 L65,42','M50,60 L35,72']},
-    {name:'Perthro',paths:['M35,30 L35,70','M35,30 L65,40 L65,60 L35,70']},
-    {name:'Algiz',  paths:['M50,20 L50,80','M50,45 L30,25','M50,45 L70,25']},
-    {name:'Sowilo', paths:['M65,20 L35,50 L65,80']},
-    {name:'Tiwaz',  paths:['M50,20 L50,80','M30,45 L50,20 L70,45']},
-    {name:'Berkano',paths:['M35,20 L35,80','M35,20 L60,32 L35,50','M35,50 L60,65 L35,80']},
-    {name:'Ehwaz',  paths:['M35,20 L35,80','M65,20 L65,80','M35,50 L65,50']},
-    {name:'Mannaz', paths:['M30,20 L30,80','M70,20 L70,80','M30,20 L50,50 L70,20']},
-    {name:'Laguz',  paths:['M40,20 L40,80','M40,50 L65,80']},
-    {name:'Ingwaz', paths:['M50,20 L70,50 L50,80 L30,50 Z']},
-    {name:'Dagaz',  paths:['M25,50 L50,20 L75,50 L50,80 Z','M25,50 L75,50']},
-    {name:'Othala', paths:['M50,20 L70,45 L50,70 L30,45 Z','M30,45 L20,80','M70,45 L80,80']}
-  ];
-
-  function drawOne() { return { card: deck[Math.floor(Math.random()*deck.length)], reversed: Math.random()<0.3 }; }
-  function drawThree() { const s=[...deck].sort(()=>Math.random()-0.5); return [{card:s[0],reversed:Math.random()<0.3},{card:s[1],reversed:Math.random()<0.3},{card:s[2],reversed:Math.random()<0.3}]; }
-  function drawRune() { return { rune: runes[Math.floor(Math.random()*runes.length)], reversed: Math.random()<0.4 }; }
-
-  // ── State ──────────────────────────────────────────────────────────────
-  let currentPrompt='', currentCard='', currentReversed=false, userHistory=[], resonanceSaved=false;
-  let lastReading='', lastQuestion='', lastCardName='';
-
-  async function loadHistory() {
-    if (userEmail==='guest'||!isFirstVisitThisTab) return;
-    try {
-      const res = await fetch('/.netlify/functions/history',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:userEmail})});
-      const data = await res.json();
-      userHistory = data.sessions||[];
-      if (data.isReturning&&userHistory.length>0) {
-        const last=userHistory[0], lastDate=last.date?new Date(last.date):null, today=new Date();
-        const todayStr=today.toISOString().split('T')[0], lastStr=lastDate?lastDate.toISOString().split('T')[0]:null;
-        if (lastStr&&lastStr!==todayStr) {
-          const d=lastDate?Math.floor((today-lastDate)/(1000*60*60*24)):null;
-          const txt=d===1?'คุณมาที่นี่เมื่อวาน — มีอะไรที่เปลี่ยนไปบ้างไหม?':d<=7?`คุณมาที่นี่เมื่อ ${d} วันก่อน — ตอนนี้เป็นยังไงบ้าง?`:d<=30?`ผ่านมาเกือบ ${d} วันแล้ว — อะไรพาคุณกลับมา?`:'ห่างหายไปนาน — ยินดีที่คุณกลับมา';
-          document.getElementById('return-text').textContent=txt;
-          document.getElementById('return-greeting').classList.remove('hidden');
-        }
+// ─────────────────────────────────────────────────────────
+// HISTORY (returning user greeting)
+// ─────────────────────────────────────────────────────────
+async function loadHistory() {
+  if (email === 'guest' || !freshTab) return;
+  try {
+    const res = await fetch('/.netlify/functions/history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    history = data.sessions || [];
+    if (data.isReturning && history.length > 0) {
+      const last = history[0];
+      const lastDate = last.date ? new Date(last.date) : null;
+      const today = new Date();
+      const todayStr = today.toISOString().split('T')[0];
+      const lastStr = lastDate ? lastDate.toISOString().split('T')[0] : null;
+      if (lastStr && lastStr !== todayStr) {
+        const d = lastDate ? Math.floor((today - lastDate) / 86400000) : null;
+        const t = T[lang] || T.th;
+        const msg = d === 1 ? (lang === 'th' ? 'คุณมาที่นี่เมื่อวาน — มีอะไรที่เปลี่ยนไปบ้างไหม?' : lang === 'en' ? 'You were here yesterday — has anything changed?' : '昨日も来ていましたね — 何か変わりましたか？')
+          : d <= 7 ? (lang === 'th' ? `คุณมาที่นี่เมื่อ ${d} วันก่อน — ตอนนี้เป็นยังไงบ้าง?` : lang === 'en' ? `You were here ${d} days ago — how are things now?` : `${d}日前にも来ていましたね — 今はいかがですか？`)
+          : (lang === 'th' ? 'ยินดีที่คุณกลับมา มีอะไรใหม่ที่อยากคิดทบทวนไหม?' : lang === 'en' ? 'Welcome back — anything new on your mind?' : 'お帰りなさい — 何か新しいことはありましたか？');
+        document.getElementById('return-text').textContent = msg;
+        document.getElementById('return-banner').style.display = 'block';
       }
-    } catch(e){console.error(e);}
-  }
-
-  function updateCharCount() {
-    const v = document.getElementById('prompt-input').value;
-    document.getElementById('char-count').textContent = v.length + '/200';
-    const btn = document.getElementById('submit-btn');
-    // Visual feedback only — never disable the button
-    btn.style.opacity = v.trim().length === 0 ? '0.55' : '1';
-  }
-  function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(document.getElementById('prompt-input').value.trim())submitPrompt();}}
-  function fillPrompt(t) {
-    const i = document.getElementById('prompt-input');
-    i.value = t;
-    updateCharCount();
-    i.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-  function showStep(n){['step-1','step-2','step-3'].forEach(id=>document.getElementById(id).classList.add('hidden'));document.getElementById('step-'+n).classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});}
-
-  function submitPrompt() {
-    const prompt=document.getElementById('prompt-input').value.trim();
-    if(!prompt){ document.getElementById('prompt-input').focus(); return; }
-    currentPrompt=prompt; resonanceSaved=false;
-    showStep(2);
-
-    if(currentMode==='rune'){
-      const {rune,reversed}=drawRune(); currentCard=rune.name; currentReversed=reversed;
-      callAPI(prompt,rune.name+(reversed?' (Reversed)':''),reversed,'rune',{rune,reversed});
-    } else if(currentMode==='tarot-three'){
-      const cards=drawThree(); currentCard=cards.map(c=>c.card).join(' | '); currentReversed=false;
-      callAPI(prompt,cards.map(c=>c.card+(c.reversed?' (R)':'')).join(', '),false,'three',cards);
-    } else {
-      const {card,reversed}=drawOne(); currentCard=card; currentReversed=reversed;
-      callAPI(prompt,card+(reversed?' (Reversed)':''),reversed,'single',null);
     }
-  }
+  } catch(e) { console.error(e); }
+}
 
-  async function callAPI(prompt,cardLabel,reversed,type,extra){
-    try{
-      const res=await fetch('/.netlify/functions/reading',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,card:cardLabel,reversed,email:userEmail,history:userHistory,readingType:type,lang:sessionLang})});
-      if(!res.ok)throw new Error('error');
-      const data=await res.json();
-      if(data.sessionNumber>1)document.getElementById('session-label').textContent=`Session ${data.sessionNumber}`;
-      showResult(data.reading,data.question,type,extra,reversed,cardLabel);
-    }catch(err){
-      console.error(err);
-      const t=SESSION_T[sessionLang]||SESSION_T['th'];
-      showResult(
-        cardLabel+' — '+t.loading2,
-        t.resonanceQ,
-        type,extra,reversed,cardLabel
-      );
-    }
-  }
-
-  function showResult(reading,question,type,extra,reversed,cardLabel){
-    lastReading=reading; lastQuestion=question; lastCardName=cardLabel;
-    document.getElementById('card-reading').textContent=reading;
-    document.getElementById('card-question').textContent='\u201c'+question+'\u201d';
-
-    document.getElementById('view-single').classList.add('hidden');
-    document.getElementById('view-three').classList.add('hidden');
-    document.getElementById('view-rune').classList.add('hidden');
-
-    if(type==='rune'){
-      document.getElementById('view-rune').classList.remove('hidden');
-      const g=document.getElementById('rune-paths');
-      g.innerHTML=extra.rune.paths.map(d=>`<path d="${d}"/>`).join('');
-      document.getElementById('rune-name-label').textContent=extra.rune.name.toUpperCase();
-      document.getElementById('card-name').textContent=extra.rune.name+(reversed?' (Reversed)':'');
-      document.getElementById('rune-rev-badge').classList.toggle('hidden',!reversed);
-    } else if(type==='three'){
-      document.getElementById('view-three').classList.remove('hidden');
-      document.getElementById('c1-footer').textContent=extra[0].card;
-      document.getElementById('c2-footer').textContent=extra[1].card;
-      document.getElementById('c3-footer').textContent=extra[2].card;
-      document.getElementById('card-name').textContent=extra.map(c=>c.card+(c.reversed?' ↓':'')).join(' · ');
-    } else {
-      document.getElementById('view-single').classList.remove('hidden');
-      document.getElementById('tarot-footer').textContent=currentCard;
-      document.getElementById('card-name').textContent=currentCard;
-      document.getElementById('tarot-wrap').classList.toggle('reversed',reversed);
-      document.getElementById('reversed-badge').classList.toggle('hidden',!reversed);
-    }
-    showStep(3);
-
-
-  }
-
-  function selectResonance(score){
-    if(resonanceSaved)return; resonanceSaved=true;
-    const msgs={'ใช่เลย':'ดีใจที่มันตรง Lumina จำคุณไว้แล้ว','ใกล้เคียง':'บางอย่างที่ตรง บางอย่างที่ไม่ — นั่นก็เป็นคำตอบในตัวเอง','ไม่ค่อยตรง':'ไม่เป็นไร บางครั้งสัญลักษณ์พูดถึงสิ่งที่ยังมาไม่ถึง'};
-    document.querySelectorAll('.resonance-btn').forEach(b=>b.classList.add('hidden'));
-    document.getElementById('thank-you-msg').textContent=msgs[score]||'';
-    document.getElementById('thank-you-section').classList.remove('hidden');
-    document.getElementById('thank-you-section').scrollIntoView({behavior:'smooth'});
-    if(userEmail!=='guest'){
-      fetch('/.netlify/functions/resonance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:userEmail,prompt:currentPrompt,score})}).catch(console.error);
-    }
-  }
-
-  function getShareText() {
-    return `✦ Lumina Oracle ✦\n\n${lastCardName}\n\n${lastReading}\n\n"${lastQuestion}"\n\n— horo.tanakitto.me`;
-  }
-
-  function shareTo(platform) {
-    const text = getShareText();
-    const url = 'https://horo.tanakitto.me';
-    const encodedText = encodeURIComponent(text);
-    const encodedUrl = encodeURIComponent(url);
-
-    const links = {
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`,
-      twitter:  `https://twitter.com/intent/tweet?text=${encodedText}`,
-      line:     `https://social-plugins.line.me/lineit/share?url=${encodedUrl}&text=${encodedText}`,
-    };
-
-    if (platform === 'copy') {
-      navigator.clipboard.writeText(text).then(() => {
-        const el = document.getElementById('copy-confirm');
-        el.textContent = window._copyConfirm || 'คัดลอกแล้ว ✓';
-        el.classList.remove('hidden');
-        setTimeout(() => el.classList.add('hidden'), 3000);
-      });
-    } else if (links[platform]) {
-      window.open(links[platform], '_blank', 'width=600,height=500');
-    }
-  }
-
-  showStep(1);
-  initModeButtons();
-  loadHistory();
-  applySessionLang(sessionLang);
-  // Init button - enabled by default, updateCharCount will handle state
-  // Init active lang button
-  document.querySelectorAll('.session-lang-btn').forEach(b => b.classList.remove('active'));
-  const initLangBtn = document.querySelector(`.session-lang-btn[onclick="switchSessionLang('${sessionLang}')"]`);
-  if (initLangBtn) initLangBtn.classList.add('active');
+// ─────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────
+applyLang();
+initMode();
+showStep(1);
+loadHistory();
 </script>
 </body>
 </html>
