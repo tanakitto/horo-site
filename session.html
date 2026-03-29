@@ -5,7 +5,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Lumina — Session</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;1,400&family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script>
   tailwind.config = {
@@ -13,70 +13,70 @@
     theme: {
       extend: {
         colors: {
-          "primary": "#c998ff","on-primary": "#45007e","surface": "#150822",
-          "on-surface": "#f3deff","on-surface-variant": "#b8a4c6",
-          "outline-variant": "#51425f","outline": "#816f8f",
-          "background": "#150822","on-background": "#f3deff",
+          "primary": "#745b00","on-primary": "#ffffff","surface": "#faf9f6",
+          "on-surface": "#1a1c1a","on-surface-variant": "#4d4635",
+          "outline-variant": "#d0c5af","outline": "#7f7663",
+          "background": "#faf9f6","on-background": "#1a1c1a",
         },
-        fontFamily: { "headline": ["Cinzel","serif"], "body": ["Anuphan","sans-serif"], "label": ["Anuphan","sans-serif"] },
+        fontFamily: { "headline": ["Anuphan","sans-serif"], "body": ["Anuphan","sans-serif"], "label": ["Anuphan","sans-serif"] },
       },
     },
   }
 </script>
 <style>
-  body { background: radial-gradient(circle at 50% 50%, #150822 0%, #080015 100%); color: #f3deff; font-family: 'Anuphan', sans-serif; min-height: 100dvh; }
-  .glass { background: rgba(49,29,67,0.4); backdrop-filter: blur(12px); }
+  body { background: #faf9f6; color: #1a1c1a; font-family: 'Anuphan', sans-serif; min-height: 100dvh; }
+  .glass { background: #f4f3f1; }
   .fade-in { animation: fadeIn 0.8s ease-in-out; }
   @keyframes fadeIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
-  .suggestion-btn { background: rgba(49,29,67,0.4); border: 1px solid rgba(81,66,95,0.4); transition: all 0.2s; }
-  .suggestion-btn:hover { border-color: rgba(201,152,255,0.5); background: rgba(201,152,255,0.05); }
+  .suggestion-btn { background: white; border: 1px solid #e8e4da; transition: all 0.2s; }
+  .suggestion-btn:hover { border-color: #d4af37; background: #fffef9; }
   .spin { animation: spin 1.5s linear infinite; }
   @keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
-  textarea:focus { outline:none; border-color:rgba(201,152,255,0.6); box-shadow:0 0 0 2px rgba(201,152,255,0.1); }
-  .return-card { background:rgba(201,152,255,0.05); border:1px solid rgba(201,152,255,0.2); }
+  textarea:focus { outline:none; border-color:#d4af37 !important; box-shadow:0 0 0 2px rgba(212,175,55,0.1); }
+  .return-card { background:rgba(212,175,55,0.06); border:1px solid rgba(212,175,55,0.2); }
 
   /* Mode switcher */
-  .mode-btn { border: 1px solid rgba(81,66,95,0.4); transition: all 0.2s; cursor: pointer; }
-  .mode-btn:hover { border-color: rgba(201,152,255,0.4); background: rgba(201,152,255,0.04); }
-  .mode-btn.active { border-color: rgba(201,152,255,0.7) !important; background: rgba(201,152,255,0.12) !important; }
-  .mode-btn.active .mode-icon { color: #c998ff !important; }
-  .mode-btn.active .mode-title { color: #c998ff !important; }
-  .mode-btn.active .mode-sub { color: rgba(201,152,255,0.6) !important; }
+  .mode-btn { border: 1px solid #e8e4da; background: white; transition: all 0.2s; cursor: pointer; }
+  .mode-btn:hover { border-color: #d4af37; background: #fffef9; }
+  .mode-btn.active { border-color: #d4af37 !important; background: rgba(212,175,55,0.08) !important; }
+  .mode-btn.active .mode-icon { color: #745b00 !important; }
+  .mode-btn.active .mode-title { color: #745b00 !important; }
+  .mode-btn.active .mode-sub { color: #a08030 !important; }
 
   /* Tarot card */
   .tarot-wrap { width:180px; height:290px; border-radius:12px; overflow:hidden; position:relative; box-shadow: 0 0 50px rgba(201,152,255,0.2), 0 20px 50px rgba(0,0,0,0.6); transition: transform 0.5s ease; flex-shrink:0; }
   .tarot-wrap.reversed { transform: rotate(180deg); }
-  .tarot-back { width:100%; height:100%; background: linear-gradient(145deg, #1a0535 0%, #2d0060 50%, #150822 100%); display:flex; align-items:center; justify-content:center; position:relative; }
-  .tarot-back::before { content:''; position:absolute; inset:8px; border:1px solid rgba(201,152,255,0.3); border-radius:6px; }
-  .tarot-back::after { content:''; position:absolute; inset:14px; border:1px solid rgba(201,152,255,0.12); border-radius:4px; }
-  .tarot-pattern { position:absolute; inset:0; background-image: radial-gradient(circle at 50% 50%, rgba(201,152,255,0.08) 0%, transparent 60%), repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(201,152,255,0.04) 8px, rgba(201,152,255,0.04) 9px); }
-  .tarot-footer { position:absolute; bottom:0; left:0; right:0; padding:16px 10px 10px; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%); text-align:center; font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.15em; color:rgba(201,152,255,0.85); text-transform:uppercase; }
+  .tarot-back { width:100%; height:100%; background: linear-gradient(145deg, #f5f0e0 0%, #ede3c4 50%, #f9f4e8 100%); display:flex; align-items:center; justify-content:center; position:relative; }
+  .tarot-back::before { content:''; position:absolute; inset:8px; border:1px solid rgba(116,91,0,0.2); border-radius:6px; }
+  .tarot-back::after { content:''; position:absolute; inset:14px; border:1px solid rgba(116,91,0,0.1); border-radius:4px; }
+  .tarot-pattern { position:absolute; inset:0; background-image: radial-gradient(circle at 50% 50%, rgba(212,175,55,0.15) 0%, transparent 60%), repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(116,91,0,0.04) 8px, rgba(116,91,0,0.04) 9px); }
+  .tarot-footer { position:absolute; bottom:0; left:0; right:0; padding:16px 10px 10px; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%); text-align:center; font-family:'Anuphan',sans-serif;font-weight:600; font-style:italic; font-size:10px; letter-spacing:0.08em; color:rgba(116,91,0,0.9); text-transform:uppercase; }
 
   /* 3-card spread */
   .three-spread { display:flex; gap:12px; justify-content:center; align-items:flex-end; flex-wrap:wrap; }
   .spread-slot { display:flex; flex-direction:column; align-items:center; gap:8px; }
-  .spread-label { font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.2em; color:rgba(201,152,255,0.5); text-transform:uppercase; }
+  .spread-label { font-family:'Anuphan',sans-serif;font-weight:600; font-style:italic; font-size:10px; letter-spacing:0.05em; color:rgba(116,91,0,0.85); color:rgba(201,152,255,0.5); text-transform:uppercase; }
 
   /* Rune stone */
-  .rune-wrap { width:150px; height:190px; border-radius:50% 50% 40% 40% / 60% 60% 40% 40%; background: radial-gradient(ellipse at 30% 30%, #3d1a6e, #1a0535 70%, #080015); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; box-shadow: 0 0 50px rgba(201,152,255,0.15), inset 0 2px 8px rgba(201,152,255,0.1), 0 20px 40px rgba(0,0,0,0.7); position:relative; flex-shrink:0; }
-  .rune-svg-wrap { position:relative; z-index:2; filter: drop-shadow(0 0 12px rgba(201,152,255,0.6)); }
-  .rune-name-label { font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.2em; color:rgba(201,152,255,0.6); text-transform:uppercase; position:relative; z-index:2; }
+  .rune-wrap { width:150px; height:190px; border-radius:50% 50% 40% 40% / 60% 60% 40% 40%; background: radial-gradient(ellipse at 30% 30%, #8c6a2e, #5a4018 70%, #3d2a10); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; box-shadow: 0 0 40px rgba(116,91,0,0.15), inset 0 2px 8px rgba(255,220,100,0.1), 0 20px 40px rgba(0,0,0,0.2); position:relative; flex-shrink:0; }
+  .rune-svg-wrap { position:relative; z-index:2; filter: drop-shadow(0 0 12px rgba(255,200,50,0.5)); }
+  .rune-name-label { font-family:'Anuphan',sans-serif;font-weight:600; font-style:italic; font-size:11px; letter-spacing:0.05em; color:rgba(255,200,50,1.0); text-transform:uppercase; position:relative; z-index:2; }
 
-  .reversed-badge { background:rgba(201,152,255,0.15); border:1px solid rgba(201,152,255,0.3); }
+  .reversed-badge { background:rgba(116,91,0,0.08); border:1px solid rgba(116,91,0,0.2); }
 
   /* Share button */
-  .share-btn { background: rgba(201,152,255,0.1); border: 1px solid rgba(201,152,255,0.3); transition: all 0.2s; }
-  .share-btn:hover { background: rgba(201,152,255,0.18); }
+  .share-btn { background: rgba(116,91,0,0.06); border: 1px solid rgba(116,91,0,0.15); transition: all 0.2s; }
+  .share-btn:hover { background: rgba(116,91,0,0.12); }
 </style>
 </head>
 <body>
 
-<header class="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 bg-[#150822] shadow-[0_0_20px_rgba(201,152,255,0.05)]">
+<header class="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 bg-white/90 backdrop-blur-md shadow-sm border-b border-amber-100/40">
   <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-    <span class="material-symbols-outlined text-purple-300 text-lg" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
-    <span class="font-headline text-lg tracking-widest text-purple-300">LUMINA</span>
+    <span class="material-symbols-outlined text-amber-700 text-lg" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
+    <span class="font-serif text-xl italic text-amber-800">Lumina</span>
   </a>
-  <a href="/" class="font-body text-[10px] uppercase tracking-widest text-[#816F8F] hover:text-[#C998FF] transition-colors">← กลับ</a>
+  <a href="/" class="font-body text-sm text-stone-600 hover:text-amber-700 transition-colors">← กลับ</a>
 </header>
 
 <main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
@@ -85,74 +85,74 @@
   <section id="step-1" class="min-h-screen flex flex-col justify-center items-center text-center space-y-6 fade-in">
 
     <div id="return-greeting" class="hidden w-full max-w-xl return-card rounded-2xl p-6 text-left space-y-2 fade-in">
-      <p class="font-label text-primary text-sm uppercase tracking-widest">ยินดีต้อนรับกลับมา</p>
-      <p id="return-text" class="font-body text-on-surface-variant text-sm leading-relaxed"></p>
+      <p class="font-label text-amber-700 text-sm uppercase tracking-widest">ยินดีต้อนรับกลับมา</p>
+      <p id="return-text" class="font-body text-stone-700 text-sm leading-relaxed"></p>
     </div>
 
     <!-- Mode Switcher -->
     <div class="w-full max-w-xl">
       <div class="grid grid-cols-3 gap-2">
         <button class="mode-btn active rounded-xl p-3 flex flex-col items-center gap-1" onclick="setMode('tarot-single', this)">
-          <span class="material-symbols-outlined mode-icon text-primary text-lg" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
+          <span class="material-symbols-outlined mode-icon text-amber-700 text-lg" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
           <span class="mode-title font-headline text-[10px] tracking-widest uppercase text-primary">Tarot</span>
-          <span class="mode-sub font-body text-xs text-on-surface-variant/50">Single Card</span>
+          <span class="mode-sub font-body text-xs text-stone-600">Single Card</span>
         </button>
         <button class="mode-btn rounded-xl p-3 flex flex-col items-center gap-1" onclick="setMode('tarot-three', this)">
-          <span class="material-symbols-outlined mode-icon text-on-surface-variant text-lg" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">view_week</span>
-          <span class="mode-title font-headline text-[10px] tracking-widest uppercase text-on-surface-variant">Tarot</span>
-          <span class="mode-sub font-body text-xs text-on-surface-variant/50">3-Card Spread</span>
+          <span class="material-symbols-outlined mode-icon text-stone-600 text-lg" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">view_week</span>
+          <span class="mode-title font-headline text-[10px] tracking-widest uppercase text-stone-700">Tarot</span>
+          <span class="mode-sub font-body text-xs text-stone-600">3-Card Spread</span>
         </button>
         <button class="mode-btn rounded-xl p-3 flex flex-col items-center gap-1" onclick="setMode('rune', this)">
-          <span class="mode-icon text-on-surface-variant font-headline text-lg leading-none">ᚱ</span>
-          <span class="mode-title font-headline text-[10px] tracking-widest uppercase text-on-surface-variant">Rune</span>
-          <span class="mode-sub font-body text-xs text-on-surface-variant/50">Elder Futhark</span>
+          <span class="mode-icon text-stone-600 font-serif text-lg leading-none">ᚱ</span>
+          <span class="mode-title font-headline text-[10px] tracking-widest uppercase text-stone-700">Rune</span>
+          <span class="mode-sub font-body text-xs text-stone-600">Elder Futhark</span>
         </button>
       </div>
     </div>
 
     <div class="space-y-2">
       <h2 class="font-headline text-3xl md:text-4xl text-on-background tracking-wide">ตอนนี้รู้สึกอะไรอยู่?</h2>
-      <p class="font-body text-on-surface-variant text-sm">พิมพ์ในช่องด้านล่าง หรือเลือกจากตัวอย่าง</p>
+      <p class="font-body text-stone-600 text-sm">พิมพ์ในช่องด้านล่าง หรือเลือกจากตัวอย่าง</p>
     </div>
 
     <div class="w-full max-w-xl space-y-3">
       <div class="relative">
         <textarea id="prompt-input" maxlength="200" rows="3"
           placeholder="เช่น รู้สึกเคว้งๆ ไม่รู้เพราะอะไร..."
-          class="w-full glass border border-outline-variant/30 rounded-xl px-5 py-4 font-body text-on-surface text-base resize-none placeholder:text-outline transition-all"
+          class="w-full bg-stone-50 border border-stone-200 rounded-xl px-5 py-4 font-body text-stone-700 text-base resize-none placeholder:text-stone-700 transition-all"
           oninput="updateCharCount()" onkeydown="handleKey(event)"></textarea>
         <span id="char-count" class="absolute bottom-3 right-4 text-xs text-outline font-body">0/200</span>
       </div>
       <button id="submit-btn" onclick="submitPrompt()"
-        class="w-full py-4 bg-primary text-on-primary font-label font-bold rounded-xl text-sm uppercase tracking-widest transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-40"
+        class="w-full py-4 font-label font-bold rounded-xl text-sm uppercase tracking-widest transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-40" style="background:linear-gradient(135deg,#745b00,#d4af37);color:white"
         disabled>จั่วเลย →</button>
     </div>
 
     <div class="w-full max-w-xl flex items-center gap-4">
       <div class="flex-1 h-px bg-outline-variant/20"></div>
-      <span class="font-label text-xs text-outline uppercase tracking-widest">หรือเลือกจากนี้</span>
+      <span class="font-label text-xs text-stone-700 uppercase tracking-widest">หรือเลือกจากนี้</span>
       <div class="flex-1 h-px bg-outline-variant/20"></div>
     </div>
 
     <div class="w-full max-w-xl flex flex-col gap-2">
-      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-on-surface-variant" onclick="fillPrompt('รู้สึกเคว้ง ๆ บอกไม่ถูกว่าเพราะอะไร')">รู้สึกเคว้ง ๆ บอกไม่ถูกว่าเพราะอะไร</button>
-      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-on-surface-variant" onclick="fillPrompt('ไม่รู้จะลองเปลี่ยนอะไรสักอย่างดีไหม')">ไม่รู้จะลองเปลี่ยนอะไรสักอย่างดีไหม</button>
-      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-on-surface-variant" onclick="fillPrompt('มีเรื่องที่อยากทำ แต่ยังไม่กล้าเริ่ม')">มีเรื่องที่อยากทำ แต่ยังไม่กล้าเริ่ม</button>
-      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-on-surface-variant" onclick="fillPrompt('รู้สึกว่าความสัมพันธ์บางอย่างมันคลอนแคลน')">รู้สึกว่าความสัมพันธ์บางอย่างมันคลอนแคลน</button>
-      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-on-surface-variant" onclick="fillPrompt('ทำไมเรื่องดี ๆ ถึงไม่ค่อยเกิดกับเราบ้าง')">ทำไมเรื่องดี ๆ ถึงไม่ค่อยเกิดกับเราบ้าง</button>
+      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-stone-600" onclick="fillPrompt('รู้สึกเคว้ง ๆ บอกไม่ถูกว่าเพราะอะไร')">รู้สึกเคว้ง ๆ บอกไม่ถูกว่าเพราะอะไร</button>
+      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-stone-600" onclick="fillPrompt('ไม่รู้จะลองเปลี่ยนอะไรสักอย่างดีไหม')">ไม่รู้จะลองเปลี่ยนอะไรสักอย่างดีไหม</button>
+      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-stone-600" onclick="fillPrompt('มีเรื่องที่อยากทำ แต่ยังไม่กล้าเริ่ม')">มีเรื่องที่อยากทำ แต่ยังไม่กล้าเริ่ม</button>
+      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-stone-600" onclick="fillPrompt('รู้สึกว่าความสัมพันธ์บางอย่างมันคลอนแคลน')">รู้สึกว่าความสัมพันธ์บางอย่างมันคลอนแคลน</button>
+      <button class="suggestion-btn px-5 py-3 rounded-xl text-left font-body text-sm text-stone-600" onclick="fillPrompt('ทำไมเรื่องดี ๆ ถึงไม่ค่อยเกิดกับเราบ้าง')">ทำไมเรื่องดี ๆ ถึงไม่ค่อยเกิดกับเราบ้าง</button>
     </div>
   </section>
 
   <!-- STEP 2: Loading -->
   <section id="step-2" class="hidden min-h-screen flex flex-col justify-center items-center text-center space-y-8 fade-in">
     <div class="relative w-24 h-24">
-      <div class="w-24 h-24 rounded-full border-t-2 border-primary/60 spin absolute inset-0"></div>
+      <div class="w-24 h-24 rounded-full border-t-2 border-amber-400/60 spin absolute inset-0"></div>
       <div class="absolute inset-0 flex items-center justify-center">
-        <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
+        <span class="material-symbols-outlined text-amber-600 text-2xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
       </div>
     </div>
-    <p class="font-headline text-xl text-on-background/80 tracking-widest">กำลังจั่ว...</p>
-    <p class="font-body text-on-surface-variant text-sm">หลับตา ทำใจให้สบายๆ</p>
+    <p class="font-headline text-xl text-stone-600 tracking-widest">กำลังจั่ว...</p>
+    <p class="font-body text-stone-600 text-sm">หลับตา ทำใจให้สบายๆ</p>
   </section>
 
   <!-- STEP 3: Result -->
@@ -201,7 +201,7 @@
         <div class="rune-wrap">
           <div class="rune-svg-wrap">
             <svg id="rune-svg" viewBox="0 0 100 100" width="80" height="80">
-              <g id="rune-paths" stroke="rgba(201,152,255,0.9)" stroke-width="5" stroke-linecap="round" fill="none"></g>
+              <g id="rune-paths" stroke="rgba(255,220,100,0.9)" stroke-width="5" stroke-linecap="round" fill="none"></g>
             </svg>
           </div>
           <div class="rune-name-label" id="rune-name-label"></div>
@@ -215,56 +215,56 @@
       <!-- Text -->
       <div class="text-center space-y-5 max-w-xl w-full">
         <div class="space-y-2">
-          <p id="session-label" class="font-label text-primary tracking-[0.2rem] uppercase text-sm">The Revelation</p>
-          <h3 id="card-name" class="font-headline text-2xl text-on-background tracking-wide"></h3>
+          <p id="session-label" class="font-label text-amber-600 tracking-[0.2rem] uppercase text-sm">The Revelation</p>
+          <h3 id="card-name" class="font-headline text-3xl text-stone-800 tracking-wide"></h3>
         </div>
-        <p id="card-reading" class="font-body text-base leading-relaxed text-on-surface-variant"></p>
-        <p id="card-question" class="font-headline text-base text-primary/80 tracking-wide"></p>
+        <p id="card-reading" class="font-body text-base leading-relaxed text-stone-700"></p>
+        <p id="card-question" class="font-headline text-xl text-amber-700 tracking-wide"></p>
       </div>
     </div>
 
-    <div class="h-px w-full bg-outline-variant/20"></div>
+    <div class="h-px w-full bg-stone-100"></div>
 
     <!-- Resonance -->
-    <div class="glass p-8 rounded-2xl border border-outline-variant/10 text-center space-y-6">
-      <h4 class="font-headline text-lg text-on-background tracking-wide">การอ่านครั้งนี้ตรงกับความรู้สึกคุณไหม?</h4>
+    <div class="bg-stone-50 p-8 rounded-2xl border border-stone-100 text-center space-y-6">
+      <h4 class="font-headline text-xl text-stone-800 tracking-wide">การอ่านครั้งนี้ตรงกับความรู้สึกคุณไหม?</h4>
       <div id="resonance-btns" class="flex flex-wrap justify-center gap-4">
-        <button onclick="selectResonance('ใช่เลย')" class="resonance-btn px-8 py-3 bg-primary text-on-primary font-body font-semibold rounded-full transition-all active:scale-95 hover:opacity-90">ใช่เลย</button>
-        <button onclick="selectResonance('ใกล้เคียง')" class="resonance-btn px-8 py-3 border border-primary/40 text-primary font-body rounded-full hover:bg-primary/5 active:scale-95 transition-all">ใกล้เคียง</button>
-        <button onclick="selectResonance('ไม่ค่อยตรง')" class="resonance-btn px-8 py-3 border border-outline/40 text-outline font-body rounded-full hover:bg-outline/5 active:scale-95 transition-all">ไม่ค่อยตรง</button>
+        <button onclick="selectResonance('ใช่เลย')" class="resonance-btn px-8 py-3 text-white font-body font-semibold rounded-full transition-all active:scale-95 hover:opacity-90" style="background:linear-gradient(135deg,#745b00,#d4af37)">ใช่เลย</button>
+        <button onclick="selectResonance('ใกล้เคียง')" class="resonance-btn px-8 py-3 border border-amber-400/40 text-amber-700 font-body rounded-full hover:bg-amber-50 active:scale-95 transition-all">ใกล้เคียง</button>
+        <button onclick="selectResonance('ไม่ค่อยตรง')" class="resonance-btn px-8 py-3 border border-stone-200 text-stone-600 font-body rounded-full hover:bg-stone-50 active:scale-95 transition-all">ไม่ค่อยตรง</button>
       </div>
       <div id="thank-you-section" class="hidden space-y-6 fade-in pt-2">
-        <div class="h-px w-full bg-outline-variant/20"></div>
+        <div class="h-px w-full bg-stone-100"></div>
         <span class="text-3xl block">✨</span>
-        <p id="thank-you-msg" class="font-body text-on-surface-variant text-base"></p>
+        <p id="thank-you-msg" class="font-body text-stone-700 text-base"></p>
 
         <!-- Share section -->
         <div class="space-y-4">
-          <p class="font-label text-sm uppercase tracking-widest text-outline">แชร์ผลการอ่าน</p>
+          <p class="font-label text-sm uppercase tracking-widest text-stone-600">แชร์ผลการอ่าน</p>
 
           <!-- Social buttons -->
           <div class="flex flex-wrap justify-center gap-3">
 
             <!-- Facebook -->
-            <button onclick="shareTo('facebook')" class="share-btn px-4 py-2 rounded-full font-body text-sm text-primary flex items-center gap-2">
+            <button onclick="shareTo('facebook')" class="share-btn px-4 py-2 rounded-full font-body text-sm text-amber-700 flex items-center gap-2">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
               Facebook
             </button>
 
             <!-- X / Twitter -->
-            <button onclick="shareTo('twitter')" class="share-btn px-4 py-2 rounded-full font-body text-sm text-primary flex items-center gap-2">
+            <button onclick="shareTo('twitter')" class="share-btn px-4 py-2 rounded-full font-body text-sm text-amber-700 flex items-center gap-2">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
               X
             </button>
 
             <!-- Line -->
-            <button onclick="shareTo('line')" class="share-btn px-4 py-2 rounded-full font-body text-sm text-primary flex items-center gap-2">
+            <button onclick="shareTo('line')" class="share-btn px-4 py-2 rounded-full font-body text-sm text-amber-700 flex items-center gap-2">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
               Line
             </button>
 
             <!-- Copy -->
-            <button onclick="shareTo('copy')" class="share-btn px-4 py-2 rounded-full font-body text-sm text-primary flex items-center gap-2">
+            <button onclick="shareTo('copy')" class="share-btn px-4 py-2 rounded-full font-body text-sm text-amber-700 flex items-center gap-2">
               <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">content_copy</span>
               คัดลอก
             </button>
@@ -273,10 +273,10 @@
 
           <!-- TikTok / IG note -->
           <p class="font-body text-xs text-outline/60">สำหรับ TikTok / Instagram — กด "คัดลอก" แล้ววางใน caption ได้เลย</p>
-          <p id="copy-confirm" class="hidden font-body text-xs text-primary/60">คัดลอกแล้ว ✓</p>
+          <p id="copy-confirm" class="hidden font-body text-xs text-amber-600">คัดลอกแล้ว ✓</p>
         </div>
 
-        <button onclick="location.reload()" class="px-8 py-3 border border-primary/40 text-primary font-body rounded-full hover:bg-primary/5 transition-all">เริ่มใหม่อีกครั้ง</button>
+        <button onclick="location.reload()" class="px-8 py-3 border border-amber-300/50 text-amber-700 font-body rounded-full hover:bg-amber-50 transition-all">เริ่มใหม่อีกครั้ง</button>
       </div>
     </div>
   </section>
@@ -285,6 +285,7 @@
 
 <script>
   const urlParams = new URLSearchParams(window.location.search);
+  const sessionLang = urlParams.get('lang') || localStorage.getItem('lumina_lang') || 'th';
   const emailFromUrl = urlParams.get('email');
   const userEmail = emailFromUrl || localStorage.getItem('horo_email') || 'guest';
 
