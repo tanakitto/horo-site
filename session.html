@@ -34,6 +34,8 @@
   @keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
   textarea:focus { outline:none; border-color:#d4af37 !important; box-shadow:0 0 0 2px rgba(212,175,55,0.1); }
   .return-card { background:rgba(212,175,55,0.06); border:1px solid rgba(212,175,55,0.2); }
+  .session-lang-btn { transition: all 0.2s; }
+  .session-lang-btn.active { color: #745b00; border-bottom: 1.5px solid #d4af37; }
 
   /* Mode switcher */
   .mode-btn { border: 1px solid #e8e4da; background: white; transition: all 0.2s; cursor: pointer; }
@@ -359,6 +361,15 @@
     }
   };
 
+  function switchSessionLang(lang) {
+    sessionLang = lang;
+    localStorage.setItem('lumina_lang', lang);
+    document.querySelectorAll('.session-lang-btn').forEach(b => b.classList.remove('active'));
+    const activeBtn = document.querySelector(`.session-lang-btn[onclick="switchSessionLang('${lang}')"]`);
+    if (activeBtn) activeBtn.classList.add('active');
+    applySessionLang(lang);
+  }
+
   function applySessionLang(lang) {
     const t = SESSION_T[lang] || SESSION_T['th'];
     // Step 1 texts
@@ -408,7 +419,7 @@
     window._copyConfirm = t.copyConfirm;
   }
 
-  const sessionLang = urlParams.get('lang') || localStorage.getItem('lumina_lang') || 'th';
+  let sessionLang = urlParams.get('lang') || localStorage.getItem('lumina_lang') || 'th';
   const emailFromUrl = urlParams.get('email');
   const userEmail = emailFromUrl || localStorage.getItem('horo_email') || 'guest';
 
@@ -607,6 +618,10 @@
   showStep(1);
   loadHistory();
   applySessionLang(sessionLang);
+  // Init active lang button
+  document.querySelectorAll('.session-lang-btn').forEach(b => b.classList.remove('active'));
+  const initLangBtn = document.querySelector(`.session-lang-btn[onclick="switchSessionLang('${sessionLang}')"]`);
+  if (initLangBtn) initLangBtn.classList.add('active');
 </script>
 </body>
 </html>
