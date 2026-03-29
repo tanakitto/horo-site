@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /session.html
+Disallow: /.netlify/
+
+Sitemap: https://lumina-oracle.com/sitemap.xml
