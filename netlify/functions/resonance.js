@@ -17,61 +17,49 @@ exports.handler = async function(event, context) {
     const AIRTABLE_BASE_ID = 'appY0QrFxt71E2oqI';
     const AIRTABLE_TABLE   = 'tbl3eGN7tW1HKyyX4';
     const AIRTABLE_URL     = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}`;
-    const AIRTABLE_HEADERS = {
+    const HEADERS = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${process.env.AIRTABLE_TOKEN}`
     };
 
-    // Get most recent record with 'pending' resonance score
-    const searchUrl = `${AIRTABLE_URL}?sort[0][field]=Session Date&sort[0][direction]=desc&maxRecords=5`;
-    const searchRes = await fetch(searchUrl, { headers: AIRTABLE_HEADERS });
+    // Get latest 10 records sorted by date desc — no filter to avoid encoding issues
+    const searchRes = await fetch(
+      `${AIRTABLE_URL}?sort%5B0%5D%5Bfield%5D=Session+Date&sort%5B0%5D%5Bdirection%5D=desc&maxRecords=10`,
+      { headers: HEADERS }
+    );
     const searchData = await searchRes.json();
-    console.log('Search result:', JSON.stringify(searchData));
+    console.log('Records fetched:', searchData.records ? searchData.records.length : 0);
 
     if (!searchData.records || searchData.records.length === 0) {
       return {
         statusCode: 200,
         headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ ok: false, reason: 'no records found' })
+        body: JSON.stringify({ ok: false, reason: 'no records' })
       };
     }
 
-    // Find most recent record matching this email with pending score
-    const record = searchData.records.find(r =>
+    // Find most recent pending record for this email
+    const pending = searchData.records.find(r =>
       r.fields['User'] === email &&
-      r.fields['Resonance Score'] === 'pending'
+      (r.fields['Resonance Score'] === 'pending' || !r.fields['Resonance Score'])
     );
 
-    if (!record) {
-      // Fallback: just update the most recent record regardless
-      const fallback = searchData.records.find(r => r.fields['User'] === email);
-      if (!fallback) {
-        console.log('No record found for email:', email);
-        return {
-          statusCode: 200,
-          headers: { 'Access-Control-Allow-Origin': '*' },
-          body: JSON.stringify({ ok: false, reason: 'email not found' })
-        };
-      }
+    const target = pending || searchData.records.find(r => r.fields['User'] === email);
 
-      const updateRes = await fetch(`${AIRTABLE_URL}/${fallback.id}`, {
-        method: 'PATCH',
-        headers: AIRTABLE_HEADERS,
-        body: JSON.stringify({ fields: { 'Resonance Score': score } })
-      });
-      const updateData = await updateRes.json();
-      console.log('Fallback update:', JSON.stringify(updateData));
+    if (!target) {
+      console.log('No record found for email:', email);
       return {
         statusCode: 200,
         headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ ok: true })
+        body: JSON.stringify({ ok: false, reason: 'email not found' })
       };
     }
 
-    // Update the pending record
-    const updateRes = await fetch(`${AIRTABLE_URL}/${record.id}`, {
+    console.log('Updating record:', target.id, 'with score:', score);
+
+    const updateRes = await fetch(`${AIRTABLE_URL}/${target.id}`, {
       method: 'PATCH',
-      headers: AIRTABLE_HEADERS,
+      headers: HEADERS,
       body: JSON.stringify({ fields: { 'Resonance Score': score } })
     });
     const updateData = await updateRes.json();
@@ -80,7 +68,7 @@ exports.handler = async function(event, context) {
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ ok: true })
+      body: JSON.stringify({ ok: true, updated: target.id })
     };
 
   } catch (err) {
@@ -88,7 +76,7 @@ exports.handler = async function(event, context) {
     return {
       statusCode: 500,
       headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ ok: false })
+      body: JSON.stringify({ ok: false, error: err.message })
     };
   }
 };
