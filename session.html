@@ -5,7 +5,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Lumina — Session</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
   tailwind.config = {
@@ -24,7 +24,7 @@
           "on-background": "#f3deff",
         },
         fontFamily: {
-          "headline": ["Noto Serif", "serif"],
+          "headline": ["Cinzel", "serif"],
           "body": ["Anuphan", "sans-serif"],
           "label": ["Anuphan", "sans-serif"]
         },
@@ -43,7 +43,6 @@
     background: rgba(49, 29, 67, 0.4);
     backdrop-filter: blur(12px);
   }
-  .celestial-glow { box-shadow: 0 0 60px rgba(201, 152, 255, 0.2); }
   .fade-in { animation: fadeIn 0.8s ease-in-out; }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(16px); }
@@ -68,93 +67,80 @@
     border-color: rgba(201, 152, 255, 0.6);
     box-shadow: 0 0 0 2px rgba(201, 152, 255, 0.1);
   }
-  .card-reversed { transform: rotate(180deg); }
-  .reversed-badge {
-    background: rgba(201, 152, 255, 0.15);
-    border: 1px solid rgba(201, 152, 255, 0.3);
-  }
   .return-card {
     background: rgba(201, 152, 255, 0.05);
     border: 1px solid rgba(201, 152, 255, 0.2);
   }
 
-  /* ── Tarot card visual with pattern ────────────────────────────────── */
-  .tarot-card-wrap {
-    width: 192px;
-    height: 288px;
-    border-radius: 12px;
+  /* ── Tarot card ──────────────────────────────────────────────────────── */
+  .tarot-wrap {
+    width: 200px;
+    height: 320px;
+    border-radius: 14px;
     overflow: hidden;
     position: relative;
-    box-shadow: 0 0 60px rgba(201,152,255,0.2), 0 20px 60px rgba(0,0,0,0.6);
+    box-shadow: 0 0 60px rgba(201,152,255,0.25), 0 20px 60px rgba(0,0,0,0.7);
+    transition: transform 0.6s ease;
   }
-  .tarot-card-back {
+  .tarot-wrap.reversed { transform: rotate(180deg); }
+
+  /* AI image fills card */
+  .tarot-img {
     width: 100%;
     height: 100%;
-    background: linear-gradient(145deg, #1a0535 0%, #2d0060 50%, #150822 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
+    object-fit: cover;
+    display: block;
   }
-  .tarot-card-back::before {
-    content: '';
-    position: absolute;
-    inset: 8px;
-    border: 1px solid rgba(201,152,255,0.3);
-    border-radius: 6px;
-  }
-  .tarot-card-back::after {
-    content: '';
-    position: absolute;
-    inset: 14px;
-    border: 1px solid rgba(201,152,255,0.15);
-    border-radius: 4px;
-  }
-  .tarot-pattern {
+
+  /* Fallback pattern shown while image loads */
+  .tarot-fallback {
     position: absolute;
     inset: 0;
-    background-image:
-      radial-gradient(circle at 50% 50%, rgba(201,152,255,0.08) 0%, transparent 60%),
-      repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 8px,
-        rgba(201,152,255,0.04) 8px,
-        rgba(201,152,255,0.04) 9px
-      );
+    background: linear-gradient(145deg, #1a0535 0%, #2d0060 50%, #150822 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
   }
-  .tarot-star {
+  .tarot-fallback::before {
+    content: '';
+    position: absolute;
+    inset: 10px;
+    border: 1px solid rgba(201,152,255,0.3);
+    border-radius: 8px;
+  }
+  .tarot-fallback-star {
+    font-size: 52px;
     position: relative;
     z-index: 2;
-    font-size: 48px;
-    opacity: 0.7;
   }
-  .tarot-card-name {
+  .tarot-img-loaded .tarot-fallback { display: none; }
+
+  .tarot-footer {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 16px 12px 12px;
-    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+    bottom: 0; left: 0; right: 0;
+    padding: 20px 12px 14px;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
     text-align: center;
-    font-family: 'Noto Serif', serif;
-    font-size: 13px;
-    font-style: italic;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.12em;
     color: rgba(201,152,255,0.9);
-    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
-  .tarot-card-wrap.revealed .tarot-card-back {
-    background: linear-gradient(145deg, #0d001a 0%, #1a0040 40%, #2d0060 100%);
+  .reversed-badge {
+    background: rgba(201, 152, 255, 0.15);
+    border: 1px solid rgba(201, 152, 255, 0.3);
   }
 </style>
 </head>
 <body>
 
 <header class="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 bg-[#150822] shadow-[0_0_20px_rgba(201,152,255,0.05)]">
-  <div class="flex items-center gap-3">
-    <span class="material-symbols-outlined text-purple-300" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
-    <h1 class="font-headline text-xl tracking-wide text-purple-300 italic">Lumina</h1>
+  <div class="flex items-center gap-2">
+    <span class="material-symbols-outlined text-purple-300 text-lg" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
+    <h1 class="font-headline text-lg tracking-widest text-purple-300">LUMINA</h1>
   </div>
   <a href="/" class="text-[10px] uppercase tracking-widest text-[#816F8F] hover:text-[#C998FF] transition-colors font-label">← กลับ</a>
 </header>
@@ -171,7 +157,7 @@
 
     <div class="space-y-3">
       <p class="font-label text-primary tracking-[0.2rem] uppercase text-xs">The Beginning</p>
-      <h2 class="font-headline text-4xl md:text-5xl text-on-background">ตอนนี้รู้สึกอะไรอยู่?</h2>
+      <h2 class="font-headline text-3xl md:text-4xl text-on-background tracking-wide">ตอนนี้รู้สึกอะไรอยู่?</h2>
       <p class="font-body text-on-surface-variant text-sm">พิมพ์ในช่องด้านล่าง หรือเลือกจากตัวอย่าง</p>
     </div>
 
@@ -181,7 +167,7 @@
           placeholder="เช่น รู้สึกเคว้งๆ ไม่รู้เพราะอะไร..."
           class="w-full glass-obsidian border border-outline-variant/30 rounded-xl px-5 py-4 font-body text-on-surface text-base resize-none placeholder:text-outline transition-all"
           oninput="updateCharCount()" onkeydown="handleKey(event)"></textarea>
-        <span id="char-count" class="absolute bottom-3 right-4 text-xs text-outline">0/200</span>
+        <span id="char-count" class="absolute bottom-3 right-4 text-xs text-outline font-body">0/200</span>
       </div>
       <button id="submit-btn" onclick="submitPrompt()"
         class="w-full py-4 bg-primary text-on-primary font-label font-bold rounded-xl text-sm uppercase tracking-widest transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-40"
@@ -211,41 +197,44 @@
         <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
       </div>
     </div>
-    <p class="font-headline italic text-2xl text-on-background/80">หลับตา ทำใจให้สบายๆ</p>
-    <p class="font-body text-on-surface-variant text-sm">กำลังจั่วไพ่ให้คุณ...</p>
+    <p class="font-headline text-xl text-on-background/80 tracking-widest">กำลังจั่วไพ่...</p>
+    <p class="font-body text-on-surface-variant text-sm">หลับตา ทำใจให้สบายๆ</p>
   </section>
 
   <!-- STEP 3: Card + Reading + Resonance -->
   <section id="step-3" class="hidden py-12 space-y-16 fade-in">
     <div class="flex flex-col items-center gap-10">
 
-      <!-- Beautiful tarot card -->
-      <div id="card-wrap" class="tarot-card-wrap">
-        <div class="tarot-card-back">
-          <div class="tarot-pattern"></div>
-          <div class="tarot-star">✦</div>
-          <div id="card-label-bottom" class="tarot-card-name"></div>
+      <!-- Tarot card with AI image -->
+      <div id="tarot-wrap" class="tarot-wrap">
+        <div class="tarot-fallback">
+          <div class="tarot-fallback-star">✦</div>
         </div>
+        <img id="tarot-img" class="tarot-img hidden" alt="tarot card"
+          onload="this.classList.remove('hidden'); document.getElementById('tarot-wrap').classList.add('tarot-img-loaded')"
+          onerror="this.classList.add('hidden')"
+        />
+        <div class="tarot-footer" id="tarot-footer"></div>
       </div>
 
       <div class="text-center space-y-5 max-w-xl">
         <div class="space-y-2">
           <p id="session-label" class="font-label text-primary tracking-[0.2rem] uppercase text-xs">The Revelation</p>
-          <h3 id="card-name" class="font-headline text-4xl text-on-background"></h3>
+          <h3 id="card-name" class="font-headline text-3xl text-on-background tracking-wide"></h3>
           <div id="reversed-badge" class="hidden reversed-badge inline-flex items-center gap-2 px-3 py-1 rounded-full mt-1">
             <span class="text-base">🔃</span>
-            <span class="font-label text-primary text-xs uppercase tracking-widest">กลับหัว (Reversed)</span>
+            <span class="font-label text-primary text-xs uppercase tracking-widest">Reversed</span>
           </div>
         </div>
-        <p id="card-reading" class="font-body text-lg leading-relaxed text-on-surface-variant"></p>
-        <p id="card-question" class="font-headline italic text-xl text-primary/80"></p>
+        <p id="card-reading" class="font-body text-base leading-relaxed text-on-surface-variant"></p>
+        <p id="card-question" class="font-headline text-lg text-primary/80 tracking-wide"></p>
       </div>
     </div>
 
     <div class="h-px w-full bg-outline-variant/20"></div>
 
-    <div id="resonance-box" class="glass-obsidian p-10 rounded-2xl border border-outline-variant/10 text-center space-y-8">
-      <h4 class="font-headline text-2xl text-on-background">การอ่านครั้งนี้ตรงกับความรู้สึกคุณไหม?</h4>
+    <div class="glass-obsidian p-10 rounded-2xl border border-outline-variant/10 text-center space-y-8">
+      <h4 class="font-headline text-xl text-on-background tracking-wide">การอ่านครั้งนี้ตรงกับความรู้สึกคุณไหม?</h4>
       <div class="flex flex-wrap justify-center gap-4">
         <button onclick="selectResonance('ใช่เลย')" class="resonance-btn px-8 py-3 bg-primary text-on-primary font-body font-semibold rounded-full transition-all active:scale-95 hover:opacity-90">ใช่เลย</button>
         <button onclick="selectResonance('ใกล้เคียง')" class="resonance-btn px-8 py-3 border border-primary/40 text-primary font-body rounded-full hover:bg-primary/5 active:scale-95 transition-all">ใกล้เคียง</button>
@@ -254,7 +243,7 @@
       <div id="thank-you-section" class="hidden space-y-6 fade-in pt-4">
         <div class="h-px w-full bg-outline-variant/20"></div>
         <span class="text-4xl block">✨</span>
-        <p id="thank-you-msg" class="font-body text-on-surface-variant text-lg"></p>
+        <p id="thank-you-msg" class="font-body text-on-surface-variant text-base"></p>
         <button onclick="location.reload()" class="px-8 py-3 border border-primary/40 text-primary font-body rounded-full hover:bg-primary/5 transition-all">เริ่มใหม่อีกครั้ง</button>
       </div>
     </div>
@@ -263,17 +252,14 @@
 </main>
 
 <script>
-  // ── Email — only from URL param or explicit localStorage set ──────────
   const urlParams = new URLSearchParams(window.location.search);
   const emailFromUrl = urlParams.get('email');
   const userEmail = emailFromUrl || localStorage.getItem('horo_email') || 'guest';
 
-  // ── Session guard ─────────────────────────────────────────────────────
   const sessionKey = 'lumina_session_active';
   const isFirstVisitThisTab = !sessionStorage.getItem(sessionKey);
   sessionStorage.setItem(sessionKey, '1');
 
-  // ── Full 78-card deck ──────────────────────────────────────────────────
   const majorArcana = [
     'The Fool','The Magician','The High Priestess','The Empress',
     'The Emperor','The Hierophant','The Lovers','The Chariot',
@@ -293,7 +279,6 @@
     };
   }
 
-  // ── State ──────────────────────────────────────────────────────────────
   let currentPrompt = '';
   let currentCard = '';
   let currentReversed = false;
@@ -311,31 +296,26 @@
       });
       const data = await res.json();
       userHistory = data.sessions || [];
-
       if (data.isReturning && userHistory.length > 0) {
         const last = userHistory[0];
         const lastDate = last.date ? new Date(last.date) : null;
         const today = new Date();
         const todayStr = today.toISOString().split('T')[0];
         const lastDateStr = lastDate ? lastDate.toISOString().split('T')[0] : null;
-
         if (lastDateStr && lastDateStr !== todayStr) {
           const daysSince = lastDate ? Math.floor((today - lastDate) / (1000*60*60*24)) : null;
-          let greetingText = '';
-          if (daysSince === 1) greetingText = 'คุณมาที่นี่เมื่อวาน — มีอะไรที่เปลี่ยนไปบ้างไหม?';
-          else if (daysSince <= 7) greetingText = `คุณมาที่นี่เมื่อ ${daysSince} วันก่อน — ตอนนี้เป็นยังไงบ้าง?`;
-          else if (daysSince <= 30) greetingText = `ผ่านมาเกือบ ${daysSince} วันแล้วนับจากครั้งล่าสุด — อะไรพาคุณกลับมา?`;
-          else greetingText = 'ห่างหายไปนาน — ยินดีที่คุณกลับมา มีอะไรใหม่ที่อยากคิดทบทวนไหม?';
-          document.getElementById('return-text').textContent = greetingText;
+          let txt = '';
+          if (daysSince === 1) txt = 'คุณมาที่นี่เมื่อวาน — มีอะไรที่เปลี่ยนไปบ้างไหม?';
+          else if (daysSince <= 7) txt = `คุณมาที่นี่เมื่อ ${daysSince} วันก่อน — ตอนนี้เป็นยังไงบ้าง?`;
+          else if (daysSince <= 30) txt = `ผ่านมาเกือบ ${daysSince} วันแล้ว — อะไรพาคุณกลับมา?`;
+          else txt = 'ห่างหายไปนาน — ยินดีที่คุณกลับมา';
+          document.getElementById('return-text').textContent = txt;
           document.getElementById('return-greeting').classList.remove('hidden');
         }
       }
-    } catch (err) {
-      console.error('History error:', err);
-    }
+    } catch(e) { console.error(e); }
   }
 
-  // ── UI helpers ─────────────────────────────────────────────────────────
   function updateCharCount() {
     const input = document.getElementById('prompt-input');
     const count = document.getElementById('char-count');
@@ -366,7 +346,6 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // ── Submit ─────────────────────────────────────────────────────────────
   function submitPrompt() {
     const prompt = document.getElementById('prompt-input').value.trim();
     if (!prompt) return;
@@ -379,7 +358,15 @@
     callClaudeAPI(prompt, card, reversed);
   }
 
-  // ── Claude API ─────────────────────────────────────────────────────────
+  // ── Fetch AI card image from Pollinations ─────────────────────────────
+  function loadCardImage(cardName, reversed) {
+    const prompt = `tarot card illustration, ${cardName}, mystical dark purple and gold art nouveau style, ornate border, ethereal cosmic background, no text, vertical card format, highly detailed`;
+    const encoded = encodeURIComponent(prompt);
+    const url = `https://image.pollinations.ai/prompt/${encoded}?width=400&height=640&seed=${Math.floor(Math.random()*9999)}&nologo=true`;
+    const img = document.getElementById('tarot-img');
+    img.src = url;
+  }
+
   async function callClaudeAPI(prompt, card, reversed) {
     const cardLabel = card + (reversed ? ' (Reversed)' : '');
     try {
@@ -397,48 +384,44 @@
         document.getElementById('session-label').textContent = `Session ${data.sessionNumber}`;
       }
       showReading(card, reversed, data.reading, data.question);
-    } catch (err) {
-      console.error('Error:', err);
+    } catch(err) {
+      console.error(err);
       showReading(
         card, reversed,
-        card + (reversed ? ' (กลับหัว)' : '') + ' มาในช่วงเวลาที่คุณรู้สึก "' + prompt + '" — ไพ่ใบนี้ชวนให้หยุดฟังสิ่งที่ใจกำลังพูดอยู่',
+        card + ' มาในช่วงเวลาที่คุณรู้สึก "' + prompt + '" — ไพ่ใบนี้ชวนให้หยุดฟังสิ่งที่ใจกำลังพูดอยู่',
         'มีอะไรที่คุณรู้อยู่แล้วแต่ยังไม่พร้อมจะบอกตัวเองไหม?'
       );
     }
   }
 
-  // ── Show reading ───────────────────────────────────────────────────────
   function showReading(card, reversed, reading, question) {
     document.getElementById('card-name').textContent = card;
-    document.getElementById('card-label-bottom').textContent = card;
+    document.getElementById('tarot-footer').textContent = card.toUpperCase();
     document.getElementById('card-reading').textContent = reading;
     document.getElementById('card-question').textContent = '\u201c' + question + '\u201d';
 
-    const wrap = document.getElementById('card-wrap');
-    wrap.classList.add('revealed');
-
+    const wrap = document.getElementById('tarot-wrap');
     if (reversed) {
-      wrap.style.transform = 'rotate(180deg)';
+      wrap.classList.add('reversed');
       document.getElementById('reversed-badge').classList.remove('hidden');
     } else {
-      wrap.style.transform = '';
+      wrap.classList.remove('reversed');
       document.getElementById('reversed-badge').classList.add('hidden');
     }
 
+    // Load AI image
+    loadCardImage(card, reversed);
     showStep(3);
   }
 
-  // ── Resonance — save only once per reading ─────────────────────────────
   function selectResonance(score) {
     if (resonanceSaved) return;
     resonanceSaved = true;
-
     const messages = {
       'ใช่เลย': 'ดีใจที่มันตรง Lumina จำคุณไว้แล้ว',
       'ใกล้เคียง': 'บางอย่างที่ตรง บางอย่างที่ไม่ — นั่นก็เป็นคำตอบในตัวเอง',
       'ไม่ค่อยตรง': 'ไม่เป็นไร บางครั้งไพ่พูดถึงสิ่งที่ยังมาไม่ถึง'
     };
-
     document.querySelectorAll('.resonance-btn').forEach(b => b.classList.add('hidden'));
     document.getElementById('thank-you-msg').textContent = messages[score] || '';
     document.getElementById('thank-you-section').classList.remove('hidden');
