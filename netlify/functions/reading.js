@@ -4,7 +4,8 @@ exports.handler = async function(event, context) {
   }
 
   try {
-    const { prompt, card, reversed, email, history, readingType } = JSON.parse(event.body);
+    const { prompt, card, reversed, email, history, readingType, lang } = JSON.parse(event.body);
+    const language = lang || 'th';
 
     const AIRTABLE_BASE_ID = 'appY0QrFxt71E2oqI';
     const AIRTABLE_TABLE   = 'tbl3eGN7tW1HKyyX4';
@@ -28,6 +29,13 @@ exports.handler = async function(event, context) {
 
     const isReturning = history && history.length > 0;
 
+
+    const langNote = language === 'en'
+      ? 'Respond entirely in English. Keep the tone warm, thoughtful, like a wise counselor.'
+      : language === 'jp'
+      ? '日本語で返答してください。温かく、思慮深い口調で、賢明なカウンセラーのように。'
+      : 'ตอบเป็นภาษาไทยทั้งหมด ใช้ภาษาที่อบอุ่น สงบ ไม่เร่งรีบ';
+
     // ── Build system prompt by reading type ───────────────────────────────
     let systemPrompt = '';
 
@@ -43,6 +51,8 @@ ${historyContext}
 - อย่าบอกว่า "คุณควร..." ใช้ "บางทีมันอาจจะ..." หรือ "รูนใบนี้ชวนให้คิดว่า..."
 - จบด้วยคำถาม 1 ข้อ
 
+${langNote}
+
 ตอบใน JSON เท่านั้น ไม่มี markdown:
 {"reading": "การตีความ 3-4 ประโยค", "question": "คำถามปิด 1 ประโยค"}`;
 
@@ -56,6 +66,8 @@ ${historyContext}
 - เชื่อมทุกใบกับความรู้สึกที่ user บอกมา
 - ${isReturning ? 'User นี้กลับมาแล้ว — อ้างอิง session ก่อนหน้าอย่างเป็นธรรมชาติ' : 'Session แรก'}
 - จบด้วยคำถาม 1 ข้อที่เชื่อม past-present-future เข้าด้วยกัน
+
+${langNote}
 
 ตอบใน JSON เท่านั้น ไม่มี markdown:
 {"reading": "การตีความครบทั้ง 3 ใบ 5-6 ประโยค", "question": "คำถามปิด 1 ประโยค"}`;
@@ -75,6 +87,8 @@ ${historyContext}
 - ${isReturning ? 'User นี้กลับมาแล้ว — อ้างอิง session ก่อนหน้าอย่างเป็นธรรมชาติ' : 'Session แรก — ไม่ต้องอ้างอิงอะไร'}
 - อย่าบอกว่า "คุณควร..." ใช้ "บางทีมันอาจจะ..." หรือ "ไพ่ใบนี้ชวนให้คิดว่า..."
 - จบด้วยคำถาม 1 ข้อ
+
+${langNote}
 
 ตอบใน JSON เท่านั้น ไม่มี markdown:
 {"reading": "การตีความ 3-4 ประโยค", "question": "คำถามปิด 1 ประโยค"}`;
