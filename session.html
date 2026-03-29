@@ -126,8 +126,8 @@
         <span id="char-count" class="absolute bottom-3 right-4 text-xs text-outline font-body">0/200</span>
       </div>
       <button id="submit-btn" onclick="submitPrompt()"
-        class="w-full py-4 font-label font-bold rounded-xl text-sm uppercase tracking-widest transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed" style="background:linear-gradient(135deg,#745b00,#d4af37);color:white"
-        disabled>จั่วเลย →</button>
+        class="w-full py-4 font-label font-bold rounded-xl text-sm uppercase tracking-widest transition-all active:scale-[0.98]" style="background:linear-gradient(135deg,#745b00,#d4af37);color:white"
+        >จั่วเลย →</button>
     </div>
 
     <div class="w-full max-w-xl flex items-center gap-4">
@@ -414,6 +414,12 @@
     // Return greeting label
     const greetLabel = document.querySelector('#return-greeting .font-label');
     if (greetLabel) greetLabel.textContent = t.returnGreeting;
+    // Update submit button text
+    const submitBtn = document.getElementById('submit-btn');
+    if (submitBtn) submitBtn.textContent = t.cta;
+    // Update back link
+    const backLink = document.getElementById('back-link');
+    if (backLink) backLink.textContent = t.returnHome;
     // Store resonance messages for use in selectResonance
     window._resMessages = { [t.res1]: t.resMsg1, [t.res2]: t.resMsg2, [t.res3]: t.resMsg3 };
     window._copyConfirm = t.copyConfirm;
@@ -443,7 +449,6 @@
       if (b.dataset.mode === currentMode) b.classList.add('active');
     });
   }
-  initModeButtons();
 
   // ── Decks ──────────────────────────────────────────────────────────────
   const major = ['The Fool','The Magician','The High Priestess','The Empress','The Emperor','The Hierophant','The Lovers','The Chariot','Strength','The Hermit','Wheel of Fortune','Justice','The Hanged Man','Death','Temperance','The Devil','The Tower','The Star','The Moon','The Sun','Judgement','The World'];
@@ -507,21 +512,25 @@
   }
 
   function updateCharCount() {
-    const v=document.getElementById('prompt-input').value;
-    document.getElementById('char-count').textContent=v.length+'/200';
-    document.getElementById('submit-btn').disabled=v.trim().length===0;
+    const v = document.getElementById('prompt-input').value;
+    document.getElementById('char-count').textContent = v.length + '/200';
+    const btn = document.getElementById('submit-btn');
+    // Visual feedback only — never disable the button
+    btn.style.opacity = v.trim().length === 0 ? '0.55' : '1';
   }
   function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(document.getElementById('prompt-input').value.trim())submitPrompt();}}
-  function fillPrompt(t){const i=document.getElementById('prompt-input');i.value=t;i.focus();updateCharCount();i.scrollIntoView({behavior:'smooth',block:'center'});}
+  function fillPrompt(t) {
+    const i = document.getElementById('prompt-input');
+    i.value = t;
+    updateCharCount();
+    i.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
   function showStep(n){['step-1','step-2','step-3'].forEach(id=>document.getElementById(id).classList.add('hidden'));document.getElementById('step-'+n).classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});}
 
   function submitPrompt() {
     const prompt=document.getElementById('prompt-input').value.trim();
     if(!prompt){ document.getElementById('prompt-input').focus(); return; }
     currentPrompt=prompt; resonanceSaved=false;
-    // Mark submit btn as loading
-    const btn=document.getElementById('submit-btn');
-    if(btn){ btn.disabled=true; btn.style.opacity='0.7'; }
     showStep(2);
 
     if(currentMode==='rune'){
@@ -629,8 +638,10 @@
   }
 
   showStep(1);
+  initModeButtons();
   loadHistory();
   applySessionLang(sessionLang);
+  // Init button - enabled by default, updateCharCount will handle state
   // Init active lang button
   document.querySelectorAll('.session-lang-btn').forEach(b => b.classList.remove('active'));
   const initLangBtn = document.querySelector(`.session-lang-btn[onclick="switchSessionLang('${sessionLang}')"]`);
