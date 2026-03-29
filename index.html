@@ -5,7 +5,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Lumina — Your Personal Oracle</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
   tailwind.config = {
@@ -28,7 +28,7 @@
           "on-background": "#f3deff",
         },
         fontFamily: {
-          "headline": ["Noto Serif", "serif"],
+          "headline": ["Cinzel", "serif"],
           "body": ["Anuphan", "sans-serif"],
           "label": ["Anuphan", "sans-serif"]
         },
@@ -69,17 +69,40 @@
     z-index: 100;
     margin-bottom: 8px;
     text-align: left;
+    font-family: 'Anuphan', sans-serif;
   }
-  .privacy-trigger:hover .privacy-tooltip {
-    display: block;
+  .privacy-trigger:hover .privacy-tooltip { display: block; }
+
+  .mode-card {
+    background: rgba(49, 29, 67, 0.3);
+    border: 1px solid rgba(81, 66, 95, 0.4);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .mode-card:hover {
+    border-color: rgba(201, 152, 255, 0.5);
+    background: rgba(201, 152, 255, 0.05);
+    transform: translateY(-2px);
+  }
+  .mode-card.coming-soon {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .mode-card.coming-soon:hover {
+    transform: none;
+    border-color: rgba(81, 66, 95, 0.4);
+    background: rgba(49, 29, 67, 0.3);
   }
 </style>
 </head>
-<body class="selection:bg-purple-900 selection:text-purple-100">
+<body>
 
 <!-- Nav -->
 <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 max-w-7xl mx-auto left-1/2 -translate-x-1/2 bg-[#1B0C29] shadow-[0_0_15px_rgba(201,152,255,0.05)]">
-  <div class="text-xl font-serif text-[#C998FF] italic font-headline tracking-wide">Lumina</div>
+  <div class="flex items-center gap-2">
+    <span class="material-symbols-outlined text-primary text-lg">auto_awesome</span>
+    <div class="font-headline text-lg text-[#C998FF] tracking-widest">LUMINA</div>
+  </div>
   <div class="flex items-center gap-6">
     <span class="text-[#C998FF] border-b-2 border-[#C998FF] pb-1 font-label text-xs uppercase tracking-widest">Explore</span>
   </div>
@@ -95,49 +118,46 @@
       <span class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Your Personal Oracle</span>
     </div>
 
-    <h1 class="font-headline text-5xl md:text-7xl lg:text-8xl text-on-background leading-tight mb-8 font-bold italic tracking-tight">
-      มากกว่าการดูดวง
+    <h1 class="font-headline text-4xl md:text-6xl lg:text-7xl text-on-background leading-tight mb-6 font-bold tracking-widest uppercase">
+      Lumina
     </h1>
 
-    <p class="font-body text-xl md:text-2xl text-on-surface-variant max-w-2xl mx-auto mb-4 leading-relaxed">
+    <p class="font-headline text-lg md:text-xl text-primary/80 mb-4 tracking-wide">
+      มากกว่าการดูดวง
+    </p>
+
+    <p class="font-body text-base text-on-surface-variant max-w-xl mx-auto mb-4 leading-relaxed">
       คือการทำความเข้าใจตัวเอง
     </p>
 
-    <p class="font-body text-base text-on-surface-variant/60 max-w-xl mx-auto mb-12 leading-relaxed">
+    <p class="font-body text-sm text-on-surface-variant/60 max-w-xl mx-auto mb-12 leading-relaxed">
       ไม่ว่าจะเป็นไพ่ทาโรต์ อักษรรูน หรือสัญลักษณ์อื่นๆ — Lumina จำได้ว่าคุณคิดอะไร รู้สึกอะไร และกำลังเผชิญอะไรอยู่
     </p>
 
     <!-- Email + CTA -->
     <div class="w-full max-w-md flex flex-col gap-3">
       <div class="relative group">
-        <input
-          id="email-input"
-          type="email"
-          placeholder="Email (ไม่บังคับ)"
-          class="w-full bg-surface-container-lowest border border-outline-variant/30 text-on-surface rounded-lg py-4 px-6 focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none placeholder:text-outline font-body"
-        />
+        <input id="email-input" type="email" placeholder="Email (ไม่บังคับ)"
+          class="w-full bg-surface-container-lowest border border-outline-variant/30 text-on-surface rounded-lg py-4 px-6 focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none placeholder:text-outline font-body text-base"/>
         <div class="absolute inset-0 rounded-lg border border-primary/20 pointer-events-none group-focus-within:border-primary/50 transition-colors"></div>
       </div>
 
-      <!-- Privacy note -->
       <div class="relative privacy-trigger flex items-center gap-2 px-2 cursor-default w-fit">
         <span class="material-symbols-outlined text-outline text-sm">info</span>
         <span class="font-body text-sm text-outline">ทำไมต้องใส่ email?</span>
         <div class="privacy-tooltip">
-          <p class="font-bold text-on-surface-variant mb-2">email ใช้เพื่ออะไร?</p>
-          <p>เพื่อให้ระบบจำคุณได้ระหว่าง sessions — ไม่ได้ใช้ส่ง newsletter หรือโฆษณาใดๆ ทั้งสิ้น</p>
-          <p class="mt-3 font-bold text-on-surface-variant mb-2">ข้อมูลที่เก็บ:</p>
-          <p>email, ความรู้สึกที่พิมพ์, ไพ่ที่จั่วได้, วันที่ เก็บเพื่อสร้าง continuity ระหว่าง sessions เท่านั้น</p>
-          <p class="mt-3 text-outline">ไม่ใส่ก็ได้ — ระบบยังทำงานได้ปกติ แค่จะไม่จำคุณในครั้งต่อไป</p>
+          <p class="font-bold text-on-surface-variant mb-2" style="font-family:'Anuphan',sans-serif">email ใช้เพื่ออะไร?</p>
+          <p>เพื่อให้ระบบจำคุณได้ระหว่าง sessions — ไม่ได้ใช้ส่ง newsletter หรือโฆษณาใดๆ</p>
+          <p class="mt-3 font-bold text-on-surface-variant mb-1" style="font-family:'Anuphan',sans-serif">ข้อมูลที่เก็บ:</p>
+          <p>email, ความรู้สึกที่พิมพ์, ไพ่ที่จั่วได้, วันที่</p>
+          <p class="mt-3 text-outline">ไม่ใส่ก็ได้ — ระบบยังทำงานได้ปกติ</p>
         </div>
       </div>
 
-      <p id="email-error" class="hidden text-left px-2 text-sm text-red-400">กรุณาใส่ email ที่ถูกต้อง</p>
+      <p id="email-error" class="hidden text-left px-2 text-sm text-red-400 font-body">กรุณาใส่ email ที่ถูกต้อง</p>
 
-      <button
-        onclick="startSession()"
-        class="bg-primary text-on-primary font-label font-bold py-4 px-8 rounded-lg text-sm uppercase tracking-widest shadow-[0_0_15px_rgba(201,152,255,0.2)] hover:scale-[0.98] active:scale-95 transition-all duration-300"
-      >
+      <button onclick="startSession()"
+        class="bg-primary text-on-primary font-label font-bold py-4 px-8 rounded-lg text-sm uppercase tracking-widest shadow-[0_0_15px_rgba(201,152,255,0.2)] hover:scale-[0.98] active:scale-95 transition-all duration-300">
         เริ่มต้นเลย →
       </button>
 
@@ -148,19 +168,75 @@
 
     <!-- Decorative -->
     <div class="mt-20 relative w-full aspect-[21/9] rounded-2xl overflow-hidden glass-card border border-outline-variant/10">
-      <img
-        alt="Mystical celestial portal"
-        class="w-full h-full object-cover opacity-60"
-        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtOvfJuFPbHP1ujq5iWEj5J7r2uerBUIYfP44eYreTPubq6UIpqktkb2Xe0aU88SAVhlb_CsMvxV3OxT7faoYJh-3CPX4t7G00-emVnigzpJaa9DZ2ONoCnyI5JAyXbEiVbHkfdtLjkfLw5Pa0t7hIWbw9EOQqdCS3-4yigNUk_DP8hY8ZyFEF82ZSoG10j6PBYqHj50vDmSMre0zMTLx9rG8r1SElxbBROweqmjtYXkQrDFDWWNPxCdt60wUOd5CuhwYO4HJcMoQ"
-      />
+      <img alt="Mystical celestial portal" class="w-full h-full object-cover opacity-60"
+        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtOvfJuFPbHP1ujq5iWEj5J7r2uerBUIYfP44eYreTPubq6UIpqktkb2Xe0aU88SAVhlb_CsMvxV3OxT7faoYJh-3CPX4t7G00-emVnigzpJaa9DZ2ONoCnyI5JAyXbEiVbHkfdtLjkfLw5Pa0t7hIWbw9EOQqdCS3-4yigNUk_DP8hY8ZyFEF82ZSoG10j6PBYqHj50vDmSMre0zMTLx9rG8r1SElxbBROweqmjtYXkQrDFDWWNPxCdt60wUOd5CuhwYO4HJcMoQ"/>
       <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
     </div>
   </section>
 
+  <!-- Reading Modes -->
+  <section class="relative z-10 py-32 px-6 max-w-5xl mx-auto">
+    <div class="text-center mb-16">
+      <h2 class="font-headline text-2xl md:text-3xl text-on-background mb-4 tracking-widest uppercase">Choose Your Reading</h2>
+      <div class="h-px w-24 bg-primary/30 mx-auto"></div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+      <!-- Tarot Single -->
+      <div class="mode-card rounded-2xl p-6 flex flex-col items-center text-center gap-4" onclick="startSession('tarot-single')">
+        <div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant/30">
+          <span class="material-symbols-outlined text-primary text-2xl">auto_awesome</span>
+        </div>
+        <div>
+          <p class="font-headline text-sm tracking-widest uppercase text-on-background mb-1">Tarot</p>
+          <p class="font-body text-xs text-on-surface-variant">Single Card Reading</p>
+        </div>
+        <span class="font-label text-[10px] text-primary/60 uppercase tracking-widest">Active</span>
+      </div>
+
+      <!-- 3-card spread -->
+      <div class="mode-card rounded-2xl p-6 flex flex-col items-center text-center gap-4" onclick="startSession('tarot-three')">
+        <div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant/30">
+          <span class="material-symbols-outlined text-primary text-2xl">view_week</span>
+        </div>
+        <div>
+          <p class="font-headline text-sm tracking-widest uppercase text-on-background mb-1">3-Card Spread</p>
+          <p class="font-body text-xs text-on-surface-variant">Past · Present · Future</p>
+        </div>
+        <span class="font-label text-[10px] text-primary/60 uppercase tracking-widest">Active</span>
+      </div>
+
+      <!-- Rune -->
+      <div class="mode-card rounded-2xl p-6 flex flex-col items-center text-center gap-4" onclick="startSession('rune')">
+        <div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant/30">
+          <span class="text-primary text-2xl font-headline">ᚱ</span>
+        </div>
+        <div>
+          <p class="font-headline text-sm tracking-widest uppercase text-on-background mb-1">Rune</p>
+          <p class="font-body text-xs text-on-surface-variant">Elder Futhark Reading</p>
+        </div>
+        <span class="font-label text-[10px] text-primary/60 uppercase tracking-widest">Active</span>
+      </div>
+
+      <!-- Coming soon -->
+      <div class="mode-card coming-soon rounded-2xl p-6 flex flex-col items-center text-center gap-4">
+        <div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant/30">
+          <span class="material-symbols-outlined text-outline text-2xl">more_horiz</span>
+        </div>
+        <div>
+          <p class="font-headline text-sm tracking-widest uppercase text-on-background mb-1">More</p>
+          <p class="font-body text-xs text-on-surface-variant">I Ching · Omikuji · Astrology</p>
+        </div>
+        <span class="font-label text-[10px] text-outline uppercase tracking-widest">Coming Soon</span>
+      </div>
+
+    </div>
+  </section>
+
   <!-- How it works -->
-  <section class="relative z-10 py-32 px-6 max-w-7xl mx-auto">
-    <div class="text-center mb-24">
-      <h2 class="font-headline text-3xl md:text-4xl text-on-background mb-4 italic">วิธีที่ Lumina ทำงาน</h2>
+  <section class="relative z-10 py-16 px-6 max-w-7xl mx-auto">
+    <div class="text-center mb-16">
+      <h2 class="font-headline text-2xl md:text-3xl text-on-background mb-4 tracking-widest uppercase">How Lumina Works</h2>
       <div class="h-px w-24 bg-primary/30 mx-auto"></div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-24 items-start">
@@ -168,22 +244,22 @@
         <div class="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center mb-8 border border-outline-variant/20 group-hover:border-primary/40 transition-colors">
           <span class="material-symbols-outlined text-primary text-3xl">psychology</span>
         </div>
-        <h3 class="font-body text-xl text-on-background mb-4 font-semibold">บอกว่าตอนนี้รู้สึกอะไร</h3>
-        <p class="font-body text-on-surface-variant leading-relaxed">พิมพ์ความรู้สึกของคุณ หรือเลือกจากตัวอย่างที่เราเตรียมไว้</p>
+        <h3 class="font-headline text-sm tracking-widest uppercase text-on-background mb-4">บอกว่าตอนนี้รู้สึกอะไร</h3>
+        <p class="font-body text-sm text-on-surface-variant leading-relaxed">พิมพ์ความรู้สึกของคุณ หรือเลือกจากตัวอย่างที่เราเตรียมไว้</p>
       </div>
       <div class="flex flex-col items-center text-center group md:mt-16">
         <div class="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center mb-8 border border-outline-variant/20 group-hover:border-primary/40 transition-colors">
           <span class="material-symbols-outlined text-primary text-3xl">auto_stories</span>
         </div>
-        <h3 class="font-body text-xl text-on-background mb-4 font-semibold">ได้รับการอ่านเฉพาะสำหรับคุณ</h3>
-        <p class="font-body text-on-surface-variant leading-relaxed">ไม่ใช่คำทำนายทั่วไป แต่อ่านจากสิ่งที่คุณบอกมาโดยตรง</p>
+        <h3 class="font-headline text-sm tracking-widest uppercase text-on-background mb-4">ได้รับการอ่านเฉพาะสำหรับคุณ</h3>
+        <p class="font-body text-sm text-on-surface-variant leading-relaxed">ไม่ใช่คำทำนายทั่วไป แต่อ่านจากสิ่งที่คุณบอกมาโดยตรง</p>
       </div>
       <div class="flex flex-col items-center text-center group">
         <div class="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center mb-8 border border-outline-variant/20 group-hover:border-primary/40 transition-colors">
           <span class="material-symbols-outlined text-primary text-3xl">all_inclusive</span>
         </div>
-        <h3 class="font-body text-xl text-on-background mb-4 font-semibold">ยิ่งกลับมา ยิ่งเข้าใจคุณมากขึ้น</h3>
-        <p class="font-body text-on-surface-variant leading-relaxed">Lumina จำ pattern ของคุณ และอ่านได้แม่นยำขึ้นทุกครั้งที่กลับมา</p>
+        <h3 class="font-headline text-sm tracking-widest uppercase text-on-background mb-4">ยิ่งกลับมา ยิ่งเข้าใจมากขึ้น</h3>
+        <p class="font-body text-sm text-on-surface-variant leading-relaxed">Lumina จำ pattern ของคุณ และอ่านได้แม่นยำขึ้นทุกครั้ง</p>
       </div>
     </div>
   </section>
@@ -192,11 +268,12 @@
   <section class="relative z-10 py-48 text-center px-6">
     <div class="max-w-4xl mx-auto border-t border-outline-variant/10 pt-24">
       <span class="font-label text-[10px] uppercase tracking-[0.4em] text-primary mb-8 block">The Mirror Within</span>
-      <p class="font-body text-3xl md:text-5xl text-on-background italic leading-tight font-medium">
-        "มากกว่าการดูดวง คือการทำความเข้าใจตนเอง"
+      <p class="font-headline text-2xl md:text-4xl text-on-background leading-tight tracking-wide">
+        "มากกว่าการดูดวง<br/>คือการทำความเข้าใจตนเอง"
       </p>
       <div class="mt-16">
-        <button onclick="startSessionGuest()" class="bg-transparent border border-primary/40 text-primary font-label font-bold py-4 px-12 rounded-lg text-xs uppercase tracking-widest hover:bg-primary/5 transition-all">
+        <button onclick="startSessionGuest()"
+          class="bg-transparent border border-primary/40 text-primary font-label font-bold py-4 px-12 rounded-lg text-xs uppercase tracking-widest hover:bg-primary/5 transition-all">
           Begin Your Journey
         </button>
       </div>
@@ -206,7 +283,7 @@
 
 <!-- Footer -->
 <footer class="w-full py-16 flex flex-col items-center justify-center space-y-6 text-center bg-[#080015] border-t border-outline-variant/5">
-  <div class="text-lg font-serif text-[#C998FF] font-headline italic tracking-wide">Lumina</div>
+  <div class="font-headline text-lg text-[#C998FF] tracking-widest">LUMINA</div>
   <p class="font-body text-[#816F8F] text-base max-w-md">มากกว่าการดูดวง คือการทำความเข้าใจตนเอง</p>
   <p class="font-body text-[#816F8F] text-sm max-w-sm leading-relaxed">
     ข้อมูลที่คุณแชร์จะถูกเก็บเพื่อสร้าง continuity ระหว่าง sessions เท่านั้น ไม่มีการส่งต่อให้บุคคลที่สาม
@@ -225,7 +302,7 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
-  function startSession() {
+  function startSession(mode) {
     const email = document.getElementById('email-input').value.trim();
     const errorEl = document.getElementById('email-error');
     if (email && !validateEmail(email)) {
@@ -233,19 +310,19 @@
       return;
     }
     errorEl.classList.add('hidden');
+    const m = mode || 'tarot-single';
     if (email) {
       localStorage.setItem('horo_email', email);
-      window.location.href = '/session.html?email=' + encodeURIComponent(email);
+      window.location.href = `/session.html?email=${encodeURIComponent(email)}&mode=${m}`;
     } else {
-      // Clear any stored email so guest stays guest
       localStorage.removeItem('horo_email');
-      window.location.href = '/session.html';
+      window.location.href = `/session.html?mode=${m}`;
     }
   }
 
   function startSessionGuest() {
     localStorage.removeItem('horo_email');
-    window.location.href = '/session.html';
+    window.location.href = '/session.html?mode=tarot-single';
   }
 
   document.getElementById('email-input').addEventListener('keydown', function(e) {
