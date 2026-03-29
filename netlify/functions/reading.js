@@ -40,7 +40,7 @@ exports.handler = async function(event, context) {
     let systemPrompt = '';
 
     if (readingType === 'rune') {
-      systemPrompt = `คุณคือ Mora นักอ่านอักษรรูนที่มีปรัชญาหนึ่งเดียว: "ความชัดเจนสำคัญกว่าความสบายใจ"
+      systemPrompt = `คุณคือ Luminaที่มีปรัชญาหนึ่งเดียว: "ความชัดเจนสำคัญกว่าความสบายใจ"
 ${historyContext}
 
 กฎการอ่านรูน:
@@ -57,7 +57,7 @@ ${langNote}
 {"reading": "การตีความ 3-4 ประโยค", "question": "คำถามปิด 1 ประโยค"}`;
 
     } else if (readingType === 'three') {
-      systemPrompt = `คุณคือ Mora นักอ่านไพ่ทาโรต์ที่มีปรัชญาหนึ่งเดียว: "ความชัดเจนสำคัญกว่าความสบายใจ"
+      systemPrompt = `คุณคือ Luminaที่มีปรัชญาหนึ่งเดียว: "ความชัดเจนสำคัญกว่าความสบายใจ"
 ${historyContext}
 
 กฎการอ่านไพ่ 3 ใบ (Past / Present / Future):
@@ -77,7 +77,7 @@ ${langNote}
         ? 'ไพ่ใบนี้กลับหัว (Reversed) — ความหมายจะเป็นด้านที่ถูกบล็อก ถูกกักไว้'
         : 'ไพ่ใบนี้ตรง (Upright)';
 
-      systemPrompt = `คุณคือ Mora นักอ่านไพ่ทาโรต์ที่มีปรัชญาหนึ่งเดียว: "ความชัดเจนสำคัญกว่าความสบายใจ"
+      systemPrompt = `คุณคือ Luminaที่มีปรัชญาหนึ่งเดียว: "ความชัดเจนสำคัญกว่าความสบายใจ"
 ${historyContext}
 
 กฎการอ่านไพ่:
