@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Personal Mythology Engine — Session</title>
+<title>Lumina — Session</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -43,7 +43,7 @@
     background: rgba(49, 29, 67, 0.4);
     backdrop-filter: blur(12px);
   }
-  .celestial-glow { box-shadow: 0 0 40px rgba(201, 152, 255, 0.15); }
+  .celestial-glow { box-shadow: 0 0 60px rgba(201, 152, 255, 0.2); }
   .fade-in { animation: fadeIn 0.8s ease-in-out; }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(16px); }
@@ -77,6 +77,76 @@
     background: rgba(201, 152, 255, 0.05);
     border: 1px solid rgba(201, 152, 255, 0.2);
   }
+
+  /* ── Tarot card visual with pattern ────────────────────────────────── */
+  .tarot-card-wrap {
+    width: 192px;
+    height: 288px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 0 60px rgba(201,152,255,0.2), 0 20px 60px rgba(0,0,0,0.6);
+  }
+  .tarot-card-back {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, #1a0535 0%, #2d0060 50%, #150822 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .tarot-card-back::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1px solid rgba(201,152,255,0.3);
+    border-radius: 6px;
+  }
+  .tarot-card-back::after {
+    content: '';
+    position: absolute;
+    inset: 14px;
+    border: 1px solid rgba(201,152,255,0.15);
+    border-radius: 4px;
+  }
+  .tarot-pattern {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 50% 50%, rgba(201,152,255,0.08) 0%, transparent 60%),
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 8px,
+        rgba(201,152,255,0.04) 8px,
+        rgba(201,152,255,0.04) 9px
+      );
+  }
+  .tarot-star {
+    position: relative;
+    z-index: 2;
+    font-size: 48px;
+    opacity: 0.7;
+  }
+  .tarot-card-name {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px 12px 12px;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+    text-align: center;
+    font-family: 'Noto Serif', serif;
+    font-size: 13px;
+    font-style: italic;
+    color: rgba(201,152,255,0.9);
+    letter-spacing: 0.05em;
+  }
+  .tarot-card-wrap.revealed .tarot-card-back {
+    background: linear-gradient(145deg, #0d001a 0%, #1a0040 40%, #2d0060 100%);
+  }
 </style>
 </head>
 <body>
@@ -84,17 +154,16 @@
 <header class="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 bg-[#150822] shadow-[0_0_20px_rgba(201,152,255,0.05)]">
   <div class="flex items-center gap-3">
     <span class="material-symbols-outlined text-purple-300" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
-    <h1 class="font-headline text-xl tracking-wide text-purple-300 italic">Personal Mythology Engine</h1>
+    <h1 class="font-headline text-xl tracking-wide text-purple-300 italic">Lumina</h1>
   </div>
   <a href="/" class="text-[10px] uppercase tracking-widest text-[#816F8F] hover:text-[#C998FF] transition-colors font-label">← กลับ</a>
 </header>
 
 <main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
 
-  <!-- STEP 1: Input -->
+  <!-- STEP 1 -->
   <section id="step-1" class="min-h-screen flex flex-col justify-center items-center text-center space-y-8 fade-in">
 
-    <!-- Return greeting — shown only for users returning after 1+ days -->
     <div id="return-greeting" class="hidden w-full max-w-xl return-card rounded-2xl p-6 text-left space-y-2 fade-in">
       <p class="font-label text-primary text-xs uppercase tracking-widest">ยินดีต้อนรับกลับมา</p>
       <p id="return-text" class="font-body text-on-surface-variant text-sm leading-relaxed"></p>
@@ -108,25 +177,15 @@
 
     <div class="w-full max-w-xl space-y-3">
       <div class="relative">
-        <textarea
-          id="prompt-input"
-          maxlength="200"
-          rows="3"
+        <textarea id="prompt-input" maxlength="200" rows="3"
           placeholder="เช่น รู้สึกเคว้งๆ ไม่รู้เพราะอะไร..."
           class="w-full glass-obsidian border border-outline-variant/30 rounded-xl px-5 py-4 font-body text-on-surface text-base resize-none placeholder:text-outline transition-all"
-          oninput="updateCharCount()"
-          onkeydown="handleKey(event)"
-        ></textarea>
+          oninput="updateCharCount()" onkeydown="handleKey(event)"></textarea>
         <span id="char-count" class="absolute bottom-3 right-4 text-xs text-outline">0/200</span>
       </div>
-      <button
-        id="submit-btn"
-        onclick="submitPrompt()"
+      <button id="submit-btn" onclick="submitPrompt()"
         class="w-full py-4 bg-primary text-on-primary font-label font-bold rounded-xl text-sm uppercase tracking-widest transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-40"
-        disabled
-      >
-        จั่วไพ่เลย →
-      </button>
+        disabled>จั่วไพ่เลย →</button>
     </div>
 
     <div class="w-full max-w-xl flex items-center gap-4">
@@ -159,11 +218,16 @@
   <!-- STEP 3: Card + Reading + Resonance -->
   <section id="step-3" class="hidden py-12 space-y-16 fade-in">
     <div class="flex flex-col items-center gap-10">
-      <div class="relative w-48 h-72 shrink-0 rounded-xl overflow-hidden shadow-2xl celestial-glow">
-        <div id="card-visual" class="w-full h-full bg-gradient-to-b from-[#2D0060] to-[#080015] flex items-center justify-center transition-transform duration-700">
-          <span class="material-symbols-outlined text-primary text-6xl" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">auto_awesome</span>
+
+      <!-- Beautiful tarot card -->
+      <div id="card-wrap" class="tarot-card-wrap">
+        <div class="tarot-card-back">
+          <div class="tarot-pattern"></div>
+          <div class="tarot-star">✦</div>
+          <div id="card-label-bottom" class="tarot-card-name"></div>
         </div>
       </div>
+
       <div class="text-center space-y-5 max-w-xl">
         <div class="space-y-2">
           <p id="session-label" class="font-label text-primary tracking-[0.2rem] uppercase text-xs">The Revelation</p>
@@ -180,8 +244,8 @@
 
     <div class="h-px w-full bg-outline-variant/20"></div>
 
-    <div class="glass-obsidian p-10 rounded-2xl border border-outline-variant/10 text-center space-y-8">
-      <h4 class="font-headline text-2xl text-on-background">การ์ดใบนี้ตรงกับความรู้สึกคุณไหม?</h4>
+    <div id="resonance-box" class="glass-obsidian p-10 rounded-2xl border border-outline-variant/10 text-center space-y-8">
+      <h4 class="font-headline text-2xl text-on-background">การอ่านครั้งนี้ตรงกับความรู้สึกคุณไหม?</h4>
       <div class="flex flex-wrap justify-center gap-4">
         <button onclick="selectResonance('ใช่เลย')" class="resonance-btn px-8 py-3 bg-primary text-on-primary font-body font-semibold rounded-full transition-all active:scale-95 hover:opacity-90">ใช่เลย</button>
         <button onclick="selectResonance('ใกล้เคียง')" class="resonance-btn px-8 py-3 border border-primary/40 text-primary font-body rounded-full hover:bg-primary/5 active:scale-95 transition-all">ใกล้เคียง</button>
@@ -199,12 +263,13 @@
 </main>
 
 <script>
+  // ── Email — only from URL param or explicit localStorage set ──────────
   const urlParams = new URLSearchParams(window.location.search);
-  const userEmail = urlParams.get('email') || localStorage.getItem('horo_email') || 'guest';
+  const emailFromUrl = urlParams.get('email');
+  const userEmail = emailFromUrl || localStorage.getItem('horo_email') || 'guest';
 
-  // ── Session guard — prevent greeting on same-tab revisit ──────────────
-  // sessionStorage resets when tab is closed — perfect for "came back later" detection
-  const sessionKey = 'horo_session_active';
+  // ── Session guard ─────────────────────────────────────────────────────
+  const sessionKey = 'lumina_session_active';
   const isFirstVisitThisTab = !sessionStorage.getItem(sessionKey);
   sessionStorage.setItem(sessionKey, '1');
 
@@ -233,14 +298,11 @@
   let currentCard = '';
   let currentReversed = false;
   let userHistory = [];
+  let resonanceSaved = false;
 
   // ── Load history ───────────────────────────────────────────────────────
   async function loadHistory() {
-    if (userEmail === 'guest') return;
-
-    // Only show greeting if this is a fresh tab open — not same-session revisit
-    if (!isFirstVisitThisTab) return;
-
+    if (userEmail === 'guest' || !isFirstVisitThisTab) return;
     try {
       const res = await fetch('/.netlify/functions/history', {
         method: 'POST',
@@ -257,29 +319,19 @@
         const todayStr = today.toISOString().split('T')[0];
         const lastDateStr = lastDate ? lastDate.toISOString().split('T')[0] : null;
 
-        // Only show greeting if last session was NOT today
         if (lastDateStr && lastDateStr !== todayStr) {
-          const daysSince = lastDate
-            ? Math.floor((today - lastDate) / (1000 * 60 * 60 * 24))
-            : null;
-
+          const daysSince = lastDate ? Math.floor((today - lastDate) / (1000*60*60*24)) : null;
           let greetingText = '';
-          if (daysSince === 1) {
-            greetingText = 'คุณมาที่นี่เมื่อวาน — มีอะไรที่เปลี่ยนไปบ้างไหม?';
-          } else if (daysSince <= 7) {
-            greetingText = `คุณมาที่นี่เมื่อ ${daysSince} วันก่อน — ตอนนี้เป็นยังไงบ้าง?`;
-          } else if (daysSince <= 30) {
-            greetingText = `ผ่านมาเกือบ ${daysSince} วันแล้วนับจากครั้งล่าสุด — อะไรพาคุณกลับมา?`;
-          } else {
-            greetingText = 'ห่างหายไปนาน — ยินดีที่คุณกลับมา มีอะไรใหม่ที่อยากคิดทบทวนไหม?';
-          }
-
+          if (daysSince === 1) greetingText = 'คุณมาที่นี่เมื่อวาน — มีอะไรที่เปลี่ยนไปบ้างไหม?';
+          else if (daysSince <= 7) greetingText = `คุณมาที่นี่เมื่อ ${daysSince} วันก่อน — ตอนนี้เป็นยังไงบ้าง?`;
+          else if (daysSince <= 30) greetingText = `ผ่านมาเกือบ ${daysSince} วันแล้วนับจากครั้งล่าสุด — อะไรพาคุณกลับมา?`;
+          else greetingText = 'ห่างหายไปนาน — ยินดีที่คุณกลับมา มีอะไรใหม่ที่อยากคิดทบทวนไหม?';
           document.getElementById('return-text').textContent = greetingText;
           document.getElementById('return-greeting').classList.remove('hidden');
         }
       }
     } catch (err) {
-      console.error('History load error:', err);
+      console.error('History error:', err);
     }
   }
 
@@ -309,9 +361,7 @@
   }
 
   function showStep(n) {
-    ['step-1','step-2','step-3'].forEach(id => {
-      document.getElementById(id).classList.add('hidden');
-    });
+    ['step-1','step-2','step-3'].forEach(id => document.getElementById(id).classList.add('hidden'));
     document.getElementById('step-' + n).classList.remove('hidden');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -324,6 +374,7 @@
     currentPrompt = prompt;
     currentCard = card;
     currentReversed = reversed;
+    resonanceSaved = false;
     showStep(2);
     callClaudeAPI(prompt, card, reversed);
   }
@@ -359,36 +410,47 @@
   // ── Show reading ───────────────────────────────────────────────────────
   function showReading(card, reversed, reading, question) {
     document.getElementById('card-name').textContent = card;
+    document.getElementById('card-label-bottom').textContent = card;
     document.getElementById('card-reading').textContent = reading;
     document.getElementById('card-question').textContent = '\u201c' + question + '\u201d';
-    const visual = document.getElementById('card-visual');
-    const badge = document.getElementById('reversed-badge');
+
+    const wrap = document.getElementById('card-wrap');
+    wrap.classList.add('revealed');
+
     if (reversed) {
-      visual.classList.add('card-reversed');
-      badge.classList.remove('hidden');
+      wrap.style.transform = 'rotate(180deg)';
+      document.getElementById('reversed-badge').classList.remove('hidden');
     } else {
-      visual.classList.remove('card-reversed');
-      badge.classList.add('hidden');
+      wrap.style.transform = '';
+      document.getElementById('reversed-badge').classList.add('hidden');
     }
+
     showStep(3);
   }
 
-  // ── Resonance ──────────────────────────────────────────────────────────
+  // ── Resonance — save only once per reading ─────────────────────────────
   function selectResonance(score) {
+    if (resonanceSaved) return;
+    resonanceSaved = true;
+
     const messages = {
-      'ใช่เลย': 'ดีใจที่มันตรง ไพ่จำคุณไว้แล้ว',
+      'ใช่เลย': 'ดีใจที่มันตรง Lumina จำคุณไว้แล้ว',
       'ใกล้เคียง': 'บางอย่างที่ตรง บางอย่างที่ไม่ — นั่นก็เป็นคำตอบในตัวเอง',
       'ไม่ค่อยตรง': 'ไม่เป็นไร บางครั้งไพ่พูดถึงสิ่งที่ยังมาไม่ถึง'
     };
+
     document.querySelectorAll('.resonance-btn').forEach(b => b.classList.add('hidden'));
     document.getElementById('thank-you-msg').textContent = messages[score] || '';
     document.getElementById('thank-you-section').classList.remove('hidden');
     document.getElementById('thank-you-section').scrollIntoView({ behavior: 'smooth' });
-    fetch('/.netlify/functions/resonance', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: userEmail, prompt: currentPrompt, score })
-    }).catch(err => console.error('Resonance error:', err));
+
+    if (userEmail !== 'guest') {
+      fetch('/.netlify/functions/resonance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail, prompt: currentPrompt, score })
+      }).catch(err => console.error('Resonance error:', err));
+    }
   }
 
   showStep(1);
