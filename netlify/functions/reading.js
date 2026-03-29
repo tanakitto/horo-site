@@ -4,74 +4,91 @@ exports.handler = async function(event, context) {
   }
 
   try {
-    const { prompt, card, reversed, email, history } = JSON.parse(event.body);
+    const { prompt, card, reversed, email, history, readingType } = JSON.parse(event.body);
 
     const AIRTABLE_BASE_ID = 'appY0QrFxt71E2oqI';
     const AIRTABLE_TABLE   = 'tbl3eGN7tW1HKyyX4';
     const AIRTABLE_URL     = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}`;
-    const AIRTABLE_HEADERS = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.AIRTABLE_TOKEN}`
-    };
+    const AIRTABLE_HEADERS = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.AIRTABLE_TOKEN}` };
 
-    const reversedNote = reversed
-      ? 'ไพ่ใบนี้จั่วออกมาในท่ากลับหัว (Reversed) — ความหมายจะเป็นด้านที่ถูกบล็อก ถูกกักไว้ หรือพลังงานที่ยังไม่ถูกปลดปล่อย'
-      : 'ไพ่ใบนี้จั่วออกมาในท่าตรง (Upright)';
-
-    // ── Build history context ────────────────────────────────────────────
+    // ── Build history context ─────────────────────────────────────────────
     let historyContext = '';
     let sessionNumber = 1;
-
     if (history && history.length > 0) {
       sessionNumber = history.length + 1;
-      const lastSession = history[0]; // most recent session
-
+      const last = history[0];
       historyContext = `
-ข้อมูลจาก session ก่อนหน้า (ใช้เพื่อสร้าง continuity):
-- ครั้งที่แล้ว user รู้สึก: "${lastSession.prompt}"
-- ไพ่ที่จั่วได้: ${lastSession.card}
-- คำถามปิดที่ให้ไว้: "${lastSession.question}"
-- User บอกว่าการ์ดนั้น: ${lastSession.resonance || 'ไม่ได้ระบุ'}
-${history.length > 1 ? `- ก่อนหน้านั้น user เคยถามเรื่อง: "${history[1].prompt}"` : ''}
-
+ข้อมูลจาก session ก่อนหน้า:
+- ครั้งที่แล้ว user รู้สึก: "${last.prompt}"
+- สัญลักษณ์ที่จั่วได้: ${last.card}
+- คำถามที่ให้ไว้: "${last.question}"
+- User บอกว่าตรงไหม: ${last.resonance || 'ไม่ได้ระบุ'}
 นี่คือ session ที่ ${sessionNumber} ของ user คนนี้`;
     }
 
-    // ── Build system prompt ──────────────────────────────────────────────
     const isReturning = history && history.length > 0;
 
-    const systemPrompt = `คุณคือ Mora นักอ่านไพ่ทาโรต์ที่มีปรัชญาหนึ่งเดียว: "ความชัดเจนสำคัญกว่าความสบายใจ"
+    // ── Build system prompt by reading type ───────────────────────────────
+    let systemPrompt = '';
 
+    if (readingType === 'rune') {
+      systemPrompt = `คุณคือ Mora นักอ่านอักษรรูนที่มีปรัชญาหนึ่งเดียว: "ความชัดเจนสำคัญกว่าความสบายใจ"
+${historyContext}
+
+กฎการอ่านรูน:
+- ใช้ภาษาไทยที่อบอุ่น สงบ ไม่เร่งรีบ
+- เชื่อมรูนกับความรู้สึกที่ user บอกมาโดยตรง
+- ${reversed ? 'รูนนี้กลับหัว — อ่านถึงพลังงานที่ถูกบล็อก หรือสิ่งที่ต้องปลดปล่อย' : 'รูนนี้ตรง — อ่านพลังงานที่ไหลได้เต็มที่'}
+- ${isReturning ? 'User นี้กลับมาแล้ว — อ้างอิง session ก่อนหน้าอย่างเป็นธรรมชาติ' : 'Session แรก — ไม่ต้องอ้างอิงอะไร'}
+- อย่าบอกว่า "คุณควร..." ใช้ "บางทีมันอาจจะ..." หรือ "รูนใบนี้ชวนให้คิดว่า..."
+- จบด้วยคำถาม 1 ข้อ
+
+ตอบใน JSON เท่านั้น ไม่มี markdown:
+{"reading": "การตีความ 3-4 ประโยค", "question": "คำถามปิด 1 ประโยค"}`;
+
+    } else if (readingType === 'three') {
+      systemPrompt = `คุณคือ Mora นักอ่านไพ่ทาโรต์ที่มีปรัชญาหนึ่งเดียว: "ความชัดเจนสำคัญกว่าความสบายใจ"
+${historyContext}
+
+กฎการอ่านไพ่ 3 ใบ (Past / Present / Future):
+- ใช้ภาษาไทยที่อบอุ่น สงบ
+- ไพ่ 3 ใบคือ Past · Present · Future — อ่านให้ครบทั้ง 3 มิติ
+- เชื่อมทุกใบกับความรู้สึกที่ user บอกมา
+- ${isReturning ? 'User นี้กลับมาแล้ว — อ้างอิง session ก่อนหน้าอย่างเป็นธรรมชาติ' : 'Session แรก'}
+- จบด้วยคำถาม 1 ข้อที่เชื่อม past-present-future เข้าด้วยกัน
+
+ตอบใน JSON เท่านั้น ไม่มี markdown:
+{"reading": "การตีความครบทั้ง 3 ใบ 5-6 ประโยค", "question": "คำถามปิด 1 ประโยค"}`;
+
+    } else {
+      const reversedNote = reversed
+        ? 'ไพ่ใบนี้กลับหัว (Reversed) — ความหมายจะเป็นด้านที่ถูกบล็อก ถูกกักไว้'
+        : 'ไพ่ใบนี้ตรง (Upright)';
+
+      systemPrompt = `คุณคือ Mora นักอ่านไพ่ทาโรต์ที่มีปรัชญาหนึ่งเดียว: "ความชัดเจนสำคัญกว่าความสบายใจ"
 ${historyContext}
 
 กฎการอ่านไพ่:
 - ใช้ภาษาไทยที่อบอุ่น สงบ ไม่เร่งรีบ
 - เชื่อมไพ่กับความรู้สึกที่ user บอกมาโดยตรง — ใช้คำของเขากลับไปหาเขา
 - ${reversedNote}
-- สำหรับไพ่กลับหัว: อ่านถึงพลังงานที่ถูกกักไว้ สิ่งที่ยังไม่เกิด หรือสิ่งที่ต้องปลดปล่อย
-- อย่าบอกว่า "คุณควร..." — ใช้ "บางทีมันอาจจะ..." หรือ "ไพ่ใบนี้ชวนให้คิดว่า..."
-${isReturning ? `- User นี้กลับมาแล้ว — เริ่มต้นด้วยการอ้างอิง session ก่อนหน้าอย่างเป็นธรรมชาติ เช่น "ครั้งที่แล้วคุณบอกว่า..." หรือ "ดูเหมือนว่าเรื่อง... ยังอยู่กับคุณ"` : '- นี่คือ session แรกของ user — ไม่ต้องอ้างอิงอะไรก่อนหน้า'}
-- จบด้วยคำถามที่ user เอาไปนั่งคิดคนเดียวได้คืนนี้
+- ${isReturning ? 'User นี้กลับมาแล้ว — อ้างอิง session ก่อนหน้าอย่างเป็นธรรมชาติ' : 'Session แรก — ไม่ต้องอ้างอิงอะไร'}
+- อย่าบอกว่า "คุณควร..." ใช้ "บางทีมันอาจจะ..." หรือ "ไพ่ใบนี้ชวนให้คิดว่า..."
+- จบด้วยคำถาม 1 ข้อ
 
-ตอบใน JSON format นี้เท่านั้น ไม่มี markdown หรือ backtick:
+ตอบใน JSON เท่านั้น ไม่มี markdown:
 {"reading": "การตีความ 3-4 ประโยค", "question": "คำถามปิด 1 ประโยค"}`;
+    }
 
-    // ── Call Claude ──────────────────────────────────────────────────────
+    // ── Call Claude ───────────────────────────────────────────────────────
     const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.CLAUDE_API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
+      headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.CLAUDE_API_KEY, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 600,
+        max_tokens: 700,
         system: systemPrompt,
-        messages: [{
-          role: 'user',
-          content: `User รู้สึก: "${prompt}"\nไพ่ที่จั่วได้: ${card}\n${reversed ? '(ไพ่กลับหัว)' : '(ไพ่ตรง)'}`
-        }]
+        messages: [{ role: 'user', content: `User รู้สึก: "${prompt}"\nสัญลักษณ์ที่จั่วได้: ${card}` }]
       })
     });
 
@@ -80,7 +97,7 @@ ${isReturning ? `- User นี้กลับมาแล้ว — เริ่
     const clean = text.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
 
-    // ── Save to Airtable ─────────────────────────────────────────────────
+    // ── Save to Airtable ──────────────────────────────────────────────────
     const airtableRes = await fetch(AIRTABLE_URL, {
       method: 'POST',
       headers: AIRTABLE_HEADERS,
@@ -97,21 +114,13 @@ ${isReturning ? `- User นี้กลับมาแล้ว — เริ่
         }
       })
     });
-
     const airtableData = await airtableRes.json();
     console.log('Airtable:', JSON.stringify(airtableData));
 
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: JSON.stringify({
-        reading: parsed.reading,
-        question: parsed.question,
-        sessionNumber
-      })
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ reading: parsed.reading, question: parsed.question, sessionNumber })
     };
 
   } catch (err) {
@@ -119,20 +128,17 @@ ${isReturning ? `- User นี้กลับมาแล้ว — เริ่
     return {
       statusCode: 500,
       headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({
-        reading: 'ไพ่กำลังพูดอะไรบางอย่าง แต่เสียงยังไม่ชัด ลองถามใหม่อีกครั้ง',
-        question: 'มีอะไรที่คุณอยากถามอีกครั้งไหม?'
-      })
+      body: JSON.stringify({ reading: 'สัญลักษณ์กำลังพูดอะไรบางอย่าง แต่เสียงยังไม่ชัด ลองถามใหม่อีกครั้ง', question: 'มีอะไรที่คุณอยากถามอีกครั้งไหม?' })
     };
   }
 };
 
 function detectTheme(prompt) {
   const p = prompt.toLowerCase();
-  if (p.includes('งาน') || p.includes('ออก') || p.includes('เลื่อนขั้น')) return 'work';
-  if (p.includes('แฟน') || p.includes('ความสัมพันธ์') || p.includes('รัก')) return 'relationship';
-  if (p.includes('เงิน') || p.includes('หวย')) return 'money';
-  if (p.includes('ตัวเอง') || p.includes('ชีวิต') || p.includes('เปลี่ยน')) return 'identity';
-  if (p.includes('กลัว') || p.includes('กังวล') || p.includes('เครียด')) return 'fear';
+  if (p.includes('งาน')||p.includes('ออก')||p.includes('เลื่อนขั้น')) return 'work';
+  if (p.includes('แฟน')||p.includes('ความสัมพันธ์')||p.includes('รัก')) return 'relationship';
+  if (p.includes('เงิน')||p.includes('หวย')) return 'money';
+  if (p.includes('ตัวเอง')||p.includes('ชีวิต')||p.includes('เปลี่ยน')) return 'identity';
+  if (p.includes('กลัว')||p.includes('กังวล')||p.includes('เครียด')) return 'fear';
   return 'change';
 }
