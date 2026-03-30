@@ -104,13 +104,11 @@
       <textarea id="prompt-input" maxlength="200" rows="3"
         style="width:100%;background:white;border:1.5px solid #e8e4da;border-radius:14px;padding:16px 18px;font-size:15px;color:#374151;resize:none;font-family:'Anuphan',sans-serif;outline:none;box-sizing:border-box;transition:border-color 0.15s"
         onfocus="this.style.borderColor='#d4af37'" onblur="this.style.borderColor='#e8e4da'"
-        oninput="onTextInput(this)"
-        id="prompt-input"></textarea>
+        oninput="onTextInput(this)"></textarea>
       <span id="char-count" style="position:absolute;bottom:10px;right:14px;font-size:12px;color:#9ca3af">0/200</span>
     </div>
     <button id="submit-btn" onclick="submitPrompt()"
-      style="width:100%;margin-top:10px;padding:16px;border:none;border-radius:14px;font-size:14px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;font-family:'Anuphan',sans-serif;transition:all 0.2s;background:linear-gradient(135deg,#745b00,#d4af37);color:white;opacity:0.55"
-      id="submit-btn">จั่วเลย →</button>
+      style="width:100%;margin-top:10px;padding:16px;border:none;border-radius:14px;font-size:14px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;font-family:'Anuphan',sans-serif;transition:all 0.2s;background:linear-gradient(135deg,#745b00,#d4af37);color:white;opacity:0.55">จั่วเลย →</button>
   </div>
 
   <!-- Suggestions -->
@@ -251,6 +249,7 @@ sessionStorage.setItem(sKey, '1');
 let history    = [];
 let saved      = false;
 let lastCard = '', lastReading = '', lastQ = '';
+let sessionId  = null;   // ← stores Airtable record ID from reading response
 
 // ─────────────────────────────────────────────────────────
 // TRANSLATIONS
@@ -342,24 +341,19 @@ const drawRune  = () => ({ rune: rand(runes), rev: Math.random() < 0.4 });
 // ─────────────────────────────────────────────────────────
 function applyLang() {
   const t = T[lang] || T.th;
-  // Lang buttons
   document.querySelectorAll('.lang-btn').forEach(b => {
     const bl = b.getAttribute('onclick').match(/'(\w+)'/)[1];
     b.classList.toggle('active', bl === lang);
   });
-  // Nav
   document.getElementById('back-link').textContent = t.back;
-  // Mode sub labels
   document.getElementById('m1sub').textContent = t.m1;
   document.getElementById('m2sub').textContent = t.m2;
   document.getElementById('m3sub').textContent = t.m3;
-  // Step 1
   document.getElementById('step1-title').textContent = t.title;
   document.getElementById('step1-sub').textContent = t.sub;
   document.getElementById('prompt-input').placeholder = t.ph;
   document.getElementById('submit-btn').textContent = t.cta;
   document.getElementById('or-text').textContent = t.or;
-  // Suggestions
   const sg = document.getElementById('suggestions');
   sg.innerHTML = '';
   t.sugg.forEach(s => {
@@ -369,10 +363,8 @@ function applyLang() {
     btn.onclick = () => fillPrompt(s);
     sg.appendChild(btn);
   });
-  // Loading
   document.getElementById('loading1').textContent = t.loading1;
   document.getElementById('loading2').textContent = t.loading2;
-  // Step 3
   document.getElementById('session-label').textContent = t.rev;
   document.getElementById('res-q').textContent = t.resQ;
   document.getElementById('rb0').textContent = t.rb[0];
@@ -447,6 +439,7 @@ function submitPrompt() {
     return;
   }
   saved = false;
+  sessionId = null;
   showStep(2);
 
   if (mode === 'rune') {
@@ -476,6 +469,7 @@ async function callAPI(prompt, cardLabel, rev, type, extra) {
     });
     if (!res.ok) throw new Error('api error');
     const data = await res.json();
+    sessionId = data.sessionId || null;   // ← store Airtable record ID
     showResult(data.reading, data.question, type, extra, rev, cardLabel);
   } catch (err) {
     console.error(err);
@@ -533,13 +527,17 @@ function selectResonance(idx) {
   document.getElementById('thankyou').style.display = 'block';
   document.getElementById('thankyou').scrollIntoView({ behavior: 'smooth' });
 
-  if (email !== 'guest') {
-    fetch('/.netlify/functions/resonance', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, prompt: lastCard, score: t.rb[idx] })
-    }).catch(console.error);
-  }
+  // Fire for ALL users — guests and registered alike
+  // sessionId links directly to the exact Airtable record
+  fetch('/.netlify/functions/resonance', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email,
+      score: t.rb[idx],
+      sessionId   // ← direct record ID, works for guests too
+    })
+  }).catch(console.error);
 }
 
 // ─────────────────────────────────────────────────────────
