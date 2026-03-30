@@ -4,13 +4,13 @@ exports.handler = async function(event, context) {
   }
 
   try {
-    const { email, prompt, score } = JSON.parse(event.body);
+    const { email, score, sessionId } = JSON.parse(event.body);
 
-    if (!email || email === 'guest' || !score) {
+    if (!score) {
       return {
         statusCode: 200,
         headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ ok: false, reason: 'no email or score' })
+        body: JSON.stringify({ ok: false, reason: 'no score' })
       };
     }
 
@@ -22,53 +22,48 @@ exports.handler = async function(event, context) {
       'Authorization': `Bearer ${process.env.AIRTABLE_TOKEN}`
     };
 
-    // Get latest 10 records sorted by date desc — no filter to avoid encoding issues
-    const searchRes = await fetch(
-      `${AIRTABLE_URL}?sort%5B0%5D%5Bfield%5D=Session+Date&sort%5B0%5D%5Bdirection%5D=desc&maxRecords=10`,
-      { headers: HEADERS }
-    );
-    const searchData = await searchRes.json();
-    console.log('Records fetched:', searchData.records ? searchData.records.length : 0);
+    let recordId = sessionId;
 
-    if (!searchData.records || searchData.records.length === 0) {
-      return {
-        statusCode: 200,
-        headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ ok: false, reason: 'no records' })
-      };
+    // If no sessionId (older sessions or fallback), look up by email
+    if (!recordId) {
+      if (!email || email === 'guest') {
+        return {
+          statusCode: 200,
+          headers: { 'Access-Control-Allow-Origin': '*' },
+          body: JSON.stringify({ ok: false, reason: 'no sessionId and guest has no email fallback' })
+        };
+      }
+      const searchRes = await fetch(
+        `${AIRTABLE_URL}?sort%5B0%5D%5Bfield%5D=Session+Date&sort%5B0%5D%5Bdirection%5D=desc&maxRecords=10`,
+        { headers: HEADERS }
+      );
+      const searchData = await searchRes.json();
+      const pending = searchData.records?.find(r =>
+        r.fields['User'] === email &&
+        (r.fields['Resonance Score'] === 'pending' || !r.fields['Resonance Score'])
+      );
+      if (!pending) {
+        return {
+          statusCode: 200,
+          headers: { 'Access-Control-Allow-Origin': '*' },
+          body: JSON.stringify({ ok: false, reason: 'no pending record found for email' })
+        };
+      }
+      recordId = pending.id;
     }
 
-    // Find most recent pending record for this email
-    const pending = searchData.records.find(r =>
-      r.fields['User'] === email &&
-      (r.fields['Resonance Score'] === 'pending' || !r.fields['Resonance Score'])
-    );
-
-    const target = pending || searchData.records.find(r => r.fields['User'] === email);
-
-    if (!target) {
-      console.log('No record found for email:', email);
-      return {
-        statusCode: 200,
-        headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ ok: false, reason: 'email not found' })
-      };
-    }
-
-    console.log('Updating record:', target.id, 'with score:', score);
-
-    const updateRes = await fetch(`${AIRTABLE_URL}/${target.id}`, {
+    const updateRes = await fetch(`${AIRTABLE_URL}/${recordId}`, {
       method: 'PATCH',
       headers: HEADERS,
       body: JSON.stringify({ fields: { 'Resonance Score': score } })
     });
     const updateData = await updateRes.json();
-    console.log('Update result:', JSON.stringify(updateData));
+    console.log('Resonance updated:', recordId, '→', score);
 
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ ok: true, updated: target.id })
+      body: JSON.stringify({ ok: true, updated: recordId })
     };
 
   } catch (err) {
