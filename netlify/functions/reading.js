@@ -28,7 +28,7 @@ exports.handler = async function(event, context) {
     let sessionNumber = 1;
     if (history && history.length > 0) {
       sessionNumber = history.length + 1;
-      const recent = history.slice(0, 3); // max 3 past sessions
+      const recent = history.slice(0, 3);
       historyContext = `\nContext from past sessions (summarized themes only):
 ${recent.map((s, i) => `- Session ${history.length - i}: Theme "${s.theme}", Card: ${s.card}, Resonance: ${s.resonance || 'unknown'}`).join('\n')}
 This is session ${sessionNumber} for this user.`;
@@ -101,7 +101,6 @@ Respond ONLY in JSON, no markdown:
     const parsed = JSON.parse(clean);
 
     // ── Summarize prompt into abstract theme (privacy-safe) ───────────
-    // We ask Claude to extract only an abstract theme — never store raw prompt
     const summaryRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -136,15 +135,13 @@ Respond ONLY with JSON, no markdown.`,
     }
 
     // ── Save to Airtable — privacy-safe fields only ───────────────────
-    // NEVER store: raw prompt text, full reading text, closing question
-    // STORE: email, abstract theme, card drawn, tag, resonance (pending), date
     const airtableBody = {
       fields: {
         'User': email || 'guest',
-        'Entry Prompt Chosen': theme,          // abstract theme, not raw prompt
+        'Entry Prompt Chosen': theme,
         'Card Drawn': card,
-        'Interpretation': `[${readingType || 'tarot-single'}] ${theme}`, // type + theme only
-        'Closing Question': '[not stored]',    // never store the question
+        'Interpretation': `[${readingType || 'tarot-single'}] ${theme}`,
+        'Closing Question': '[not stored]',
         'Resonance Score': 'pending',
         'Themes Tagged': tag,
         'Session Date': new Date().toISOString().split('T')[0]
@@ -165,7 +162,8 @@ Respond ONLY with JSON, no markdown.`,
       body: JSON.stringify({
         reading: parsed.reading,
         question: parsed.question,
-        sessionNumber
+        sessionNumber,
+        sessionId: airtableData.id   // ← now returned to frontend
       })
     };
 
